@@ -183,3 +183,27 @@ For **each** frontend portal, repeat these steps:
    - **Action:** `Rewrite`
 5. Click **Create Static Site**.
 
+---
+
+## 6. Monorepo Deployment on Vercel
+
+Vercel is an excellent hosting platform for static frontends. You can deploy the three frontends on Vercel and keep the Node.js API on Render.
+
+I have already added the necessary `vercel.json` config files inside `web-user`, `web-owner`, and `web-admin` directories to automatically handle single-page application routing.
+
+### Step-by-Step Vercel Deployment
+
+For **each** of the three frontend applications, follow these steps on Vercel:
+
+1. Sign in to your [Vercel Dashboard](https://vercel.com/) and click **Add New > Project**.
+2. Select your imported GitHub repository: `ashok2026123/ParkHub`.
+3. Configure the following project options in the setup screen:
+   - **Project Name:** (e.g. `parkhub-customer`, `parkhub-owner`, or `parkhub-admin`)
+   - **Framework Preset:** Select **Vite**
+   - **Root Directory:** Click **Edit** and choose the specific folder (`web-user`, `web-owner`, or `web-admin` respectively)
+4. Under **Build and Development Settings**, ensure the default build settings are:
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+5. Click **Deploy**. Vercel will automatically build and publish your application.
+
+
