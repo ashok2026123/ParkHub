@@ -144,3 +144,42 @@ flutter build ipa
   Input: { "locationId": "loc-1", "targetTime": "17:00" }
   Output: { "predictedOccupancy": 0.94 }  // 94% chance of being full
   ```
+
+---
+
+## 5. Monorepo Deployment on Render.com
+
+Since ParkHub is structured as a monorepo, you can deploy the backend API and the three web applications separately on Render.com.
+
+### A. Deploy Backend API (Web Service)
+1. Go to the **Render Dashboard** and click **New > Web Service**.
+2. Connect your GitHub repository: `https://github.com/ashok2026123/ParkHub.git`.
+3. Configure the following service settings:
+   - **Name:** `parkhub-backend`
+   - **Environment:** `Node`
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install`
+   - **Start Command:** `node server.js`
+4. Expand **Advanced** and set any environment variables if needed.
+5. Click **Create Web Service**. This will deploy your API on a public URL (e.g. `https://parkhub-backend.onrender.com`).
+
+### B. Deploy Web Portals (Static Sites)
+You need to deploy three separate static sites: **Customer Portal** (`web-user`), **Owner Portal** (`web-owner`), and **Super Admin Console** (`web-admin`).
+
+For **each** frontend portal, repeat these steps:
+1. Click **New > Static Site** on Render.
+2. Select your repository.
+3. Configure the specific settings:
+
+| Portal | Render Name | Root Directory | Build Command | Publish Directory |
+| :--- | :--- | :--- | :--- | :--- |
+| **Customer Portal** | `parkhub-customer` | `web-user` | `npm install && npm run build` | `dist` |
+| **Owner Portal** | `parkhub-owner` | `web-owner` | `npm install && npm run build` | `dist` |
+| **Super Admin Console** | `parkhub-admin` | `web-admin` | `npm install && npm run build` | `dist` |
+
+4. Under **Redirects/Rewrites** settings for each static site, add a rewrite rule to support React Router single-page navigation:
+   - **Source:** `/*`
+   - **Destination:** `/index.html`
+   - **Action:** `Rewrite`
+5. Click **Create Static Site**.
+
