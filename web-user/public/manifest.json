@@ -6,30 +6,30 @@
   "categories": ["navigation", "utilities"],
   "icons": [
     {
-      "src": "/parkhub_logo.png",
-      "type": "image/jpeg",
-      "sizes": "1024x1024",
+      "src": "/logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any"
     },
     {
-      "src": "/parkhub_logo.png",
-      "type": "image/jpeg",
-      "sizes": "1024x1024",
+      "src": "/logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/man_leaving_lambo.png",
+      "src": "/screenshot.png",
       "sizes": "1024x1024",
-      "type": "image/jpeg",
+      "type": "image/png",
       "form_factor": "wide",
       "label": "Wide screen overview"
     },
     {
-      "src": "/man_leaving_lambo.png",
+      "src": "/screenshot.png",
       "sizes": "1024x1024",
-      "type": "image/jpeg",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "Narrow screen overview"
     }
