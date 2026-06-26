@@ -3,34 +3,35 @@
   "short_name": "ParkHub",
   "name": "ParkHub Customer Portal",
   "description": "Find and reserve secure vehicle parking spots instantly in Chennai.",
+  "categories": ["navigation", "utilities"],
   "icons": [
     {
       "src": "/parkhub_logo.png",
-      "type": "image/png",
-      "sizes": "512x512",
+      "type": "image/jpeg",
+      "sizes": "1024x1024",
       "purpose": "any"
     },
     {
       "src": "/parkhub_logo.png",
-      "type": "image/png",
-      "sizes": "192x192",
+      "type": "image/jpeg",
+      "sizes": "1024x1024",
       "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
       "src": "/man_leaving_lambo.png",
-      "sizes": "1280x720",
-      "type": "image/png",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Home Screen Desktop"
+      "label": "Wide screen overview"
     },
     {
       "src": "/man_leaving_lambo.png",
-      "sizes": "720x1280",
-      "type": "image/png",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Home Screen Mobile"
+      "label": "Narrow screen overview"
     }
   ],
   "start_url": "/",
