@@ -950,7 +950,7 @@ export default function App() {
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(123,97,255,0.3)' }}>
               <img src="/parkhub_logo_owner.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <span style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span style={{ fontSize: '21px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif" }}>
               <span style={{ color: '#FFF' }}>Park</span><span style={{ color: '#7B61FF' }}>Hub</span>
             </span>
           </div>
