@@ -981,9 +981,6 @@ export default function App() {
               }} />
               <span>{isHostOnline ? 'Online' : 'Offline'}</span>
             </button>
-            <button onClick={handleLogout} style={{ padding: '6px', borderRadius: '8px', border: '1px solid rgba(255,51,102,0.3)', background: 'rgba(255,51,102,0.1)', color: '#FF3366', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <LogOut size={14} />
-            </button>
           </div>
         </header>
       )}

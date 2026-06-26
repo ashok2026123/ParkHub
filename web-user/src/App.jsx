@@ -1253,7 +1253,7 @@ export default function App() {
           borderBottom: '1px solid rgba(0, 212, 255, 0.15)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           padding: '0 16px',
           zIndex: 99
         }}>
@@ -1262,11 +1262,6 @@ export default function App() {
               <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '16px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button onClick={logout} style={{ padding: '6px', borderRadius: '8px', border: '1px solid rgba(255,51,102,0.3)', background: 'rgba(255,51,102,0.1)', color: '#FF3366', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <LogOut size={16} />
-            </button>
           </div>
         </header>
       )}
