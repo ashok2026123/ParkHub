@@ -2800,7 +2800,7 @@ export default function App() {
 
         {currentTab === 'support' && (
           <div className="animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto', paddingBottom: '40px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(360px, 1fr))', gap: '28px' }}>
               
               {/* Left Column: Create Ticket */}
               <div className="glass-panel" style={{ padding: '24px' }}>
