@@ -82,7 +82,7 @@ function BookingTimer({ endTime, status, onZero }) {
 }
 
 export default function App() {
-  const { user, logout, toggleFavorite, loginWithCredentials, loginAsGuest, updateProfile } = useAuth();
+  const { user, logout, toggleFavorite, loginWithCredentials, loginWithGoogle, loginAsGuest, updateProfile } = useAuth();
   const { language, toggleLanguage, t } = useTranslation();
 
   const API_URL = 'http://localhost:5000/api';

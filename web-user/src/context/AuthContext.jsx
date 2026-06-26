@@ -13,9 +13,15 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Immediate sync fallback from local storage during loading
-    const saved = localStorage.getItem('parkeasy_customer');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('parkeasy_customer');
+      if (saved && saved !== 'undefined') {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to parse localStorage:", e);
+    }
+    return null;
   });
   const [loading, setLoading] = useState(true);
 
