@@ -922,99 +922,230 @@ export default function App() {
   }
 
   return (
-    <div className="dashboard-grid">
-      {/* 1. Sidebar Navigation */}
-      <aside style={{ background: 'linear-gradient(180deg, #0A0810 0%, #10091A 100%)', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '1px solid rgba(123,97,255,0.10)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(123,97,255,0.3), 0 0 24px rgba(0,212,255,0.1)' }}>
-                <img src="/parkhub_logo_owner.png" alt="ParkHub Owner Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <span style={{ fontSize: '18px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.5px' }}>
-                <span style={{ color: '#FFF' }}>Park</span><span style={{ color: '#7B61FF' }}>Hub</span>
-              </span>
+    <div className="dashboard-grid" style={{ 
+      display: 'grid', 
+      gridTemplateColumns: isMobile ? '1fr' : '250px 1fr', 
+      minHeight: '100vh',
+      width: '100vw',
+      overflowX: 'hidden'
+    }}>
+      {/* Mobile Top Header */}
+      {isMobile && (
+        <header style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '60px',
+          background: 'rgba(10, 8, 16, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderBottom: '1px solid rgba(123, 97, 255, 0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 16px',
+          zIndex: 99
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(123,97,255,0.3)' }}>
+              <img src="/parkhub_logo_owner.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            
+            <span style={{ fontSize: '15px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif" }}>
+              <span style={{ color: '#FFF' }}>Park</span><span style={{ color: '#7B61FF' }}>Hub</span>
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
               onClick={() => toggleGlobalStatus(!isHostOnline)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
+                gap: '4px',
+                padding: '4px 10px',
                 borderRadius: '20px',
                 border: '1px solid ' + (isHostOnline ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'),
                 background: isHostOnline ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
                 color: isHostOnline ? '#10B981' : '#EF4444',
                 cursor: 'pointer',
-                fontWeight: '700',
                 fontSize: '11px',
-                fontFamily: "'Space Grotesk', sans-serif",
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                boxShadow: isHostOnline ? '0 0 10px rgba(16,185,129,0.2)' : 'none',
+                fontWeight: '700',
                 transition: 'all 0.3s ease'
               }}
             >
               <span style={{
-                width: '6px',
-                height: '6px',
+                width: '5px',
+                height: '5px',
                 borderRadius: '50%',
                 background: isHostOnline ? '#10B981' : '#EF4444',
-                boxShadow: isHostOnline ? '0 0 8px #10B981' : 'none',
                 display: 'inline-block'
               }} />
               <span>{isHostOnline ? 'Online' : 'Offline'}</span>
             </button>
+            <button onClick={handleLogout} style={{ padding: '6px', borderRadius: '8px', border: '1px solid rgba(255,51,102,0.3)', background: 'rgba(255,51,102,0.1)', color: '#FF3366', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LogOut size={14} />
+            </button>
           </div>
+        </header>
+      )}
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {[
-              { id: 'overview', icon: <Activity size={17} />, label: 'Earnings Overview' },
-              { id: 'add', icon: <Plus size={17} />, label: 'List Space' },
-              { id: 'manage', icon: <MapPin size={17} />, label: 'Occupancy Controls' },
-              { id: 'bookings', icon: <FileText size={17} />, label: 'Active Bookings' },
-              { id: 'payout', icon: <CreditCard size={17} />, label: 'Payout Settings' },
-              { id: 'payout-history', icon: <History size={17} />, label: 'Payout History' },
-              { id: 'profile', icon: <User size={17} />, label: 'Profile' },
-              { id: 'support', icon: <HelpCircle size={17} />, label: 'Help & Support' },
-            ].map(item => (
-              <button key={item.id} onClick={() => setCurrentTab(item.id)} style={{
-                display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '11px 14px',
-                borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: '600', fontSize: '13px',
-                background: currentTab === item.id ? 'rgba(123,97,255,0.10)' : 'transparent',
-                color: currentTab === item.id ? '#A78BFA' : '#8B9AC4',
-                borderLeft: currentTab === item.id ? '3px solid #7B61FF' : '3px solid transparent',
-                transition: 'all 0.2s ease'
-              }}>
-                {item.icon}
-                <span>{item.label}</span>
+      {/* Desktop Sidebar Navigation */}
+      {!isMobile && (
+        <aside style={{ background: 'linear-gradient(180deg, #0A0810 0%, #10091A 100%)', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '1px solid rgba(123,97,255,0.10)' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(123,97,255,0.3), 0 0 24px rgba(0,212,255,0.1)' }}>
+                  <img src="/parkhub_logo_owner.png" alt="ParkHub Owner Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <span style={{ fontSize: '18px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.5px' }}>
+                  <span style={{ color: '#FFF' }}>Park</span><span style={{ color: '#7B61FF' }}>Hub</span>
+                </span>
+              </div>
+              
+              <button
+                onClick={() => toggleGlobalStatus(!isHostOnline)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  border: '1px solid ' + (isHostOnline ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'),
+                  background: isHostOnline ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                  color: isHostOnline ? '#10B981' : '#EF4444',
+                  cursor: 'pointer',
+                  fontWeight: '700',
+                  fontSize: '11px',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  boxShadow: isHostOnline ? '0 0 10px rgba(16,185,129,0.2)' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <span style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: isHostOnline ? '#10B981' : '#EF4444',
+                  boxShadow: isHostOnline ? '0 0 8px #10B981' : 'none',
+                  display: 'inline-block'
+                }} />
+                <span>{isHostOnline ? 'Online' : 'Offline'}</span>
               </button>
-            ))}
-          </nav>
-        </div>
+            </div>
 
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.08)', marginBottom: '12px' }}>
-            <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #7B61FF, #00D4FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', color: '#fff', flexShrink: 0 }}>
-              {ownerProfile.name ? ownerProfile.name.charAt(0).toUpperCase() : 'H'}
-            </div>
-            <div>
-              <p style={{ fontSize: '13px', fontWeight: '600', color: '#F0F4FF' }}>{ownerProfile.name}</p>
-              <p style={{ fontSize: '9px', color: '#00D4FF', fontWeight: '600' }}>✓ GSTIN VERIFIED</p>
-            </div>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {[
+                { id: 'overview', icon: <Activity size={17} />, label: 'Earnings Overview' },
+                { id: 'add', icon: <Plus size={17} />, label: 'List Space' },
+                { id: 'manage', icon: <MapPin size={17} />, label: 'Occupancy Controls' },
+                { id: 'bookings', icon: <FileText size={17} />, label: 'Active Bookings' },
+                { id: 'payout', icon: <CreditCard size={17} />, label: 'Payout Settings' },
+                { id: 'payout-history', icon: <History size={17} />, label: 'Payout History' },
+                { id: 'profile', icon: <User size={17} />, label: 'Profile' },
+                { id: 'support', icon: <HelpCircle size={17} />, label: 'Help & Support' },
+              ].map(item => (
+                <button key={item.id} onClick={() => setCurrentTab(item.id)} style={{
+                  display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '11px 14px',
+                  borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: '600', fontSize: '13px',
+                  background: currentTab === item.id ? 'rgba(123,97,255,0.10)' : 'transparent',
+                  color: currentTab === item.id ? '#A78BFA' : '#8B9AC4',
+                  borderLeft: currentTab === item.id ? '3px solid #7B61FF' : '3px solid transparent',
+                  transition: 'all 0.2s ease'
+                }}>
+                  {item.icon}
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </nav>
           </div>
 
-          <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid rgba(255,51,102,0.2)', background: 'rgba(255,51,102,0.06)', color: '#FF3366', cursor: 'pointer', fontWeight: '600', fontSize: '12px', transition: 'all 0.2s ease' }}>
-            <LogOut size={14} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.08)', marginBottom: '12px' }}>
+              <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #7B61FF, #00D4FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', color: '#fff', flexShrink: 0 }}>
+                {ownerProfile.name ? ownerProfile.name.charAt(0).toUpperCase() : 'H'}
+              </div>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '600', color: '#F0F4FF' }}>{ownerProfile.name}</p>
+                <p style={{ fontSize: '9px', color: '#00D4FF', fontWeight: '600' }}>✓ GSTIN VERIFIED</p>
+              </div>
+            </div>
+
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid rgba(255,51,102,0.2)', background: 'rgba(255,51,102,0.06)', color: '#FF3366', cursor: 'pointer', fontWeight: '600', fontSize: '12px', transition: 'all 0.2s ease' }}>
+              <LogOut size={14} />
+              <span>Logout</span>
+            </button>
+          </div>
+        </aside>
+      )}
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <nav style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '65px',
+          background: 'rgba(10, 8, 16, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderTop: '1px solid rgba(123, 97, 255, 0.15)',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          zIndex: 99,
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}>
+          {[
+            { id: 'overview', icon: <Activity size={18} />, label: 'Overview' },
+            { id: 'add', icon: <Plus size={18} />, label: 'List' },
+            { id: 'manage', icon: <MapPin size={18} />, label: 'Occupancy' },
+            { id: 'bookings', icon: <FileText size={18} />, label: 'Bookings' },
+            { id: 'profile', icon: <User size={18} />, label: 'Profile' }
+          ].map(item => {
+            const isActive = currentTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentTab(item.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  color: isActive ? '#A78BFA' : '#8B9AC4',
+                  cursor: 'pointer',
+                  padding: '4px 0',
+                  width: '20%',
+                  gap: '4px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  color: isActive ? '#A78BFA' : '#8B9AC4',
+                  transform: isActive ? 'scale(1.15)' : 'scale(1)',
+                  transition: 'transform 0.2s'
+                }}>
+                  {item.icon}
+                </div>
+                <span style={{ fontSize: '10px', fontWeight: isActive ? '700' : '500' }}>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
 
       {/* 2. Main Content Area */}
-      <main style={{ padding: '32px', overflowY: 'auto', maxHeight: '100vh' }}>
+      <main style={{ 
+        padding: isMobile ? '16px' : '32px', 
+        overflowY: 'auto', 
+        maxHeight: isMobile ? 'calc(100vh - 125px)' : '100vh',
+        marginTop: isMobile ? '60px' : '0',
+        paddingBottom: isMobile ? '90px' : '32px'
+      }}>
         
         {currentTab === 'overview' && (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '28px', paddingBottom: '60px' }}>
