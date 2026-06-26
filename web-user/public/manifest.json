@@ -1,0 +1,22 @@
+{
+  "short_name": "ParkHub",
+  "name": "ParkHub Customer Portal",
+  "icons": [
+    {
+      "src": "/parkhub_logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/parkhub_logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#060B18",
+  "display": "standalone",
+  "theme_color": "#060B18",
+  "orientation": "portrait"
+}
