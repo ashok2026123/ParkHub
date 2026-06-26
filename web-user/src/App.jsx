@@ -1233,62 +1233,166 @@ export default function App() {
   }
 
   return (
-    <div className="dashboard-grid">
-      <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(6,11,24,0.95)' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,212,255,0.35)' }}>
+    <div className="dashboard-grid" style={{ 
+      display: 'grid', 
+      gridTemplateColumns: isMobile ? '1fr' : '250px 1fr', 
+      minHeight: '100vh',
+      width: '100vw',
+      overflowX: 'hidden'
+    }}>
+      {/* Mobile Top Header */}
+      {isMobile && (
+        <header style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '60px',
+          background: 'rgba(6, 11, 24, 0.9)',
+          backdropFilter: 'blur(10px)',
+          borderBottom: '1px solid rgba(0, 212, 255, 0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 16px',
+          zIndex: 99
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,212,255,0.3)' }}>
               <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <div>
-              <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
-              <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
-            </div>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '16px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button onClick={logout} style={{ padding: '6px', borderRadius: '8px', border: '1px solid rgba(255,51,102,0.3)', background: 'rgba(255,51,102,0.1)', color: '#FF3366', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LogOut size={16} />
+            </button>
+          </div>
+        </header>
+      )}
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <button onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'home' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'home' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'home' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'home' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
-              <MapPin size={17} />
-              <span>{t('home')}</span>
-            </button>
-            <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'bookings' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'bookings' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'bookings' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
-              <Calendar size={17} />
-              <span>{t('bookings')}</span>
-            </button>
-            <button onClick={() => setCurrentTab('wallet')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'wallet' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'wallet' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'wallet' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'wallet' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
-              <Wallet size={17} />
-              <span>Wallet Balance</span>
-            </button>
-            <button onClick={() => setCurrentTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'profile' ? '3px solid var(--secondary)' : '3px solid transparent', background: currentTab === 'profile' ? 'rgba(123,97,255,0.1)' : 'transparent', color: currentTab === 'profile' ? 'var(--secondary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'profile' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
-              <Users size={17} />
-              <span>{t('profile')}</span>
-            </button>
-            <button onClick={() => setCurrentTab('support')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'support' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'support' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'support' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'support' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
-              <HelpCircle size={17} />
-              <span>{t('support')}</span>
-            </button>
-          </nav>
-        </div>
-
-        <div>
-          {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', marginBottom: '16px' }}>
-              <img src={user.profilePic} alt={user.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(6,11,24,0.95)' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,212,255,0.35)' }}>
+                <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
               <div>
-                <p style={{ fontSize: '13px', fontWeight: '600' }}>{user.name}</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('roleCustomer')}</p>
+                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+                <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
               </div>
             </div>
-          )}
 
-          <button onClick={logout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '11px', borderRadius: '10px', border: '1px solid rgba(255,51,102,0.2)', background: 'rgba(255,51,102,0.06)', color: '#FF3366', cursor: 'pointer', fontWeight: '700', fontSize: '13px', transition: 'all 0.2s ease', letterSpacing: '0.3px' }}>
-            <LogOut size={16} />
-            <span>{t('logout')}</span>
-          </button>
-        </div>
-      </aside>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <button onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'home' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'home' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'home' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'home' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <MapPin size={17} />
+                <span>{t('home')}</span>
+              </button>
+              <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'bookings' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'bookings' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'bookings' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <Calendar size={17} />
+                <span>{t('bookings')}</span>
+              </button>
+              <button onClick={() => setCurrentTab('wallet')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'wallet' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'wallet' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'wallet' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'wallet' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <Wallet size={17} />
+                <span>Wallet Balance</span>
+              </button>
+              <button onClick={() => setCurrentTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'profile' ? '3px solid var(--secondary)' : '3px solid transparent', background: currentTab === 'profile' ? 'rgba(123,97,255,0.1)' : 'transparent', color: currentTab === 'profile' ? 'var(--secondary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'profile' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <Users size={17} />
+                <span>{t('profile')}</span>
+              </button>
+              <button onClick={() => setCurrentTab('support')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'support' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'support' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'support' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'support' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <HelpCircle size={17} />
+                <span>{t('support')}</span>
+              </button>
+            </nav>
+          </div>
 
-      <main style={{ padding: '32px', overflowY: 'auto', maxHeight: '100vh' }}>
+          <div>
+            {user && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', marginBottom: '16px' }}>
+                <img src={user.profilePic} alt={user.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '600' }}>{user.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('roleCustomer')}</p>
+                </div>
+              </div>
+            )}
+
+            <button onClick={logout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '11px', borderRadius: '10px', border: '1px solid rgba(255,51,102,0.2)', background: 'rgba(255,51,102,0.06)', color: '#FF3366', cursor: 'pointer', fontWeight: '700', fontSize: '13px', transition: 'all 0.2s ease', letterSpacing: '0.3px' }}>
+              <LogOut size={16} />
+              <span>{t('logout')}</span>
+            </button>
+          </div>
+        </aside>
+      )}
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <nav style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '65px',
+          background: 'rgba(6, 11, 24, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderTop: '1px solid rgba(0, 212, 255, 0.15)',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          zIndex: 99,
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}>
+          {[
+            { id: 'home', label: t('home'), icon: <MapPin size={20} /> },
+            { id: 'bookings', label: t('bookings'), icon: <Calendar size={20} /> },
+            { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} /> },
+            { id: 'profile', label: t('profile'), icon: <User size={20} /> },
+            { id: 'support', label: t('support'), icon: <HelpCircle size={20} /> }
+          ].map(tab => {
+            const isActive = currentTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setCurrentTab(tab.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '4px 0',
+                  width: '20%',
+                  gap: '4px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
+                  transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                  transition: 'transform 0.2s'
+                }}>
+                  {tab.icon}
+                </div>
+                <span style={{ fontSize: '10px', fontWeight: isActive ? '700' : '500' }}>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
+
+      <main style={{ 
+        padding: isMobile ? '16px' : '32px', 
+        overflowY: 'auto', 
+        maxHeight: isMobile ? 'calc(100vh - 125px)' : '100vh',
+        marginTop: isMobile ? '60px' : '0',
+        paddingBottom: isMobile ? '90px' : '32px'
+      }}>
         {currentTab === 'home' && (
           <div className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
