@@ -1400,13 +1400,6 @@ export default function App() {
                 <h2 style={{ fontSize: '26px', fontWeight: '800', background: 'linear-gradient(135deg, #F0F4FF 0%, #8B9AC4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{t('tagline')}</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '5px' }}>Find and reserve secure vehicle spots instantly.</p>
               </div>
-              <div className="glass-panel" style={{ padding: '12px 16px', maxWidth: '360px', display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '3px solid var(--primary)', background: 'rgba(0,212,255,0.05)' }}>
-                <Percent size={22} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-                <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>{t('referralTitle')}</h4>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>Code: <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{user ? user.referralCode : 'KARTHIK9'}</span></p>
-                </div>
-              </div>
             </div>
 
             <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
