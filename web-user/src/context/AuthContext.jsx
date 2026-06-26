@@ -1,48 +1,81 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { 
+  auth, 
+  googleProvider, 
+  signInWithPopup, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut,
+  onAuthStateChanged 
+} from '../firebase';
 
 const AuthContext = createContext();
 
-const MOCK_CUSTOMER = {
-  uid: "customer-789",
-  name: "Karthik Raja",
-  email: "karthik@mymail.com",
-  phone: "+91 88833 99999",
-  role: "customer",
-  profilePic: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
-  referralCode: "KARTHIK9",
-  favoriteLocations: ["loc-1"],
-  language: 'en',
-  walletBalance: 1250,
-  transactions: [
-    { id: 'tx-1', type: 'credit', amount: 1500, description: 'Initial Wallet Loading', date: '2026-06-20T10:30:00Z' },
-    { id: 'tx-2', type: 'debit', amount: 250, description: 'Paid for Booking #BK-9021', date: '2026-06-22T14:15:00Z' }
-  ],
-  createdAt: new Date().toISOString()
-};
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('parkeasy_customer');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Build user object from firebase user details
+        const u = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          email: firebaseUser.email,
+          phone: firebaseUser.phoneNumber || "+91 88833 99999",
+          role: "customer",
+          profilePic: firebaseUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
+          referralCode: "PARK" + firebaseUser.uid.substring(0, 5).toUpperCase(),
+          favoriteLocations: [],
+          language: 'en',
+          walletBalance: 1250,
+          transactions: [
+            { id: 'tx-1', type: 'credit', amount: 1500, description: 'Initial Wallet Loading', date: '2026-06-20T10:30:00Z' },
+            { id: 'tx-2', type: 'debit', amount: 250, description: 'Paid for Booking #BK-9021', date: '2026-06-22T14:15:00Z' }
+          ]
+        };
+        setUser(u);
+        localStorage.setItem('parkeasy_customer', JSON.stringify(u));
+      } else {
+        setUser(null);
+        localStorage.removeItem('parkeasy_customer');
+      }
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('parkeasy_customer');
+    signOut(auth);
   };
 
-  const loginWithCredentials = (emailOrPhone, password) => {
-    const cleanInput = emailOrPhone.trim().toLowerCase().replace(/\s+/g, '');
-    const isEmail = emailOrPhone.includes('@');
-    const defaultUser = {
-      ...MOCK_CUSTOMER,
-      email: isEmail ? emailOrPhone : `${cleanInput}@mymail.com`,
-      phone: isEmail ? "+91 88833 99999" : emailOrPhone,
-      name: isEmail ? emailOrPhone.split('@')[0] : "Karthik Raja"
-    };
-    setUser(defaultUser);
-    localStorage.setItem('parkeasy_customer', JSON.stringify(defaultUser));
-    return defaultUser;
+  const loginWithCredentials = async (email, password) => {
+    try {
+      const res = await signInWithEmailAndPassword(auth, email.trim(), password);
+      return res.user;
+    } catch (err) {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        // Auto register if user doesn't exist
+        try {
+          const res = await createUserWithEmailAndPassword(auth, email.trim(), password);
+          return res.user;
+        } catch (regErr) {
+          throw regErr;
+        }
+      }
+      throw err;
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      const res = await signInWithPopup(auth, googleProvider);
+      return res.user;
+    } catch (err) {
+      console.error("Google Auth error:", err);
+      throw err;
+    }
   };
 
   const loginAsGuest = () => {
@@ -85,8 +118,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout, loginWithCredentials, loginAsGuest, toggleFavorite, updateProfile }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, logout, loginWithCredentials, loginWithGoogle, loginAsGuest, toggleFavorite, updateProfile }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
