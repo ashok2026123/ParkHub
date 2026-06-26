@@ -40,3 +40,4 @@ export {
   signOut,
   onAuthStateChanged
 };
+// Wake-up Vercel build trigger
