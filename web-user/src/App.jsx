@@ -1427,6 +1427,50 @@ export default function App() {
               </div>
             </div>
 
+            {/* Mode Switcher */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              <button 
+                onClick={() => { setSearchMode('parking'); setSelectedEvStation(null); }} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  padding: '10px 20px', 
+                  borderRadius: '30px', 
+                  border: searchMode === 'parking' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
+                  background: searchMode === 'parking' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  color: searchMode === 'parking' ? 'var(--primary)' : '#FFF', 
+                  fontSize: '13px', 
+                  fontWeight: '700', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: searchMode === 'parking' ? '0 4px 15px rgba(0, 212, 255, 0.2)' : 'none'
+                }}
+              >
+                🚗 Find Parking Spaces
+              </button>
+              <button 
+                onClick={() => { setSearchMode('ev'); setSelectedLocation(null); }} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  padding: '10px 20px', 
+                  borderRadius: '30px', 
+                  border: searchMode === 'ev' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
+                  background: searchMode === 'ev' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  color: searchMode === 'ev' ? 'var(--primary)' : '#FFF', 
+                  fontSize: '13px', 
+                  fontWeight: '700', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: searchMode === 'ev' ? '0 4px 15px rgba(0, 212, 255, 0.2)' : 'none'
+                }}
+              >
+                ⚡ EV Charging Spots
+              </button>
+            </div>
+
             <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
               <div style={{ display: 'flex', flex: 1, minWidth: '240px', position: 'relative' }}>
                 <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
