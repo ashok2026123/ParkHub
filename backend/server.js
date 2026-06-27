@@ -893,6 +893,57 @@ app.put('/api/owners/:uid', (req, res) => {
   }
 });
 
+async function syncOpenChargeMapData() {
+  try {
+    const res = await fetch("https://api.openchargemap.io/v3/poi/?output=json&countrycode=IN&maxresults=100&compact=true&verbose=false&key=5dbb2c9b-640a-471a-85d3-f542a3eb946f");
+    if (!res.ok) return;
+    const data = await res.json();
+    let updated = false;
+
+    data.forEach(poi => {
+      const stationId = `ev-ocm-${poi.ID}`;
+      if (!evStations.some(s => s.id === stationId)) {
+        const chargers = (poi.Connections || []).map((conn, idx) => ({
+          id: `charger-${poi.ID}-${idx}`,
+          type: conn.ConnectionType?.Title || "CCS (Type 2)",
+          power: conn.PowerKW || 22,
+          status: conn.StatusType?.IsOperational ? "Available" : "Offline"
+        }));
+
+        const newStation = {
+          id: stationId,
+          ownerId: "system",
+          name: poi.AddressInfo?.Title || "EV Charging Station",
+          address: `${poi.AddressInfo?.AddressLine1 || ""}, ${poi.AddressInfo?.Town || ""}, ${poi.AddressInfo?.StateOrProvince || ""}`.trim().replace(/^,|,$/g, ''),
+          latitude: poi.AddressInfo?.Latitude,
+          longitude: poi.AddressInfo?.Longitude,
+          description: poi.GeneralComments || "Public EV Charger station monitored by Open Charge Map.",
+          rates: { hourly: 0, perKwh: 15 },
+          chargers: chargers.length > 0 ? chargers : [{ id: `charger-${poi.ID}-0`, type: "CCS2", power: 50, status: "Available" }],
+          amenities: ["Restroom", "Wi-Fi"],
+          rating: 4.5,
+          reviewCount: 5,
+          isApproved: true,
+          isSuspended: false
+        };
+        evStations.push(newStation);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      saveAllData();
+      console.log(`Synced & updated Open Charge Map: ${evStations.length} total stations.`);
+    }
+  } catch (e) {
+    console.error("Error syncing Open Charge Map:", e);
+  }
+}
+
+// Sync OCM every hour
+setInterval(syncOpenChargeMapData, 3600000);
+setTimeout(syncOpenChargeMapData, 5000);
+
 // Start Server
 app.listen(PORT, () => {
   // Initial calculation of slots on startup

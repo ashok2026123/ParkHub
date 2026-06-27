@@ -711,7 +711,8 @@ export default function App() {
     };
 
     L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
-    markersGroupRef.current = L.layerGroup().addTo(map);
+    markersGroupRef.current = L.markerClusterGroup ? L.markerClusterGroup() : L.layerGroup();
+    markersGroupRef.current.addTo(map);
 
     return () => {
       map.remove();
