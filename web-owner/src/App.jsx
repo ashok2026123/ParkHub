@@ -117,6 +117,12 @@ export default function App() {
   const [supportSubject, setSupportSubject] = useState('');
   const [supportDesc, setSupportDesc] = useState('');
 
+  const [spaceType, setSpaceType] = useState('parking'); // 'parking' | 'ev'
+  const [evPerKwhRate, setEvPerKwhRate] = useState(15);
+  const [evChargers, setEvChargers] = useState([{ id: "charger-1", type: "CCS2", power: 60, status: "Available" }]);
+  const [evStations, setEvStations] = useState([]);
+  const [evReservations, setEvReservations] = useState([]);
+
   const [currentTab, setCurrentTab] = useState('overview');
   const [analyticsFilter, setAnalyticsFilter] = useState('daily');
   const [customAlert, setCustomAlert] = useState(null); 
@@ -144,6 +150,16 @@ export default function App() {
         const locRes = await fetch(`${API_URL}/locations`);
         if (locRes.ok) setLocations(await locRes.json());
       } catch (err) { console.error("Error fetching locations:", err); }
+
+      try {
+        const evLocRes = await fetch(`${API_URL}/ev-stations`);
+        if (evLocRes.ok) setEvStations(await evLocRes.json());
+      } catch (err) { console.error("Error fetching EV stations:", err); }
+
+      try {
+        const evBookRes = await fetch(`${API_URL}/ev-reservations`);
+        if (evBookRes.ok) setEvReservations(await evBookRes.json());
+      } catch (err) { console.error("Error fetching EV reservations:", err); }
 
       try {
         const bookRes = await fetch(`${API_URL}/bookings`);
@@ -636,6 +652,46 @@ export default function App() {
   const handleAddLocation = (e) => {
     e.preventDefault();
     if (!newLocName || !newLocAddress) return;
+
+    if (spaceType === 'ev') {
+      const newEvLoc = {
+        ownerId: ownerProfile.uid,
+        name: newLocName,
+        address: newLocAddress,
+        latitude: parseFloat(newLocLat) || 13.0405,
+        longitude: parseFloat(newLocLng) || 80.2337,
+        description: newLocDesc,
+        rates: {
+          perKwh: parseFloat(evPerKwhRate) || 15
+        },
+        chargers: evChargers,
+        amenities: ["Restroom", "Wi-Fi", "Cafe"],
+        rating: 4.8,
+        isApproved: true
+      };
+
+      fetch(`${API_URL}/ev-stations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEvLoc)
+      })
+      .then(res => res.json())
+      .then(savedLoc => {
+        setEvStations(prev => [...prev, savedLoc]);
+        showAlert("EV Charging Station has been listed successfully.", "EV Station Created");
+        setNewLocName('');
+        setNewLocAddress('');
+        setNewLocDesc('');
+        setNewLocLat('');
+        setNewLocLng('');
+      })
+      .catch(err => {
+        console.error("Error creating EV station:", err);
+        showAlert("Failed to create EV charging station.", "Error");
+      });
+      return;
+    }
+
     const newLoc = {
       ownerId: ownerProfile.uid,
       name: newLocName,
@@ -702,6 +758,54 @@ export default function App() {
       console.error("Error deleting location:", err);
       showAlert("Could not delete parking location. Please try again.", "Error");
     });
+  };
+
+  const handleDeleteEvStation = (stationId) => {
+    if (!window.confirm("Are you sure you want to delete this EV charging station?")) return;
+
+    fetch(`${API_URL}/ev-stations/${stationId}`, {
+      method: 'DELETE'
+    })
+    .then(res => {
+      if (res.ok) {
+        setEvStations(prev => prev.filter(s => s.id !== stationId));
+        showAlert("EV charging station deleted successfully.", "Station Deleted");
+      } else {
+        throw new Error("Failed to delete EV station");
+      }
+    })
+    .catch(err => {
+      console.error("Error deleting EV station:", err);
+      showAlert("Could not delete EV charging station. Please try again.", "Error");
+    });
+  };
+
+  const handleToggleEvChargerStatus = async (stationId, chargerId, currentStatus) => {
+    const statuses = ["Available", "Occupied", "Reserved", "Offline"];
+    const nextIdx = (statuses.indexOf(currentStatus) + 1) % statuses.length;
+    const nextStatus = statuses[nextIdx];
+
+    const targetStation = evStations.find(s => s.id === stationId);
+    if (!targetStation) return;
+
+    const updatedChargers = targetStation.chargers.map(c => {
+      if (c.id === chargerId) return { ...c, status: nextStatus };
+      return c;
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/ev-stations/${stationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chargers: updatedChargers })
+      });
+      if (res.ok) {
+        setEvStations(prev => prev.map(s => s.id === stationId ? { ...s, chargers: updatedChargers } : s));
+        showAlert(`Charger status updated to ${nextStatus}`, "Status Updated");
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleManualOccupancy = (locId, type, increase) => {
@@ -1353,6 +1457,30 @@ export default function App() {
               {/* Form */}
               <form onSubmit={handleAddLocation} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 
+                {/* Space Type Selector */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Space Type
+                  </label>
+                  <select 
+                    value={spaceType} 
+                    onChange={(e) => setSpaceType(e.target.value)} 
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      color: '#FFF',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <option value="parking" style={{ background: '#070f1e' }}>🚗 Standard Parking Space</option>
+                    <option value="ev" style={{ background: '#070f1e' }}>⚡ EV Charging Hub</option>
+                  </select>
+                </div>
+                
                 {/* Two Column Grid */}
                 <div style={{
                   display: 'grid',
@@ -1456,62 +1584,90 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* Platform Rates Info */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Platform Base Rates
-                      </label>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-                        {[
-                          { label: '30 Mins', value: globalRates.halfHour },
-                          { label: 'Hourly', value: globalRates.hourly },
-                          { label: 'Daily', value: globalRates.daily }
-                        ].map((rate, idx) => (
-                          <div key={idx} style={{
-                            background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.02) 100%)',
-                            border: '1px solid rgba(255, 193, 7, 0.25)',
-                            borderRadius: '12px',
-                            padding: '14px 10px',
-                            textAlign: 'center',
-                            position: 'relative'
-                          }}>
-                            <span style={{
-                              position: 'absolute',
-                              top: '-8px',
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              fontSize: '8px',
-                              fontWeight: '800',
-                              background: '#FFC107',
-                              color: '#000',
-                              padding: '1px 5px',
-                              borderRadius: '4px',
-                              textTransform: 'uppercase'
-                            }}>Admin</span>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '2px' }}>{rate.label}</div>
-                            <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFC107', marginTop: '4px' }}>₹{rate.value}</div>
-                            <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                              <Lock size={8} /> Fixed
+                     {/* Platform Rates Info / EV Rate Info */}
+                    {spaceType === 'ev' ? (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          EV Rate per kWh
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', fontWeight: 'bold' }}>₹</span>
+                          <input 
+                            type="number"
+                            value={evPerKwhRate}
+                            onChange={(e) => setEvPerKwhRate(e.target.value)}
+                            placeholder="e.g. 15"
+                            style={{
+                              width: '100%',
+                              padding: '12px 14px 12px 30px',
+                              background: 'rgba(10, 18, 38, 0.7)',
+                              border: '1px solid rgba(0, 212, 255, 0.15)',
+                              borderRadius: '10px',
+                              color: '#FFF',
+                              fontSize: '14px',
+                              fontFamily: 'var(--font-main)',
+                              outline: 'none'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Platform Base Rates
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                          {[
+                            { label: '30 Mins', value: globalRates.halfHour },
+                            { label: 'Hourly', value: globalRates.hourly },
+                            { label: 'Daily', value: globalRates.daily }
+                          ].map((rate, idx) => (
+                            <div key={idx} style={{
+                              background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 152, 0, 0.02) 100%)',
+                              border: '1px solid rgba(255, 193, 7, 0.25)',
+                              borderRadius: '12px',
+                              padding: '14px 10px',
+                              textAlign: 'center',
+                              position: 'relative'
+                            }}>
+                              <span style={{
+                                position: 'absolute',
+                                top: '-8px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                fontSize: '8px',
+                                fontWeight: '800',
+                                background: '#FFC107',
+                                color: '#000',
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                textTransform: 'uppercase'
+                              }}>Admin</span>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '2px' }}>{rate.label}</div>
+                              <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFC107', marginTop: '4px' }}>₹{rate.value}</div>
+                              <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', alignItems: 'center', justifycontent: 'center', gap: '2px' }}>
+                                <Lock size={8} /> Fixed
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                        
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '8px',
+                          background: 'rgba(255, 193, 7, 0.05)',
+                          border: '1px solid rgba(255, 193, 7, 0.12)',
+                          borderRadius: '10px',
+                          padding: '10px 12px'
+                        }}>
+                          <Info size={14} color="#FFC107" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <p style={{ fontSize: '11px', color: 'rgba(255,193,7,0.85)', margin: 0, lineHeight: '1.4' }}>
+                            Rates are managed centrally by the platform admin to ensure consistent pricing rules across all active locations.
+                          </p>
+                        </div>
                       </div>
-                      
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '8px',
-                        background: 'rgba(255, 193, 7, 0.05)',
-                        border: '1px solid rgba(255, 193, 7, 0.12)',
-                        borderRadius: '10px',
-                        padding: '10px 12px'
-                      }}>
-                        <Info size={14} color="#FFC107" style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <p style={{ fontSize: '11px', color: 'rgba(255,193,7,0.85)', margin: 0, lineHeight: '1.4' }}>
-                          Rates are managed centrally by the platform admin to ensure consistent pricing rules across all active locations.
-                        </p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Amenities Toggle */}
                     <div>
@@ -1732,69 +1888,121 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Capacity Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                     {/* Capacity Grid / EV Chargers builder */}
+                    {spaceType === 'ev' ? (
                       <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          2-Wheeler Capacity
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          EV Chargers List
                         </label>
-                        <div style={{ position: 'relative' }}>
-                          <input 
-                            type="number" 
-                            value={newLoc2WSlots} 
-                            onChange={(e) => setNewLoc2WSlots(e.target.value)} 
-                            placeholder="e.g. 20" 
-                            onFocus={() => setFocusedInput('2w')}
-                            onBlur={() => setFocusedInput(null)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 14px',
-                              background: 'rgba(10, 18, 38, 0.7)',
-                              border: focusedInput === '2w' ? '1px solid var(--primary)' : '1px solid rgba(0, 212, 255, 0.15)',
-                              boxShadow: focusedInput === '2w' ? '0 0 12px rgba(0, 212, 255, 0.2)' : 'none',
-                              borderRadius: '10px',
-                              color: '#FFF',
-                              fontSize: '14px',
-                              fontFamily: 'var(--font-main)',
-                              transition: 'all 0.3s ease',
-                              outline: 'none'
-                            }} 
-                            required 
-                          />
-                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>Slots</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                          {evChargers.map((charger, idx) => (
+                            <div key={charger.id || idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <select 
+                                value={charger.type} 
+                                onChange={(e) => {
+                                  const updated = [...evChargers];
+                                  updated[idx].type = e.target.value;
+                                  setEvChargers(updated);
+                                }}
+                                style={{ flex: 1.5, padding: '10px', background: 'rgba(10, 18, 38, 0.7)', border: '1px solid rgba(0, 212, 255, 0.15)', borderRadius: '8px', color: '#FFF', fontSize: '12px' }}
+                              >
+                                <option value="CCS2">CCS2 (DC Fast)</option>
+                                <option value="Type 2">Type 2 (AC)</option>
+                                <option value="GB/T">GB/T</option>
+                              </select>
+                              <input 
+                                type="number" 
+                                value={charger.power} 
+                                onChange={(e) => {
+                                  const updated = [...evChargers];
+                                  updated[idx].power = parseInt(e.target.value) || 22;
+                                  setEvChargers(updated);
+                                }}
+                                placeholder="kW" 
+                                style={{ width: '80px', padding: '10px', background: 'rgba(10, 18, 38, 0.7)', border: '1px solid rgba(0, 212, 255, 0.15)', borderRadius: '8px', color: '#FFF', fontSize: '12px', textAlign: 'center' }}
+                              />
+                              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>kW</span>
+                              <button 
+                                type="button"
+                                onClick={() => setEvChargers(prev => prev.filter((_, i) => i !== idx))}
+                                style={{ background: 'transparent', border: 'none', color: '#FF3366', cursor: 'pointer', fontSize: '14px', padding: '0 8px' }}
+                              >✕</button>
+                            </div>
+                          ))}
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => setEvChargers(prev => [...prev, { id: "charger-" + (prev.length + 1), type: "CCS2", power: 60, status: "Available" }])} 
+                          className="glow-button" 
+                          style={{ padding: '8px 16px', fontSize: '11px' }}
+                        >
+                          + Add Charger
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            2-Wheeler Capacity
+                          </label>
+                          <div style={{ position: 'relative' }}>
+                            <input 
+                              type="number" 
+                              value={newLoc2WSlots} 
+                              onChange={(e) => setNewLoc2WSlots(e.target.value)} 
+                              placeholder="e.g. 20" 
+                              onFocus={() => setFocusedInput('2w')}
+                              onBlur={() => setFocusedInput(null)}
+                              style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                background: 'rgba(10, 18, 38, 0.7)',
+                                border: focusedInput === '2w' ? '1px solid var(--primary)' : '1px solid rgba(0, 212, 255, 0.15)',
+                                boxShadow: focusedInput === '2w' ? '0 0 12px rgba(0, 212, 255, 0.2)' : 'none',
+                                borderRadius: '10px',
+                                color: '#FFF',
+                                fontSize: '14px',
+                                fontFamily: 'var(--font-main)',
+                                transition: 'all 0.3s ease',
+                                outline: 'none'
+                              }} 
+                              required={spaceType !== 'ev'} 
+                            />
+                            <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>Slots</span>
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            4-Wheeler Capacity
+                          </label>
+                          <div style={{ position: 'relative' }}>
+                            <input 
+                              type="number" 
+                              value={newLoc4WSlots} 
+                              onChange={(e) => setNewLoc4WSlots(e.target.value)} 
+                              placeholder="e.g. 15" 
+                              onFocus={() => setFocusedInput('4w')}
+                              onBlur={() => setFocusedInput(null)}
+                              style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                background: 'rgba(10, 18, 38, 0.7)',
+                                border: focusedInput === '4w' ? '1px solid var(--primary)' : '1px solid rgba(0, 212, 255, 0.15)',
+                                boxShadow: focusedInput === '4w' ? '0 0 12px rgba(0, 212, 255, 0.2)' : 'none',
+                                borderRadius: '10px',
+                                color: '#FFF',
+                                fontSize: '14px',
+                                fontFamily: 'var(--font-main)',
+                                transition: 'all 0.3s ease',
+                                outline: 'none'
+                              }} 
+                              required={spaceType !== 'ev'} 
+                            />
+                            <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>Slots</span>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          4-Wheeler Capacity
-                        </label>
-                        <div style={{ position: 'relative' }}>
-                          <input 
-                            type="number" 
-                            value={newLoc4WSlots} 
-                            onChange={(e) => setNewLoc4WSlots(e.target.value)} 
-                            placeholder="e.g. 15" 
-                            onFocus={() => setFocusedInput('4w')}
-                            onBlur={() => setFocusedInput(null)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 14px',
-                              background: 'rgba(10, 18, 38, 0.7)',
-                              border: focusedInput === '4w' ? '1px solid var(--primary)' : '1px solid rgba(0, 212, 255, 0.15)',
-                              boxShadow: focusedInput === '4w' ? '0 0 12px rgba(0, 212, 255, 0.2)' : 'none',
-                              borderRadius: '10px',
-                              color: '#FFF',
-                              fontSize: '14px',
-                              fontFamily: 'var(--font-main)',
-                              transition: 'all 0.3s ease',
-                              outline: 'none'
-                            }} 
-                            required 
-                          />
-                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>Slots</span>
-                        </div>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Description */}
                     <div>
@@ -1860,8 +2068,10 @@ export default function App() {
 
         {currentTab === 'manage' && (
           <div className="animate-fade-in">
-            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px' }}>Occupancy Controllers</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px' }}>Asset Controllers & Chargers</h2>
+            
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>🚗 Standard Parking Spaces</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px', marginBottom: '32px' }}>
               {ownerLocs.map(loc => (
                 <div key={loc.id} className="glass-panel" style={{ padding: '24px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', alignItems: 'center' }}>
@@ -1913,6 +2123,70 @@ export default function App() {
                         <button onClick={() => handleManualOccupancy(loc.id, 'fourWheeler', true)} style={{ width: '28px', height: '28px', background: 'var(--bg-tertiary)', border: 'none', color: '#FFF', borderRadius: '4px', cursor: 'pointer' }}>+</button>
                       </div>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>⚡ EV Charging Hubs</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
+              {evStations.filter(s => s.ownerId === ownerProfile?.uid).map(station => (
+                <div key={station.id} className="glass-panel" style={{ padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', alignItems: 'center' }}>
+                    <div>
+                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0 }}>{station.name}</h3>
+                      <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Rate: ₹{station.rates?.perKwh}/kWh</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '10px', background: station.isApproved ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 23, 68, 0.1)', color: station.isApproved ? 'var(--primary)' : 'var(--accent-occupied)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                        {station.isApproved ? 'APPROVED' : 'PENDING'}
+                      </span>
+                      <button 
+                        onClick={() => handleDeleteEvStation(station.id)} 
+                        style={{ 
+                          background: 'rgba(255, 23, 68, 0.1)', 
+                          border: 'none', 
+                          color: 'var(--accent-occupied)', 
+                          padding: '6px', 
+                          borderRadius: '6px', 
+                          cursor: 'pointer', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          transition: 'all 0.2s'
+                        }}
+                        title="Delete Station"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold', margin: 0 }}>Charger Connectors:</p>
+                    {station.chargers?.map(charger => (
+                      <div key={charger.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                        <div>
+                          <span style={{ fontSize: '12px', fontWeight: '600' }}>{charger.type}</span>
+                          <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '6px' }}>({charger.power} kW)</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ 
+                            fontSize: '11px', 
+                            fontWeight: 'bold',
+                            color: charger.status === 'Available' ? '#00E676' : charger.status === 'Reserved' ? '#FF9100' : charger.status === 'Occupied' ? '#FF1744' : '#90A4AE'
+                          }}>
+                            {charger.status}
+                          </span>
+                          <button 
+                            onClick={() => handleToggleEvChargerStatus(station.id, charger.id, charger.status)}
+                            style={{ fontSize: '10px', padding: '3px 8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#FFF', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            Toggle
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
