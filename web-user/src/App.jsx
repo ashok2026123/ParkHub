@@ -685,51 +685,108 @@ export default function App() {
 
     markersGroupRef.current.clearLayers();
 
-    sortedLocations.forEach(loc => {
-      const isSelected = selectedLocation && selectedLocation.id === loc.id;
-      const slotsAvailable = loc.availableSlots.fourWheeler + loc.availableSlots.twoWheeler;
-      const totalSlots = loc.totalSlots.fourWheeler + loc.totalSlots.twoWheeler;
-      let pinColor = '#00E676'; // Green = Available
-      if (slotsAvailable === 0) {
-        pinColor = '#FF1744'; // Red = Full
-      } else if (slotsAvailable <= 5 || slotsAvailable <= totalSlots * 0.2) {
-        pinColor = '#FF9100'; // Orange = Limited
-      }
-      
-      const borderCol = isSelected ? '#FFFFFF' : '#000000';
-      const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
+    if (searchMode === 'ev') {
+      sortedEvStations.forEach(station => {
+        const isSelected = selectedEvStation && selectedEvStation.id === station.id;
+        const availableChargers = station.chargers?.filter(c => c.status === 'Available').length || 0;
+        let pinColor = '#00E676'; // Green = Available
+        if (availableChargers === 0) {
+          pinColor = '#FF1744'; // Red = Full
+        }
+        
+        const borderCol = isSelected ? '#FFFFFF' : '#000000';
+        const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
-      const iconHtml = `
-        <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-          <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
-            <span>&#8377;${loc.rates.hourly}/hr</span>
-            ${loc.distance !== undefined ? `<span style="opacity: 0.75; font-size: 9.5px; border-left: 1px solid ${isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)'}; padding-left: 5px;">${formatDistance(loc.distance)}</span>` : ''}
+        const iconHtml = `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
+            <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+              <span>⚡ ₹${station.rates?.perKwh}/kwh</span>
+            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+            </svg>
           </div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
-          </svg>
-        </div>
-      `;
+        `;
 
-      const customIcon = L.divIcon({
-        html: iconHtml,
-        className: 'custom-map-marker',
-        iconSize: [100, 60],
-        iconAnchor: [50, 60]
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: 'custom-map-marker',
+          iconSize: [100, 60],
+          iconAnchor: [50, 60]
+        });
+
+        const marker = L.marker([station.latitude, station.longitude], { icon: customIcon });
+        marker.on('click', () => {
+          setSelectedEvStation(station);
+        });
+        marker.addTo(markersGroupRef.current);
+
+        if (isSelected) {
+          leafletMapInstance.current.panTo([station.latitude, station.longitude]);
+        }
       });
+    } else {
+      sortedLocations.forEach(loc => {
+        const isSelected = selectedLocation && selectedLocation.id === loc.id;
+        const slotsAvailable = loc.availableSlots.fourWheeler + loc.availableSlots.twoWheeler;
+        const totalSlots = loc.totalSlots.fourWheeler + loc.totalSlots.twoWheeler;
+        let pinColor = '#00E676'; // Green = Available
+        if (slotsAvailable === 0) {
+          pinColor = '#FF1744'; // Red = Full
+        } else if (slotsAvailable <= 5 || slotsAvailable <= totalSlots * 0.2) {
+          pinColor = '#FF9100'; // Orange = Limited
+        }
+        
+        const borderCol = isSelected ? '#FFFFFF' : '#000000';
+        const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
-      const marker = L.marker([loc.latitude, loc.longitude], { icon: customIcon });
-      marker.on('click', () => {
-        setSelectedLocation(loc);
+        const iconHtml = `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
+            <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+              <span>&#8377;${loc.rates.hourly}/hr</span>
+              ${loc.distance !== undefined ? `<span style="opacity: 0.75; font-size: 9.5px; border-left: 1px solid ${isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)'}; padding-left: 5px;">${formatDistance(loc.distance)}</span>` : ''}
+            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+            </svg>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: 'custom-map-marker',
+          iconSize: [100, 60],
+          iconAnchor: [50, 60]
+        });
+
+        const marker = L.marker([loc.latitude, loc.longitude], { icon: customIcon });
+        marker.on('click', () => {
+          setSelectedLocation(loc);
+        });
+        marker.addTo(markersGroupRef.current);
+
+        if (isSelected) {
+          leafletMapInstance.current.panTo([loc.latitude, loc.longitude]);
+        }
       });
-      marker.addTo(markersGroupRef.current);
+    }
+  }, [sortedLocations, sortedEvStations, selectedLocation, selectedEvStation, searchMode, currentTab]);
 
-      if (isSelected) {
-        leafletMapInstance.current.panTo([loc.latitude, loc.longitude]);
+  // Center to India or user location based on SearchMode
+  useEffect(() => {
+    if (!leafletMapInstance.current) return;
+    if (searchMode === 'ev') {
+      leafletMapInstance.current.setView([20.5937, 78.9629], 5);
+    } else {
+      if (userCoords) {
+        leafletMapInstance.current.setView([userCoords.lat, userCoords.lng], 14);
+      } else {
+        leafletMapInstance.current.setView([13.0827, 80.2707], 12);
       }
-    });
-  }, [sortedLocations, selectedLocation, currentTab]);
+    }
+  }, [searchMode]);
 
   // Draw route line from user location to selected location
   useEffect(() => {
