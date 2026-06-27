@@ -613,6 +613,42 @@ export default function App() {
     });
   }, [filteredLocations, userCoords, sortBy]);
 
+  const filteredEvStations = React.useMemo(() => {
+    return evStations.filter(station => {
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch = !query || 
+        station.name.toLowerCase().includes(query) || 
+        station.address.toLowerCase().includes(query);
+      const matchesApproved = station.isApproved;
+      return matchesSearch && matchesApproved;
+    });
+  }, [evStations, searchQuery]);
+
+  const sortedEvStations = React.useMemo(() => {
+    const mapped = filteredEvStations.map(station => {
+      if (userCoords) {
+        const dist = getDistance(userCoords.lat, userCoords.lng, station.latitude, station.longitude);
+        return { ...station, distance: dist };
+      }
+      return { ...station, distance: undefined };
+    });
+
+    return mapped.sort((a, b) => {
+      if (sortBy === 'nearest') {
+        if (a.distance !== undefined && b.distance !== undefined) {
+          return a.distance - b.distance;
+        }
+        if (a.distance !== undefined) return -1;
+        if (b.distance !== undefined) return 1;
+        return 0;
+      }
+      if (sortBy === 'price-low-high') {
+        return (a.rates?.perKwh || 0) - (b.rates?.perKwh || 0);
+      }
+      return 0;
+    });
+  }, [filteredEvStations, userCoords, sortBy]);
+
   // Compute top 3 nearest parking location IDs (always based on distance)
   const nearestThreeIds = React.useMemo(() => {
     if (!userCoords) return [];
