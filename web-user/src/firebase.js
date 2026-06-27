@@ -9,14 +9,14 @@ import {
   onAuthStateChanged
 } from "firebase/auth";
 
-// TODO: Replace with your actual Firebase config keys from Firebase Console Settings
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBFXRLesk1jU56fSzmR0kjoNmLM_b_EfjU",
+  authDomain: "parkhub-2343e.firebaseapp.com",
+  projectId: "parkhub-2343e",
+  storageBucket: "parkhub-2343e.firebasestorage.app",
+  messagingSenderId: "196449294246",
+  appId: "1:196449294246:web:2494c63e9667ebc74fe167",
+  measurementId: "G-0718WFE316"
 };
 
 const app = initializeApp(firebaseConfig);
