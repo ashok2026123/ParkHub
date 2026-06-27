@@ -1,4 +1,4 @@
-const CACHE_NAME = 'parkhub-v1';
+const CACHE_NAME = 'parkhub-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -32,9 +32,24 @@ self.addEventListener('activate', (e) => {
 
 // Fetch event (Network first fallback to Cache)
 self.addEventListener('fetch', (e) => {
+  // Only intercept HTTP GET requests to prevent issues with POST/PUT/non-http requests
+  if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) {
+    return;
+  }
+
   e.respondWith(
-    fetch(e.request).catch(() => {
-      return caches.match(e.request);
-    })
+    fetch(e.request)
+      .catch(async () => {
+        const cachedResponse = await caches.match(e.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // Return a valid error Response instead of undefined to prevent TypeError crashes
+        return new Response('Network error or resource offline', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({ 'Content-Type': 'text/plain' })
+        });
+      })
   );
 });
