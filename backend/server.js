@@ -4,8 +4,75 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const FIREBASE_DB_URL = 'https://parkhub-2343e-default-rtdb.firebaseio.com';
+
+async function saveAllData() {
+  try {
+    await Promise.all([
+      fetch(`${FIREBASE_DB_URL}/locations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(locations) }),
+      fetch(`${FIREBASE_DB_URL}/bookings.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bookings) }),
+      fetch(`${FIREBASE_DB_URL}/reviews.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reviews) }),
+      fetch(`${FIREBASE_DB_URL}/complaints.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(complaints) }),
+      fetch(`${FIREBASE_DB_URL}/owners.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(owners) }),
+      fetch(`${FIREBASE_DB_URL}/coupons.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(coupons) }),
+      fetch(`${FIREBASE_DB_URL}/settings.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) }),
+      fetch(`${FIREBASE_DB_URL}/auditLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(auditLogs) }),
+      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(broadcastLogs) })
+    ]);
+  } catch (err) {
+    console.error("Error saving data to Firebase:", err);
+  }
+}
+
+async function loadAllData() {
+  try {
+    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes] = await Promise.all([
+      fetch(`${FIREBASE_DB_URL}/locations.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/bookings.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/reviews.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/complaints.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/owners.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/coupons.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/settings.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/auditLogs.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`).then(r => r.json())
+    ]);
+    if (locRes) locations = locRes;
+    if (bookRes) bookings = bookRes;
+    if (revRes) reviews = revRes;
+    if (compRes) complaints = compRes;
+    if (ownRes) owners = ownRes;
+    if (coupRes) coupons = coupRes;
+    if (setRes) settings = setRes;
+    if (auditRes) auditLogs = auditRes;
+    if (broadRes) broadcastLogs = broadRes;
+
+    if (!locRes && !bookRes) {
+      console.log("No data found in Firebase. Seeding default data...");
+      await saveAllData();
+    } else {
+      console.log("Successfully loaded database state from Firebase Realtime Database.");
+    }
+  } catch (err) {
+    console.error("Error loading data from Firebase:", err);
+  }
+}
+
+// Load data immediately on startup with a brief delay for variable initialization
+setTimeout(loadAllData, 1000);
+
 app.use(cors());
 app.use(express.json());
+
+// Auto-save mutations to Firebase Database
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+      saveAllData();
+    }
+  });
+  next();
+});
 
 // In-memory data seeded from initial mock db schemas
 let locations = [
