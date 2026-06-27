@@ -178,11 +178,7 @@ export default function App() {
   const [adminBankSearchQuery, setAdminBankSearchQuery] = useState('');
 
   // Entities state — declared early so useEffect below can reference them
-  const [adminUsers, setAdminUsers] = useState([
-    { uid: 'customer-789', name: 'Karthik Raja', email: 'karthik@mymail.com', phone: '+91 88833 99999', role: 'customer', registeredAt: '2026-01-15T10:00:00Z', bookingsCount: 14, status: 'active' },
-    { uid: 'customer-222', name: 'Meena Sundaram', email: 'meena.s@outlook.com', phone: '+91 95000 88888', role: 'customer', registeredAt: '2026-02-18T14:30:00Z', bookingsCount: 8, status: 'active' },
-    { uid: 'customer-333', name: 'Anand Selvam', email: 'anand.selvam@gmail.com', phone: '+91 90033 11111', role: 'customer', registeredAt: '2026-03-05T09:15:00Z', bookingsCount: 22, status: 'active' }
-  ]);
+  const [adminUsers, setAdminUsers] = useState([]);
 
   const [adminOwners, setAdminOwners] = useState([
     { uid: 'owner-456', name: 'Suresh Perumal', email: 'suresh@spotowner.com', phone: '+91 94440 12345', role: 'owner', registeredAt: '2026-01-10T08:00:00Z', locationsCount: 3, earnings: 12450, verified: true, status: 'active' },
@@ -326,6 +322,11 @@ export default function App() {
         const ownerRes = await fetch(`${API_URL}/owners`);
         if (ownerRes.ok) setAdminOwners(await ownerRes.json());
       } catch (err) { console.error("Error fetching owners:", err); }
+
+      try {
+        const custRes = await fetch(`${API_URL}/customers`);
+        if (custRes.ok) setAdminUsers(await custRes.json());
+      } catch (err) { console.error("Error fetching customers:", err); }
     };
 
     fetchData();
@@ -356,6 +357,11 @@ export default function App() {
         const ownerRes = await fetch(`${API_URL}/owners`);
         if (ownerRes.ok) setAdminOwners(await ownerRes.json());
       } catch (err) { console.error("Error polling owners:", err); }
+
+      try {
+        const custRes = await fetch(`${API_URL}/customers`);
+        if (custRes.ok) setAdminUsers(await custRes.json());
+      } catch (err) { console.error("Error polling customers:", err); }
     }, 3000);
 
     return () => clearInterval(interval);

@@ -15,8 +15,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://parkhub-wefh.onrender.com/api';
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Build user object from firebase user details
         const u = {
@@ -35,6 +39,17 @@ export const AuthProvider = ({ children }) => {
             { id: 'tx-2', type: 'debit', amount: 250, description: 'Paid for Booking #BK-9021', date: '2026-06-22T14:15:00Z' }
           ]
         };
+
+        try {
+          await fetch(`${API_URL}/customers/${u.uid}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(u)
+          });
+        } catch (e) {
+          console.error("Error syncing customer profile:", e);
+        }
+
         setUser(u);
         localStorage.setItem('parkeasy_customer', JSON.stringify(u));
       } else {
@@ -44,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
     return unsubscribe;
-  }, []);
+  }, [API_URL]);
 
   const logout = () => {
     signOut(auth);

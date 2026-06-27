@@ -17,7 +17,8 @@ async function saveAllData() {
       fetch(`${FIREBASE_DB_URL}/coupons.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(coupons) }),
       fetch(`${FIREBASE_DB_URL}/settings.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) }),
       fetch(`${FIREBASE_DB_URL}/auditLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(auditLogs) }),
-      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(broadcastLogs) })
+      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(broadcastLogs) }),
+      fetch(`${FIREBASE_DB_URL}/customers.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customers) })
     ]);
   } catch (err) {
     console.error("Error saving data to Firebase:", err);
@@ -26,7 +27,7 @@ async function saveAllData() {
 
 async function loadAllData() {
   try {
-    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes] = await Promise.all([
+    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes] = await Promise.all([
       fetch(`${FIREBASE_DB_URL}/locations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/bookings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/reviews.json`).then(r => r.json()),
@@ -35,7 +36,8 @@ async function loadAllData() {
       fetch(`${FIREBASE_DB_URL}/coupons.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/settings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/auditLogs.json`).then(r => r.json()),
-      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`).then(r => r.json())
+      fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/customers.json`).then(r => r.json())
     ]);
     if (locRes) locations = locRes;
     if (bookRes) bookings = bookRes;
@@ -46,6 +48,7 @@ async function loadAllData() {
     if (setRes) settings = setRes;
     if (auditRes) auditLogs = auditRes;
     if (broadRes) broadcastLogs = broadRes;
+    if (custRes) customers = custRes;
 
     if (!locRes && !bookRes) {
       console.log("No data found in Firebase. Seeding default data...");
@@ -339,6 +342,7 @@ let settings = {
 
 let auditLogs = [];
 let broadcastLogs = [];
+let customers = [];
 
 // ==========================================
 // ACCURATE SLOT RECALCULATION FROM BOOKINGS
@@ -637,6 +641,30 @@ app.post('/api/broadcasts', (req, res) => {
 });
 
 // Coupons
+// Customers API
+app.get('/api/customers', (req, res) => {
+  res.json(customers);
+});
+
+app.put('/api/customers/:uid', (req, res) => {
+  const { uid } = req.params;
+  const index = customers.findIndex(c => c.uid === uid);
+  const updatedCustomer = {
+    ...req.body,
+    uid,
+    registeredAt: index !== -1 && customers[index].registeredAt ? customers[index].registeredAt : new Date().toISOString(),
+    status: index !== -1 && customers[index].status ? customers[index].status : 'active',
+    bookingsCount: index !== -1 && customers[index].bookingsCount ? customers[index].bookingsCount : 0
+  };
+  
+  if (index !== -1) {
+    customers[index] = updatedCustomer;
+  } else {
+    customers.push(updatedCustomer);
+  }
+  res.json(updatedCustomer);
+});
+
 app.get('/api/coupons', (req, res) => {
   res.json(coupons);
 });
