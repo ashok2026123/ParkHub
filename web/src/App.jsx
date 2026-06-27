@@ -150,6 +150,11 @@ export default function App() {
       } catch (err) { console.error("Error fetching locations:", err); }
 
       try {
+        const evRes = await fetch(`${API_URL}/ev-stations`);
+        if (evRes.ok) setEvStations(await evRes.json());
+      } catch (err) { console.error("Error fetching EV stations:", err); }
+
+      try {
         const bookRes = await fetch(`${API_URL}/bookings`);
         if (bookRes.ok) setBookings(await bookRes.json());
       } catch (err) { console.error("Error fetching bookings:", err); }
@@ -173,6 +178,11 @@ export default function App() {
         const locRes = await fetch(`${API_URL}/locations`);
         if (locRes.ok) setLocations(await locRes.json());
       } catch (err) { console.error("Error polling locations:", err); }
+
+      try {
+        const evRes = await fetch(`${API_URL}/ev-stations`);
+        if (evRes.ok) setEvStations(await evRes.json());
+      } catch (err) { console.error("Error polling EV stations:", err); }
       
       try {
         const bookRes = await fetch(`${API_URL}/bookings`);
