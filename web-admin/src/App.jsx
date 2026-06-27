@@ -19,7 +19,7 @@ import {
   Percent, FileText, CheckCircle, XCircle, Shield, AlertCircle, LogOut, 
   Globe, Calendar, Settings, Download, Bell, Lock, HelpCircle, 
   TrendingUp, RefreshCw, Smartphone, FileSpreadsheet, AlertTriangle,
-  Compass, Eye, EyeOff
+  Compass, Eye, EyeOff, Zap
 } from 'lucide-react';
 
 const INDIAN_BANKS = [
