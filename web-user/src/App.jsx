@@ -88,6 +88,21 @@ export default function App() {
   const API_URL = 'http://localhost:5000/api';
 
   const [locations, setLocations] = useState(INITIAL_LOCATIONS);
+  const [leafletLoaded, setLeafletLoaded] = useState(!!window.L);
+
+  useEffect(() => {
+    if (window.L) {
+      setLeafletLoaded(true);
+      return;
+    }
+    const interval = setInterval(() => {
+      if (window.L) {
+        setLeafletLoaded(true);
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [complaints, setComplaints] = useState([]);
@@ -646,7 +661,7 @@ export default function App() {
         routeLineRef.current = null;
       }
     };
-  }, [currentTab]); // Re-run whenever tab changes so it mounts on the new div
+  }, [currentTab, leafletLoaded]); // Re-run whenever tab changes or Leaflet loads so it mounts correctly
 
   // Sync markers when sortedLocations, selectedLocation, or currentTab changes
   useEffect(() => {
