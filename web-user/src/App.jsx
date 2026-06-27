@@ -1523,7 +1523,7 @@ export default function App() {
             {/* Mode Switcher */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
               <button 
-                onClick={() => { setSearchMode('parking'); setSelectedEvStation(null); }} 
+                onClick={() => { setSearchMode('parking'); setSelectedEvStation(null); setSearchQuery(''); }} 
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -1543,7 +1543,7 @@ export default function App() {
                 🚗 Find Parking Spaces
               </button>
               <button 
-                onClick={() => { setSearchMode('ev'); setSelectedLocation(null); }} 
+                onClick={() => { setSearchMode('ev'); setSelectedLocation(null); setSearchQuery(''); }} 
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
