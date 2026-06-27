@@ -355,7 +355,7 @@ let evStations = [
     id: "ev-1",
     ownerId: "owner-456",
     name: "Adyar EV Hypercharger Hub",
-    address: "Gandhi Nagar, Adyar, Chennai - 600020",
+    address: "Gandhi Nagar, Adyar, Chennai, Tamil Nadu - 600020",
     latitude: 13.0125,
     longitude: 80.2562,
     description: "Multi-connector DC Hypercharger hub supporting super fast charging. Conveniently located near Adyar Metro.",
@@ -376,7 +376,7 @@ let evStations = [
     id: "ev-2",
     ownerId: "owner-456",
     name: "T. Nagar Smart EV Plaza",
-    address: "G N Chetty Rd, T. Nagar, Chennai - 600017",
+    address: "G N Chetty Rd, T. Nagar, Chennai, Tamil Nadu - 600017",
     latitude: 13.0425,
     longitude: 80.2368,
     description: "Vibrant high-speed AC & DC charging facilities with convenient shopping options nearby.",
@@ -388,6 +388,198 @@ let evStations = [
     amenities: ["Cafe", "Shopping Mall"],
     rating: 4.7,
     reviewCount: 22,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-3",
+    ownerId: "owner-456",
+    name: "Bandra Kurla Complex EV Station",
+    address: "BKC Road, Bandra East, Mumbai, Maharashtra - 400051",
+    latitude: 19.0607,
+    longitude: 72.8642,
+    description: "BKC's premium high-speed EV charging hub. Safe, CCTV-monitored, with dining amenities adjacent.",
+    rates: { hourly: 20, perKwh: 22 },
+    chargers: [
+      { id: "charger-7", type: "CCS2", power: 150, status: "Available" },
+      { id: "charger-8", type: "CCS2", power: 150, status: "Available" },
+      { id: "charger-9", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Restroom", "Cafe", "Wi-Fi", "CCTV"],
+    rating: 4.8,
+    reviewCount: 35,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-4",
+    ownerId: "owner-456",
+    name: "Nariman Point Fast Charge Hub",
+    address: "Marine Drive, Nariman Point, Mumbai, Maharashtra - 400021",
+    latitude: 18.9282,
+    longitude: 72.8227,
+    description: "DC Fast Charging station situated by the scenic Marine Drive. Supports rapid charging for 4W vehicles.",
+    rates: { hourly: 18, perKwh: 19 },
+    chargers: [
+      { id: "charger-10", type: "CCS2", power: 120, status: "Available" },
+      { id: "charger-11", type: "GB/T", power: 50, status: "Occupied" }
+    ],
+    amenities: ["CCTV", "Restroom"],
+    rating: 4.6,
+    reviewCount: 14,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-5",
+    ownerId: "owner-456",
+    name: "Connaught Place EV Charging Plaza",
+    address: "Radial Road 2, Connaught Place, New Delhi, Delhi - 110001",
+    latitude: 28.6304,
+    longitude: 77.2177,
+    description: "Central Delhi's prominent EV plaza. Supports all connector types and offers rapid DC hypercharging.",
+    rates: { hourly: 15, perKwh: 17 },
+    chargers: [
+      { id: "charger-12", type: "CCS2", power: 100, status: "Available" },
+      { id: "charger-13", type: "Type 2", power: 22, status: "Available" },
+      { id: "charger-14", type: "GB/T", power: 60, status: "Available" }
+    ],
+    amenities: ["Shopping Mall", "Restroom", "Wi-Fi", "Cafe"],
+    rating: 4.9,
+    reviewCount: 42,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-6",
+    ownerId: "owner-456",
+    name: "Indira Gandhi Airport EV Station",
+    address: "Terminal 3 Arrival Road, IGI Airport, New Delhi, Delhi - 110037",
+    latitude: 28.5562,
+    longitude: 77.1001,
+    description: "Airport EV station serving travelers and cabs. Efficient high-output charging open 24/7.",
+    rates: { hourly: 25, perKwh: 24 },
+    chargers: [
+      { id: "charger-15", type: "CCS2", power: 150, status: "Available" },
+      { id: "charger-16", type: "CCS2", power: 150, status: "Occupied" }
+    ],
+    amenities: ["Restroom", "24/7 Support", "Cafe"],
+    rating: 4.7,
+    reviewCount: 29,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-7",
+    ownerId: "owner-456",
+    name: "Indiranagar Smart EV Station",
+    address: "100 Feet Rd, Indiranagar, Bangalore, Karnataka - 560038",
+    latitude: 12.9719,
+    longitude: 77.6412,
+    description: "Ultra-fast charging hub nestled in Bangalore's retail and food hub. Best-in-class service.",
+    rates: { hourly: 12, perKwh: 16 },
+    chargers: [
+      { id: "charger-17", type: "CCS2", power: 80, status: "Available" },
+      { id: "charger-18", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Cafe", "Wi-Fi", "Restroom"],
+    rating: 4.8,
+    reviewCount: 51,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-8",
+    ownerId: "owner-456",
+    name: "Whitefield Hypercharge Plaza",
+    address: "ITPL Main Road, Whitefield, Bangalore, Karnataka - 560066",
+    latitude: 12.9876,
+    longitude: 77.7343,
+    description: "Tech park EV station optimized for daily office commutes. Fully automated contactless billing.",
+    rates: { hourly: 15, perKwh: 18 },
+    chargers: [
+      { id: "charger-19", type: "CCS2", power: 120, status: "Available" },
+      { id: "charger-20", type: "CCS2", power: 120, status: "Reserved" }
+    ],
+    amenities: ["Restroom", "CCTV"],
+    rating: 4.5,
+    reviewCount: 19,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-9",
+    ownerId: "owner-456",
+    name: "Gachibowli EV Charging Hub",
+    address: "HITEC City Road, Gachibowli, Hyderabad, Telangana - 500032",
+    latitude: 17.4401,
+    longitude: 78.3489,
+    description: "Hyderabad's premium IT-corridor EV charging hub. High-power DC fast charging connectors.",
+    rates: { hourly: 14, perKwh: 16 },
+    chargers: [
+      { id: "charger-21", type: "CCS2", power: 100, status: "Available" },
+      { id: "charger-22", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Cafe", "Restroom", "Wi-Fi"],
+    rating: 4.8,
+    reviewCount: 23,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-10",
+    ownerId: "owner-456",
+    name: "Jubilee Hills Charging Point",
+    address: "Road No. 36, Jubilee Hills, Hyderabad, Telangana - 500033",
+    latitude: 17.4325,
+    longitude: 78.4074,
+    description: "High-end DC charging services close to prime commercial centers. Open all days.",
+    rates: { hourly: 16, perKwh: 19 },
+    chargers: [
+      { id: "charger-23", type: "CCS2", power: 120, status: "Available" },
+      { id: "charger-24", type: "GB/T", power: 60, status: "Available" }
+    ],
+    amenities: ["CCTV", "Restroom"],
+    rating: 4.7,
+    reviewCount: 31,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-11",
+    ownerId: "owner-456",
+    name: "Salt Lake Sector V EV Plaza",
+    address: "Block EP & GP, Sector V, Salt Lake, Kolkata, West Bengal - 700091",
+    latitude: 22.5735,
+    longitude: 88.4331,
+    description: "Kolkata's IT sector EV hub. Fast AC/DC charging stations for office employees and cabs.",
+    rates: { hourly: 10, perKwh: 14 },
+    chargers: [
+      { id: "charger-25", type: "CCS2", power: 90, status: "Available" },
+      { id: "charger-26", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Restroom", "Wi-Fi"],
+    rating: 4.6,
+    reviewCount: 17,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-12",
+    ownerId: "owner-456",
+    name: "Koregaon Park Charging Hub",
+    address: "North Main Road, Koregaon Park, Pune, Maharashtra - 411001",
+    latitude: 18.5362,
+    longitude: 73.8940,
+    description: "Conveniently located high-speed EV station in Koregaon Park. Cafe options next door.",
+    rates: { hourly: 15, perKwh: 17 },
+    chargers: [
+      { id: "charger-27", type: "CCS2", power: 80, status: "Available" },
+      { id: "charger-28", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Cafe", "Restroom", "Wi-Fi"],
+    rating: 4.9,
+    reviewCount: 26,
     isApproved: true,
     isSuspended: false
   }
@@ -731,7 +923,18 @@ app.put('/api/customers/:uid', (req, res) => {
 });
 
 // EV Stations API
-app.get('/api/ev-stations', (req, res) => {
+app.get('/api/ev-stations', async (req, res) => {
+  try {
+    const response = await fetch(`${FIREBASE_DB_URL}/evStations.json`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data) {
+        evStations = data;
+      }
+    }
+  } catch (e) {
+    console.error("Error loading EV stations dynamically:", e);
+  }
   res.json(evStations);
 });
 
