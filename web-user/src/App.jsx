@@ -108,11 +108,24 @@ export default function App() {
   const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [complaints, setComplaints] = useState([]);
-  const [supportSubject, setSupportSubject] = useState('');
-  const [supportDesc, setSupportDesc] = useState('');
+  
+  const [searchMode, setSearchMode] = useState('parking'); // 'parking' | 'ev'
+  const [evStations, setEvStations] = useState([]);
+  const [evReservations, setEvReservations] = useState([]);
+  const [evConnectorFilter, setEvConnectorFilter] = useState('all');
+  const [evTypeFilter, setEvTypeFilter] = useState('all');
+  
+  const [showEvReserveModal, setShowEvReserveModal] = useState(false);
+  const [selectedEvStation, setSelectedEvStation] = useState(null);
+  const [selectedCharger, setSelectedCharger] = useState(null);
+  const [reserveHours, setReserveHours] = useState(1);
+  const [isProcessingEvPay, setIsProcessingEvPay] = useState(false);
+  const [evPaySuccess, setEvPaySuccess] = useState(false);
 
   const [customAlert, setCustomAlert] = useState(null); 
   const [customConfirm, setCustomConfirm] = useState(null); 
+  const [supportSubject, setSupportSubject] = useState('');
+  const [supportDesc, setSupportDesc] = useState(''); 
 
   const mapRef = useRef(null);
   const leafletMapInstance = useRef(null);

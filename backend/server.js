@@ -18,7 +18,9 @@ async function saveAllData() {
       fetch(`${FIREBASE_DB_URL}/settings.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) }),
       fetch(`${FIREBASE_DB_URL}/auditLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(auditLogs) }),
       fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(broadcastLogs) }),
-      fetch(`${FIREBASE_DB_URL}/customers.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customers) })
+      fetch(`${FIREBASE_DB_URL}/customers.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customers) }),
+      fetch(`${FIREBASE_DB_URL}/evStations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evStations) }),
+      fetch(`${FIREBASE_DB_URL}/evReservations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evReservations) })
     ]);
   } catch (err) {
     console.error("Error saving data to Firebase:", err);
@@ -27,7 +29,7 @@ async function saveAllData() {
 
 async function loadAllData() {
   try {
-    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes] = await Promise.all([
+    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes, evLocRes, evBookRes] = await Promise.all([
       fetch(`${FIREBASE_DB_URL}/locations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/bookings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/reviews.json`).then(r => r.json()),
@@ -37,7 +39,9 @@ async function loadAllData() {
       fetch(`${FIREBASE_DB_URL}/settings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/auditLogs.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`).then(r => r.json()),
-      fetch(`${FIREBASE_DB_URL}/customers.json`).then(r => r.json())
+      fetch(`${FIREBASE_DB_URL}/customers.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/evStations.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/evReservations.json`).then(r => r.json())
     ]);
     if (locRes) locations = locRes;
     if (bookRes) bookings = bookRes;
@@ -49,6 +53,8 @@ async function loadAllData() {
     if (auditRes) auditLogs = auditRes;
     if (broadRes) broadcastLogs = broadRes;
     if (custRes) customers = custRes;
+    if (evLocRes) evStations = evLocRes;
+    if (evBookRes) evReservations = evBookRes;
 
     if (!locRes && !bookRes) {
       console.log("No data found in Firebase. Seeding default data...");
@@ -343,6 +349,65 @@ let settings = {
 let auditLogs = [];
 let broadcastLogs = [];
 let customers = [];
+
+let evStations = [
+  {
+    id: "ev-1",
+    ownerId: "owner-456",
+    name: "Adyar EV Hypercharger Hub",
+    address: "Gandhi Nagar, Adyar, Chennai - 600020",
+    latitude: 13.0125,
+    longitude: 80.2562,
+    description: "Multi-connector DC Hypercharger hub supporting super fast charging. Conveniently located near Adyar Metro.",
+    rates: { hourly: 15, perKwh: 18 },
+    chargers: [
+      { id: "charger-1", type: "CCS2", power: 60, status: "Available" },
+      { id: "charger-2", type: "CCS2", power: 60, status: "Occupied" },
+      { id: "charger-3", type: "Type 2", power: 22, status: "Reserved" },
+      { id: "charger-4", type: "GB/T", power: 50, status: "Offline" }
+    ],
+    amenities: ["Restroom", "Cafe", "Wi-Fi"],
+    rating: 4.9,
+    reviewCount: 18,
+    isApproved: true,
+    isSuspended: false
+  },
+  {
+    id: "ev-2",
+    ownerId: "owner-456",
+    name: "T. Nagar Smart EV Plaza",
+    address: "G N Chetty Rd, T. Nagar, Chennai - 600017",
+    latitude: 13.0425,
+    longitude: 80.2368,
+    description: "Vibrant high-speed AC & DC charging facilities with convenient shopping options nearby.",
+    rates: { hourly: 12, perKwh: 15 },
+    chargers: [
+      { id: "charger-5", type: "CCS2", power: 120, status: "Available" },
+      { id: "charger-6", type: "Type 2", power: 22, status: "Available" }
+    ],
+    amenities: ["Cafe", "Shopping Mall"],
+    rating: 4.7,
+    reviewCount: 22,
+    isApproved: true,
+    isSuspended: false
+  }
+];
+
+let evReservations = [
+  {
+    id: "ev-res-101",
+    userId: "customer-789",
+    stationId: "ev-1",
+    chargerId: "charger-3",
+    connectorType: "Type 2",
+    startTime: new Date(Date.now() - 3600000).toISOString(),
+    durationHours: 2,
+    totalAmount: 36,
+    paymentId: "pay_EV9817265",
+    status: "active",
+    createdAt: new Date(Date.now() - 3600000).toISOString()
+  }
+];
 
 // ==========================================
 // ACCURATE SLOT RECALCULATION FROM BOOKINGS
@@ -663,6 +728,63 @@ app.put('/api/customers/:uid', (req, res) => {
     customers.push(updatedCustomer);
   }
   res.json(updatedCustomer);
+});
+
+// EV Stations API
+app.get('/api/ev-stations', (req, res) => {
+  res.json(evStations);
+});
+
+app.post('/api/ev-stations', (req, res) => {
+  const newStation = {
+    id: "ev-" + Math.floor(Math.random() * 1000),
+    rating: 0,
+    reviewCount: 0,
+    isApproved: false,
+    isSuspended: false,
+    chargers: req.body.chargers || [],
+    ...req.body
+  };
+  evStations.push(newStation);
+  res.status(201).json(newStation);
+});
+
+app.put('/api/ev-stations/:id', (req, res) => {
+  const { id } = req.params;
+  const index = evStations.findIndex(s => s.id === id);
+  if (index !== -1) {
+    evStations[index] = { ...evStations[index], ...req.body };
+    res.json(evStations[index]);
+  } else {
+    res.status(404).json({ error: "Station not found" });
+  }
+});
+
+// EV Reservations API
+app.get('/api/ev-reservations', (req, res) => {
+  res.json(evReservations);
+});
+
+app.post('/api/ev-reservations', (req, res) => {
+  const newReservation = {
+    id: "ev-res-" + Math.floor(Math.random() * 1000),
+    createdAt: new Date().toISOString(),
+    status: "active",
+    ...req.body
+  };
+  evReservations.push(newReservation);
+  res.status(201).json(newReservation);
+});
+
+app.put('/api/ev-reservations/:id', (req, res) => {
+  const { id } = req.params;
+  const index = evReservations.findIndex(r => r.id === id);
+  if (index !== -1) {
+    evReservations[index] = { ...evReservations[index], ...req.body };
+    res.json(evReservations[index]);
+  } else {
+    res.status(404).json({ error: "Reservation not found" });
+  }
 });
 
 app.get('/api/coupons', (req, res) => {

@@ -27,17 +27,14 @@ export const AuthProvider = ({ children }) => {
           uid: firebaseUser.uid,
           name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
           email: firebaseUser.email,
-          phone: firebaseUser.phoneNumber || "+91 88833 99999",
+          phone: firebaseUser.phoneNumber || "",
           role: "customer",
           profilePic: firebaseUser.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
           referralCode: "PARK" + firebaseUser.uid.substring(0, 5).toUpperCase(),
           favoriteLocations: [],
           language: 'en',
-          walletBalance: 1250,
-          transactions: [
-            { id: 'tx-1', type: 'credit', amount: 1500, description: 'Initial Wallet Loading', date: '2026-06-20T10:30:00Z' },
-            { id: 'tx-2', type: 'debit', amount: 250, description: 'Paid for Booking #BK-9021', date: '2026-06-22T14:15:00Z' }
-          ]
+          walletBalance: 0,
+          transactions: []
         };
 
         try {
