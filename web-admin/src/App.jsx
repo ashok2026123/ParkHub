@@ -105,6 +105,8 @@ export default function App() {
   const [complaints, setComplaints] = useState(INITIAL_COMPLAINTS);
   const [auditLogs, setAuditLogs] = useState([]);
   const [broadcastLogs, setBroadcastLogs] = useState([]);
+  const [evStations, setEvStations] = useState([]);
+  const [evReservations, setEvReservations] = useState([]);
 
   const handleLoginWithCredentials = async (emailOrPhone, password) => {
     const cleanInput = emailOrPhone.trim().toLowerCase().replace(/\s+/g, '');
@@ -327,6 +329,16 @@ export default function App() {
         const custRes = await fetch(`${API_URL}/customers`);
         if (custRes.ok) setAdminUsers(await custRes.json());
       } catch (err) { console.error("Error fetching customers:", err); }
+
+      try {
+        const evLocRes = await fetch(`${API_URL}/ev-stations`);
+        if (evLocRes.ok) setEvStations(await evLocRes.json());
+      } catch (err) { console.error("Error fetching EV stations:", err); }
+
+      try {
+        const evBookRes = await fetch(`${API_URL}/ev-reservations`);
+        if (evBookRes.ok) setEvReservations(await evBookRes.json());
+      } catch (err) { console.error("Error fetching EV reservations:", err); }
     };
 
     fetchData();
@@ -430,6 +442,51 @@ export default function App() {
         }
       })
       .catch(err => console.error("Error deleting location:", err));
+    }, "Confirm Delete");
+  };
+
+  const handleApproveEvStation = (id) => {
+    fetch(`${API_URL}/ev-stations/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isApproved: true })
+    })
+    .then(res => res.json())
+    .then(updatedLoc => {
+      setEvStations(prev => prev.map(loc => loc.id === id ? updatedLoc : loc));
+      addAuditLog(`Approved EV charging station ID: ${id}`, 'approval');
+      showAlert("EV charging listing has been approved and is now visible to customers!", "EV Station Approved");
+    })
+    .catch(err => console.error("Error approving EV station:", err));
+  };
+
+  const handleSuspendEvStation = (id, suspendState) => {
+    fetch(`${API_URL}/ev-stations/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isApproved: !suspendState })
+    })
+    .then(res => res.json())
+    .then(updatedLoc => {
+      setEvStations(prev => prev.map(loc => loc.id === id ? updatedLoc : loc));
+      addAuditLog(`${suspendState ? 'Suspended' : 'Unsuspended'} EV station ID: ${id}`, 'parking');
+    })
+    .catch(err => console.error("Error suspending EV station:", err));
+  };
+
+  const handleDeleteEvStation = (id) => {
+    showConfirm("Are you sure you want to delete this EV charging station permanently?", () => {
+      fetch(`${API_URL}/ev-stations/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => {
+        if (res.ok) {
+          setEvStations(prev => prev.filter(loc => loc.id !== id));
+          addAuditLog(`Deleted EV charging station ID: ${id}`, 'parking');
+          showAlert("EV station deleted successfully.", "Listing Deleted");
+        }
+      })
+      .catch(err => console.error("Error deleting EV station:", err));
     }, "Confirm Delete");
   };
 
@@ -798,6 +855,9 @@ export default function App() {
             <button onClick={() => setCurrentTab('parking')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'parking' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'parking' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
               <MapPin size={16} /><span>Parking Locations</span>
             </button>
+            <button onClick={() => setCurrentTab('ev')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'ev' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'ev' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
+              <Zap size={16} /><span>EV Charging Hubs</span>
+            </button>
             <button onClick={() => setCurrentTab('users')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'users' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'users' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
               <Users size={16} /><span>Customers</span>
             </button>
@@ -988,6 +1048,127 @@ export default function App() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {currentTab === 'ev' && (
+          <div className="animate-fade-in">
+            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px' }}>⚡ Manage EV Charging Hubs</h2>
+            
+            {/* Pending Approvals Section */}
+            {evStations.filter(s => !s.isApproved).length > 0 && (
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-occupied)', marginBottom: '12px' }}>Awaiting Approval</h3>
+                {evStations.filter(s => !s.isApproved).map(station => (
+                  <div key={station.id} className="glass-panel" style={{ padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h4 style={{ margin: 0, fontWeight: 'bold' }}>{station.name}</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>{station.address}</p>
+                    </div>
+                    <button 
+                      onClick={() => handleApproveEvStation(station.id)} 
+                      style={{ padding: '8px 16px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Approve Station
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Active EV Stations Table */}
+            <div className="glass-panel" style={{ padding: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>Active EV Charging Network</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                    <th style={{ padding: '12px' }}>ID</th>
+                    <th style={{ padding: '12px' }}>Name</th>
+                    <th style={{ padding: '12px' }}>Address</th>
+                    <th style={{ padding: '12px' }}>Rates</th>
+                    <th style={{ padding: '12px' }}>Connectors</th>
+                    <th style={{ padding: '12px' }}>Status</th>
+                    <th style={{ padding: '12px' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {evStations.map(station => (
+                    <tr key={station.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '14px', fontFamily: 'monospace' }}>{station.id}</td>
+                      <td style={{ padding: '14px', fontWeight: 'bold' }}>{station.name}</td>
+                      <td style={{ padding: '14px', color: 'var(--text-secondary)' }}>{station.address}</td>
+                      <td style={{ padding: '14px', color: 'var(--primary)', fontWeight: 'bold' }}>₹{station.rates?.perKwh}/kWh</td>
+                      <td style={{ padding: '14px' }}>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {station.chargers?.map(c => (
+                            <span key={c.id} style={{ fontSize: '9px', background: 'rgba(255,255,255,0.05)', padding: '2px 5px', borderRadius: '4px' }}>
+                              {c.type} ({c.power}kW)
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px' }}>
+                        <span style={{ fontSize: '10px', background: station.isApproved ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 23, 68, 0.1)', color: station.isApproved ? 'var(--primary)' : 'var(--accent-occupied)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          {station.isApproved ? 'APPROVED' : 'PENDING'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            onClick={() => handleSuspendEvStation(station.id, station.isApproved)}
+                            style={{ padding: '4px 8px', background: station.isApproved ? 'rgba(255, 152, 0, 0.15)' : 'rgba(0, 230, 118, 0.15)', color: station.isApproved ? '#FF9800' : '#00E676', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: '600' }}
+                          >
+                            {station.isApproved ? 'Suspend' : 'Activate'}
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteEvStation(station.id)}
+                            style={{ padding: '4px 8px', background: 'rgba(255, 23, 68, 0.15)', color: '#FF1744', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* EV Charging Analytics Summary */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
+              <div className="glass-panel" style={{ padding: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>⚡ Charging Network Stats</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Total Stations:</span>
+                    <span style={{ fontWeight: 'bold' }}>{evStations.length}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Total Chargers Deployed:</span>
+                    <span style={{ fontWeight: 'bold' }}>{evStations.reduce((acc, s) => acc + (s.chargers?.length || 0), 0)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Total Reservations:</span>
+                    <span style={{ fontWeight: 'bold' }}>{evReservations.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-panel" style={{ padding: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>⚡ Charging Revenue Overview</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Total Gross Revenue:</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{evReservations.reduce((acc, r) => acc + (r.totalAmount || 0), 0).toFixed(0)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Platform Commission (10%):</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{(evReservations.reduce((acc, r) => acc + (r.totalAmount || 0), 0) * 0.1).toFixed(0)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
