@@ -85,7 +85,9 @@ export default function App() {
   const { user, logout, toggleFavorite, loginWithCredentials, loginWithGoogle, loginAsGuest, updateProfile } = useAuth();
   const { language, toggleLanguage, t } = useTranslation();
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://parkhub-wefh.onrender.com/api';
 
   const [locations, setLocations] = useState(INITIAL_LOCATIONS);
   const [leafletLoaded, setLeafletLoaded] = useState(!!window.L);

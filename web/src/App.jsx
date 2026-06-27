@@ -20,7 +20,9 @@ export default function App() {
   const { user, login, loginWithCredentials, register, logout, toggleFavorite } = useAuth();
   const { language, setLanguage, toggleLanguage, t } = useTranslation();
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://parkhub-wefh.onrender.com/api';
 
   // State Management mimicking Firestore sync
   const [locations, setLocations] = useState(INITIAL_LOCATIONS);
