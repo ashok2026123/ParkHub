@@ -1206,7 +1206,7 @@ app.post('/api/payments/order', async (req, res) => {
       orderId: order.id,
       amount: order.amount / 100,
       currency: order.currency,
-      key: process.env.RAZORPAY_KEY_ID
+      key: process.env.RAZORPAY_KEY_ID || 'rzp_live_T71PJdC3zXI1H8'
     });
   } catch (err) {
     console.error("Error creating Razorpay Order:", err);
