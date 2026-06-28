@@ -127,7 +127,9 @@ let customers = [];
 let evStations = [];
 let evReservations = [];
 let fuelStations = [];
-
+let saved_trips = [];
+let trip_history = [];
+let trip_preferences = [];
 // ==========================================
 // ACCURATE SLOT RECALCULATION FROM BOOKINGS
 // ==========================================
@@ -311,7 +313,8 @@ app.put('/api/bookings/:id', (req, res) => {
               }
             }
 
-            owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) - platformFee;
+            // User requested process: automatically increase the wallet when OTP is entered
+            owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) + total;
             owners[ownerIndex].cashEarnings = (owners[ownerIndex].cashEarnings || 0) + total;
             owners[ownerIndex].earnings = (owners[ownerIndex].earnings || 0) + total;
 
@@ -1170,6 +1173,155 @@ app.get('/api/settlements', (req, res) => {
 // Get Wallet Transactions
 app.get('/api/wallet-transactions', (req, res) => {
   res.json(walletTransactions);
+});
+
+// ==========================================
+// SMART TRIP PLANNER APIs
+// ==========================================
+
+app.post('/api/trip/plan', async (req, res) => {
+  try {
+    const { start, destination, userId } = req.body;
+    if (!start || !destination) return res.status(400).json({ error: "Missing start or destination" });
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`;
+    const response = await fetch(osrmUrl);
+    const data = await response.json();
+    
+    if (userId && data.code === 'Ok') {
+       const historyEntry = {
+         id: "hist-" + Date.now(),
+         userId,
+         start,
+         destination,
+         distance: data.routes[0].distance,
+         duration: data.routes[0].duration,
+         timestamp: new Date().toISOString()
+       };
+       trip_history.unshift(historyEntry);
+       // Keep only last 20 per user roughly by cleaning up
+    }
+    
+    res.json(data);
+  } catch (error) {
+    console.error("Trip plan error:", error);
+    res.status(500).json({ error: "Failed to plan trip" });
+  }
+});
+
+// For a route, the frontend will send waypoints=lat,lng|lat,lng
+app.get('/api/trip/nearby', async (req, res) => {
+  try {
+    const { waypoints, radius = 2000, categories } = req.query;
+    if (!waypoints) return res.status(400).json({ error: "Missing waypoints" });
+    
+    const pts = waypoints.split('|').map(p => { const [lat, lng] = p.split(','); return { lat, lng }; });
+    const cats = categories ? categories.split(',') : ['parking'];
+    const results = {};
+    
+    // ParkHub Parking (Simple implementation: just return all locations, frontend filters by distance)
+    if (cats.includes('parking')) {
+      results.parking = locations; 
+    }
+    
+    if (cats.includes('ev')) {
+      results.evStations = evStations;
+    }
+    
+    const overpassCats = [];
+    if (cats.includes('restaurants')) overpassCats.push('node["amenity"="restaurant"]');
+    if (cats.includes('hotels')) overpassCats.push('node["tourism"="hotel"]');
+    if (cats.includes('hospitals')) overpassCats.push('node["amenity"="hospital"]');
+    if (cats.includes('atms')) overpassCats.push('node["amenity"="atm"]');
+    if (cats.includes('restrooms')) overpassCats.push('node["amenity"="toilets"]');
+    if (cats.includes('mechanic')) overpassCats.push('node["shop"="car_repair"]');
+    if (cats.includes('carwash')) overpassCats.push('node["amenity"="car_wash"]');
+    if (cats.includes('fuel')) overpassCats.push('node["amenity"="fuel"]');
+
+    if (overpassCats.length > 0) {
+      // Build a union of around clauses for all waypoints
+      const aroundClauses = pts.map(pt => `(around:${radius},${pt.lat},${pt.lng})`).join('');
+      const combinedQueries = overpassCats.map(c => `  ${c}${aroundClauses};`).join('\n');
+      
+      const overpassQuery = `
+        [out:json][timeout:25];
+        (
+${combinedQueries}
+        );
+        out body;
+        >;
+        out skel qt;
+      `;
+      try {
+        const overpassRes = await fetch('https://overpass-api.de/api/interpreter', {
+          method: 'POST',
+          body: overpassQuery
+        });
+        const overpassData = await overpassRes.json();
+        const externalPois = [];
+        overpassData.elements.forEach(el => {
+          if (el.type === 'node' && el.tags) {
+            let type = 'unknown';
+            if (el.tags.amenity === 'restaurant') type = 'restaurants';
+            else if (el.tags.tourism === 'hotel') type = 'hotels';
+            else if (el.tags.amenity === 'hospital') type = 'hospitals';
+            else if (el.tags.amenity === 'atm') type = 'atms';
+            else if (el.tags.amenity === 'toilets') type = 'restrooms';
+            else if (el.tags.shop === 'car_repair') type = 'mechanic';
+            else if (el.tags.amenity === 'car_wash') type = 'carwash';
+            else if (el.tags.amenity === 'fuel') type = 'fuel';
+            
+            externalPois.push({
+              id: el.id,
+              lat: el.lat,
+              lng: el.lon,
+              name: el.tags.name || `Unnamed ${type}`,
+              poiType: type,
+              ...el.tags
+            });
+          }
+        });
+        results.external = externalPois;
+      } catch (e) {
+        console.error("Overpass error:", e);
+      }
+    }
+    
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch nearby" });
+  }
+});
+
+app.get('/api/trip/history', (req, res) => {
+  const { userId } = req.query;
+  const history = trip_history.filter(t => t.userId === userId).slice(0, 20);
+  const saved = saved_trips.filter(t => t.userId === userId);
+  res.json({ history, saved });
+});
+
+app.post('/api/trip/save', (req, res) => {
+  const trip = { id: "trip-" + Date.now(), ...req.body, timestamp: new Date().toISOString() };
+  saved_trips.unshift(trip);
+  res.json(trip);
+});
+
+app.delete('/api/trip/:id', (req, res) => {
+  saved_trips = saved_trips.filter(t => t.id !== req.params.id);
+  res.json({ success: true });
+});
+
+app.get('/api/trip/preferences', (req, res) => {
+  const pref = trip_preferences.find(p => p.userId === req.query.userId) || { vehicleType: 'Petrol', evDetails: null };
+  res.json(pref);
+});
+
+app.post('/api/trip/preferences', (req, res) => {
+  const { userId, vehicleType, evDetails } = req.body;
+  const idx = trip_preferences.findIndex(p => p.userId === userId);
+  const newPref = { userId, vehicleType, evDetails };
+  if (idx > -1) trip_preferences[idx] = newPref;
+  else trip_preferences.push(newPref);
+  res.json(newPref);
 });
 
 // Start Server

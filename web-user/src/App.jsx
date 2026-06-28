@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useTranslation } from './context/LangContext';
+import TripPlanner from './TripPlanner';
 import { 
   INITIAL_LOCATIONS, 
   INITIAL_BOOKINGS, 
@@ -11,7 +12,7 @@ import {
   MapPin, Search, Navigation, Filter, Clock, DollarSign, Bike, Car, Star, 
   Share2, Compass, Shield, AlertCircle, LogOut, Globe, Calendar, Users, 
   Percent, Activity, RefreshCw, QrCode, Smartphone, HelpCircle,
-  User, Plus, Trash2, Edit2, Bell, Settings, CreditCard, ChevronRight, Lock, Eye, Camera, Check, Wallet
+  User, Plus, Trash2, Edit2, Bell, Settings, CreditCard, ChevronRight, Lock, Eye, Camera, Check, Wallet, Route
 } from 'lucide-react';
 
 function BookingTimer({ endTime, status, onZero }) {
@@ -249,7 +250,7 @@ export default function App() {
     return `${km.toFixed(1)}km`;
   };
 
-  const [currentTab, setCurrentTab] = useState('home'); // home | bookings | profile
+  const [currentTab, setCurrentTab] = useState('home'); // home | bookings | profile | tripPlanner
   const [searchQuery, setSearchQuery] = useState('');
   const [vehicleFilter, setVehicleFilter] = useState('all'); 
   const [sortBy, setSortBy] = useState('nearest');
@@ -1719,6 +1720,10 @@ export default function App() {
                 <MapPin size={17} />
                 <span>{t('home')}</span>
               </button>
+              <button onClick={() => setCurrentTab('tripPlanner')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'tripPlanner' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'tripPlanner' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'tripPlanner' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'tripPlanner' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+                <Route size={17} />
+                <span>Trip Planner</span>
+              </button>
               <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'bookings' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'bookings' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'bookings' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <Calendar size={17} />
                 <span>{t('bookings')}</span>
@@ -1776,10 +1781,10 @@ export default function App() {
         }}>
           {[
             { id: 'home', label: t('home'), icon: <MapPin size={20} /> },
+            { id: 'tripPlanner', label: 'Trip', icon: <Route size={20} /> },
             { id: 'bookings', label: t('bookings'), icon: <Calendar size={20} /> },
             { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} /> },
-            { id: 'profile', label: t('profile'), icon: <User size={20} /> },
-            { id: 'support', label: t('support'), icon: <HelpCircle size={20} /> }
+            { id: 'profile', label: t('profile'), icon: <User size={20} /> }
           ].map(tab => {
             const isActive = currentTab === tab.id;
             return (
@@ -1822,6 +1827,10 @@ export default function App() {
         marginTop: isMobile ? '60px' : '0',
         paddingBottom: isMobile ? '90px' : '32px'
       }}>
+        {currentTab === 'tripPlanner' && (
+          <TripPlanner user={user} API_URL={API_URL} showAlert={showAlert} />
+        )}
+
         {currentTab === 'home' && (
           <div className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
