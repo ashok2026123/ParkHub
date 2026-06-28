@@ -603,21 +603,41 @@ export default function App() {
   // Calculations
   const ownerLocs = locations.filter(l => l.ownerId === ownerProfile.uid);
   const ownerLocIds = ownerLocs.map(l => l.id);
-  const isHostOnline = ownerLocs.some(loc => loc.status !== 'inactive');
+  // isHostOnline is stored directly on the owner profile (defaults true on first login)
+  const isHostOnline = ownerProfile.isOnline !== false;
 
   const toggleGlobalStatus = (nextOnline) => {
+    // Optimistic update — flip the badge immediately
+    const optimistic = { ...ownerProfile, isOnline: nextOnline };
+    setUser(optimistic);
+    localStorage.setItem('parkeasy_owner', JSON.stringify(optimistic));
+
+    // Persist the online/offline flag on the owner record in backend
+    fetch(`${API_URL}/owners/${ownerProfile.uid}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(optimistic)
+    })
+    .then(res => res.json())
+    .then(updatedOwner => {
+      setUser(updatedOwner);
+      localStorage.setItem('parkeasy_owner', JSON.stringify(updatedOwner));
+    })
+    .catch(err => console.error("Error updating host online status:", err));
+
+    // Also update all owned locations so user-facing listings reflect the change
     const targetStatus = nextOnline ? 'active' : 'inactive';
     ownerLocs.forEach(loc => {
       fetch(`${API_URL}/locations/${loc.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: targetStatus })
+        body: JSON.stringify({ ...loc, status: targetStatus })
       })
       .then(res => res.json())
       .then(updatedLoc => {
         setLocations(prev => prev.map(l => l.id === loc.id ? updatedLoc : l));
       })
-      .catch(err => console.error("Error updating global status:", err));
+      .catch(err => console.error("Error updating location status:", err));
     });
     showAlert(`Host is now ${nextOnline ? 'ONLINE' : 'OFFLINE'}. All slots are ${nextOnline ? 'visible' : 'hidden'} to users.`, "Status Updated");
   };
