@@ -717,7 +717,8 @@ export default function App() {
   const averageBookingValue = totalBookingsCount > 0 ? Math.round(lifetimeEarningsGross / totalBookingsCount) : 0;
 
   // Settlements Settings (Dynamic Commission Split)
-  const pendingSettlementAmt = Math.round(lifetimeEarningsGross * ((100 - commissionRate) / 100));
+  const pendingSettlementAmt = Math.max(0, user?.walletBalance ?? 0);
+  const totalHostNetEarnings = Math.round(lifetimeEarningsGross * ((100 - commissionRate) / 100));
   const lastSettlementAmt = 5200; // Mock historical cycle
   const lastSettlementDate = "June 15, 2026";
   const nextSettlementDate = "June 30, 2026";
@@ -1508,13 +1509,14 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>ParkHub Commission ({commissionRate}%):</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>ParkHub Commission ({commissionRate}%):</span>
                     <span style={{ color: '#FF3366', fontWeight: 'bold' }}>- ₹{Math.round(lifetimeEarningsGross * (commissionRate / 100))}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', borderTop: '1px dashed var(--border-color)', paddingTop: '12px' }}>
-                    <span style={{ color: '#FFF', fontWeight: 'bold' }}>Net Host Settlement ({100 - commissionRate}%):</span>
-                    <span style={{ color: '#00E5A0', fontSize: '16px', fontWeight: '800', fontFamily: "'Space Grotesk', sans-serif" }}>₹{pendingSettlementAmt}</span>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '4px' }}>
+                    <span style={{ color: '#FFF', fontWeight: '700' }}>Total Net Earnings ({100 - commissionRate}%):</span>
+                    <span style={{ color: '#00E5A0', fontWeight: '800' }}>₹{totalHostNetEarnings}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.12)', padding: '12px', borderRadius: '10px', gap: '8px' }}>
