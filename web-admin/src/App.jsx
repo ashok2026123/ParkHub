@@ -148,6 +148,9 @@ export default function App() {
   const [selectedAdminUser, setSelectedAdminUser] = useState(null);
   const [selectedAdminOwner, setSelectedAdminOwner] = useState(null);
   const [rejectionRemarks, setRejectionRemarks] = useState('');
+  
+  const [editingUserWallet, setEditingUserWallet] = useState(null);
+  const [walletEditAmount, setWalletEditAmount] = useState('');
   const [isRejectingKyc, setIsRejectingKyc] = useState(false);
   const [unmaskAccountOwner, setUnmaskAccountOwner] = useState(false);
   const [selectedAdminParking, setSelectedAdminParking] = useState(null);
@@ -261,6 +264,30 @@ export default function App() {
       setSelectedUserIds([]);
       showAlert("Selected customers status toggled successfully!", "Bulk Action");
     });
+  };
+
+  const handleSaveUserWallet = async () => {
+    if (!editingUserWallet) return;
+    const newBal = Number(walletEditAmount);
+    if (isNaN(newBal) || newBal < 0) {
+      showAlert("Please enter a valid positive number for wallet balance.", "Invalid Input");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/customers/${editingUserWallet.uid}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletBalance: newBal })
+      });
+      const updatedUser = await res.json();
+      setAdminUsers(prev => prev.map(u => u.uid === editingUserWallet.uid ? updatedUser : u));
+      setEditingUserWallet(null);
+      setWalletEditAmount('');
+      showAlert(`Wallet balance updated successfully to ₹${newBal}.`, "Success");
+    } catch (err) {
+      console.error(err);
+      showAlert("Failed to update wallet balance.", "Error");
+    }
   };
 
   const handleBulkSuspendOwners = () => {
@@ -1397,6 +1424,7 @@ export default function App() {
                       </td>
                       <td style={{ padding: '14px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => { setEditingUserWallet(u); setWalletEditAmount(u.walletBalance || 0); }} style={{ padding: '6px 12px', background: 'rgba(0, 212, 255, 0.1)', border: '1px solid rgba(0, 212, 255, 0.2)', color: '#00d4ff', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Edit Wallet</button>
                           <button onClick={() => handleToggleUserBlock(u.uid, u.status)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: '#FFF', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Toggle Block</button>
                           <button onClick={() => handleDeleteUser(u.uid)} style={{ padding: '6px 12px', background: 'rgba(255,23,68,0.1)', border: '1px solid rgba(255,23,68,0.2)', color: '#FF1744', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Delete</button>
                         </div>
@@ -2351,6 +2379,33 @@ export default function App() {
           </div>
         );
       })()}
+      {/* Edit Customer Wallet Modal */}
+      {editingUserWallet && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-panel animate-fade-in" style={{ width: '380px', padding: '24px', borderRadius: '16px', border: '1px solid rgba(0, 212, 255, 0.4)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#FFF' }}>Edit Wallet Balance</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.4' }}>
+              Adjust the wallet balance for <strong style={{color: '#FFF'}}>{editingUserWallet.name}</strong> ({editingUserWallet.email}).
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0a0a0a', border: '1px solid rgba(0, 212, 255, 0.2)', borderRadius: '10px', padding: '0 16px', marginBottom: '24px' }}>
+              <span style={{ color: '#00d4ff', fontWeight: '800', fontSize: '20px' }}>₹</span>
+              <input
+                type="number"
+                value={walletEditAmount}
+                onChange={(e) => setWalletEditAmount(e.target.value)}
+                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', color: '#FFF', fontSize: '20px', fontWeight: 'bold', outline: 'none' }}
+                placeholder="0"
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => { setEditingUserWallet(null); setWalletEditAmount(''); }} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
+              <button onClick={handleSaveUserWallet} className="glow-button" style={{ flex: 2, padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px', background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', border: '1px solid rgba(0, 212, 255, 0.3)' }}>Update Balance</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
