@@ -566,12 +566,12 @@ export default function App() {
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [showUPIScreen, setShowUPIScreen] = useState(false);
-  const [upiPin, setUpiPin] = useState('');
+  const [upiPin, setUpiPin] = useState('ashok@okaxis');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [activeMockOrder, setActiveMockOrder] = useState(null);
   
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('online');
-  const [razorpayTab, setRazorpayTab] = useState('card');
+  const [razorpayTab, setRazorpayTab] = useState('upi');
   const [dummyCard, setDummyCard] = useState('');
   const [dummyExpiry, setDummyExpiry] = useState('');
   const [dummyCvv, setDummyCvv] = useState('');
@@ -3657,15 +3657,33 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>UPI ID</label>
-                      <input 
-                        type="text" 
-                        placeholder="username@okaxis" 
-                        value={upiPin}
-                        onChange={(e) => setUpiPin(e.target.value)}
-                        style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF' }} 
-                      />
+                    <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>UPI ID</label>
+                        <input 
+                          type="text" 
+                          placeholder="username@okaxis" 
+                          value={upiPin}
+                          onChange={(e) => setUpiPin(e.target.value)}
+                          style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF' }} 
+                        />
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px dashed rgba(51, 153, 255, 0.3)' }}>
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=parkhub@okaxis&pn=ParkHub&am=${Math.max(0, Math.round(
+                            bookingVehicles.reduce((sum, v) => {
+                              const base = v.type === 'four-wheeler'
+                                ? selectedLocation.rates.hourly * bookingDuration
+                                : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
+                              return sum + base;
+                            }, 0) * (1 - couponDiscount/100)
+                          ))}&cu=INR`)}`} 
+                          alt="UPI QR Code" 
+                          style={{ width: '120px', height: '120px', borderRadius: '4px', background: '#FFF', padding: '4px' }}
+                        />
+                        <span style={{ fontSize: '9px', color: '#3399FF', fontWeight: 'bold' }}>Scan QR to Pay Instantly</span>
+                      </div>
                     </div>
                   )}
 
