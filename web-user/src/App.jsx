@@ -568,6 +568,7 @@ export default function App() {
   const [showUPIScreen, setShowUPIScreen] = useState(false);
   const [upiPin, setUpiPin] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [activeMockOrder, setActiveMockOrder] = useState(null);
   
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('online');
   const [razorpayTab, setRazorpayTab] = useState('card');
@@ -1195,6 +1196,17 @@ export default function App() {
             return;
           }
 
+          if (orderData.isMock) {
+            setActiveMockOrder({
+              orderId: orderData.orderId,
+              amount: totalAmt,
+              bookingId: savedBooking.id
+            });
+            setShowUPIScreen(true);
+            setIsProcessingPayment(false);
+            return;
+          }
+
           const options = {
             key: "rzp_live_fakeKeyId1234",
             amount: orderData.amount * 100,
@@ -1319,6 +1331,46 @@ export default function App() {
     }
     
     setIsProcessingPayment(true);
+
+    if (activeMockOrder) {
+      fetch(`${API_URL}/payments/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: activeMockOrder.orderId,
+          razorpay_payment_id: `pay_mock_${Date.now()}`,
+          razorpay_signature: "sig_mock",
+          bookingId: activeMockOrder.bookingId
+        })
+      })
+      .then(res => res.json())
+      .then(verifyData => {
+        if (verifyData.success) {
+          setBookings(prev => [verifyData.booking, ...prev.filter(b => b.id !== activeMockOrder.bookingId)]);
+          showAlert("Simulated Razorpay transaction successful! Slot reservation confirmed.", "Payment Success ✅");
+          
+          fetch(`${API_URL}/locations`)
+            .then(r => r.json())
+            .then(data => setLocations(data))
+            .catch(() => {});
+
+          setShowUPIScreen(false);
+          setSelectedLocation(null);
+          setCurrentTab('bookings');
+          setActiveMockOrder(null);
+        } else {
+          showAlert("Payment signature verification failed.", "Payment Failed ❌");
+        }
+        setIsProcessingPayment(false);
+      })
+      .catch(err => {
+        console.error("Error verifying payment signature:", err);
+        showAlert("Error verifying payment signature.", "Payment Error");
+        setIsProcessingPayment(false);
+      });
+      return;
+    }
+
     setTimeout(() => {
       const promises = bookingVehicles.map(v => {
         const basePrice = v.type === 'four-wheeler' 
