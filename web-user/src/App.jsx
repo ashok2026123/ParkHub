@@ -260,11 +260,45 @@ export default function App() {
   const [showTopUpQRModal, setShowTopUpQRModal] = useState(false);
   const [qrAmount, setQrAmount] = useState(0);
 
+  const [showAdminEditWallet, setShowAdminEditWallet] = useState(false);
+  const [adminWalletEditAmount, setAdminWalletEditAmount] = useState('');
+
   const handleTopUpWallet = () => {
     const amt = parseFloat(topUpAmount);
     if (isNaN(amt) || amt <= 0) return;
     setQrAmount(amt);
     setShowTopUpQRModal(true);
+  };
+
+  const handleAdminOverrideWallet = () => {
+    const amt = parseFloat(adminWalletEditAmount);
+    if (isNaN(amt) || amt < 0) {
+      showAlert("Invalid amount.", "Error");
+      return;
+    }
+    const newTx = {
+      id: 'tx-admin-' + Date.now(),
+      type: 'credit',
+      amount: amt,
+      description: 'Admin Wallet Override',
+      date: new Date().toISOString()
+    };
+    const newTransactions = [newTx, ...(user.transactions || [])];
+
+    fetch(`${API_URL}/customers/${user.uid}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletBalance: amt, transactions: newTransactions })
+    }).then(r => r.json()).then(updated => {
+      setUser(updated);
+      localStorage.setItem('parkeasy_user', JSON.stringify(updated));
+      setShowAdminEditWallet(false);
+      setAdminWalletEditAmount('');
+      showAlert(`Wallet balance successfully overridden to ₹${amt} by Admin.`, "Admin Action Success ✅");
+    }).catch(err => {
+      console.error(err);
+      showAlert("Failed to override wallet balance.", "Error");
+    });
   };
 
   const handleConfirmQRPayment = () => {
@@ -2501,9 +2535,17 @@ export default function App() {
                     <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</span>
                     <Wallet style={{ color: 'var(--primary)' }} size={24} />
                   </div>
-                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '16px', color: '#FFF' }}>
-                    ₹{(user.walletBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '16px', color: '#FFF' }}>
+                      ₹{(user.walletBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </h1>
+                    <button 
+                      onClick={() => { setAdminWalletEditAmount(user.walletBalance || 0); setShowAdminEditWallet(true); }}
+                      style={{ marginTop: '16px', padding: '6px 12px', background: 'rgba(255, 51, 102, 0.15)', border: '1px solid rgba(255, 51, 102, 0.4)', color: '#FF3366', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      Admin Edit
+                    </button>
+                  </div>
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                   Card Number: **** **** **** {user.phone ? user.phone.slice(-4) : '7890'}
@@ -3611,6 +3653,53 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Top-Up QR Modal */}
+      {showTopUpQRModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0, 212, 255, 0.3)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#FFF' }}>Scan to Top-Up</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>Adding <strong>₹{qrAmount}</strong> to wallet</p>
+            
+            <div style={{ background: '#FFF', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '24px' }}>
+              <QrCode size={180} color="#000" />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => setShowTopUpQRModal(false)} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
+              <button onClick={handleConfirmQRPayment} className="glow-button" style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px' }}>Confirm Paid</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Wallet Edit Modal */}
+      {showAdminEditWallet && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255, 51, 102, 0.4)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#FF3366' }}>[Admin] Edit Wallet</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>Override current customer wallet balance.</p>
+            
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0a0a0a', border: '1px solid rgba(255, 51, 102, 0.2)', borderRadius: '10px', padding: '0 16px', marginBottom: '24px' }}>
+              <span style={{ color: '#FF3366', fontWeight: '800', fontSize: '20px' }}>₹</span>
+              <input
+                type="number"
+                value={adminWalletEditAmount}
+                onChange={(e) => setAdminWalletEditAmount(e.target.value)}
+                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', color: '#FFF', fontSize: '20px', fontWeight: 'bold', outline: 'none' }}
+                placeholder="0"
+                autoFocus
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => { setShowAdminEditWallet(false); setAdminWalletEditAmount(''); }} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
+              <button onClick={handleAdminOverrideWallet} className="glow-button" style={{ flex: 2, padding: '12px', background: 'rgba(255, 51, 102, 0.15)', border: '1px solid rgba(255, 51, 102, 0.4)', borderRadius: '8px', color: '#FF3366', fontWeight: '800', fontSize: '13px' }}>Force Update</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ALERTS */}
       {customAlert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

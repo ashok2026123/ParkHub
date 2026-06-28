@@ -1388,6 +1388,7 @@ export default function App() {
                     <th style={{ padding: '14px' }}>Name</th>
                     <th style={{ padding: '14px' }}>Email</th>
                     <th style={{ padding: '14px' }}>Phone</th>
+                    <th style={{ padding: '14px' }}>Wallet</th>
                     <th style={{ padding: '14px' }}>Status</th>
                     <th style={{ padding: '14px' }}>Actions</th>
                   </tr>
@@ -1412,6 +1413,7 @@ export default function App() {
                       <td style={{ padding: '14px', fontWeight: 'bold', color: '#FFF' }}>{u.name}</td>
                       <td style={{ padding: '14px' }}>{u.email}</td>
                       <td style={{ padding: '14px' }}>{u.phone}</td>
+                      <td style={{ padding: '14px', color: '#00E676', fontWeight: 'bold' }}>₹{u.walletBalance || 0}</td>
                       <td style={{ padding: '14px' }}>
                         <span style={{ 
                           fontSize: '11px', 
