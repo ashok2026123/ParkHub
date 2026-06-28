@@ -191,10 +191,7 @@ export default function App() {
   // Entities state — declared early so useEffect below can reference them
   const [adminUsers, setAdminUsers] = useState([]);
 
-  const [adminOwners, setAdminOwners] = useState([
-    { uid: 'owner-456', name: 'Suresh Perumal', email: 'suresh@spotowner.com', phone: '+91 94440 12345', role: 'owner', registeredAt: '2026-01-10T08:00:00Z', locationsCount: 3, earnings: 12450, verified: true, status: 'active' },
-    { uid: 'owner-101', name: 'Arun Moorthi', email: 'arun@marinaowner.in', phone: '+91 98400 55555', role: 'owner', registeredAt: '2026-02-20T16:20:00Z', locationsCount: 1, earnings: 4500, verified: true, status: 'active' }
-  ]);
+  const [adminOwners, setAdminOwners] = useState([]);
 
   useEffect(() => {
     if (selectedAdminOwner) {
