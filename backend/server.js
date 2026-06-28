@@ -806,18 +806,50 @@ app.put('/api/bookings/:id', (req, res) => {
         req.body.status = 'completed';
         req.body.qrUsed = true;
         
-        // Update owner financials: add total amount to wallet, add pending commission
+        // Update owner financials: deduct platform commission from wallet
         const loc = locations.find(l => l.id === oldBooking.locationId);
         if (loc) {
-          const owner = owners.find(o => o.uid === loc.ownerId);
-          if (owner) {
-            const commPct = settings.commissionPercentage || 10;
-            const commission = oldBooking.totalAmount * (commPct / 100);
-            
-            owner.cashEarnings = (owner.cashEarnings || 0) + oldBooking.totalAmount;
-            owner.earnings = (owner.earnings || 0) + oldBooking.totalAmount;
-            owner.walletBalance = (owner.walletBalance || 0) + oldBooking.totalAmount;
-            owner.pendingCommission = (owner.pendingCommission || 0) + commission;
+          const ownerIndex = owners.findIndex(o => o.uid === loc.ownerId);
+          if (ownerIndex !== -1) {
+            const total = oldBooking.totalAmount;
+            const commType = settings.commissionType || 'percentage';
+            const commVal = Number(settings.commissionValue !== undefined ? settings.commissionValue : 10);
+            const commEnabled = settings.commissionEnabled !== false;
+
+            let platformFee = 0;
+            if (commEnabled) {
+              if (commType === 'percentage') {
+                platformFee = Math.round(total * (commVal / 100));
+              } else {
+                platformFee = commVal;
+              }
+            }
+
+            owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) - platformFee;
+            owners[ownerIndex].cashEarnings = (owners[ownerIndex].cashEarnings || 0) + total;
+            owners[ownerIndex].earnings = (owners[ownerIndex].earnings || 0) + total;
+
+            req.body.commission_type = commType;
+            req.body.commission_value = commVal;
+            req.body.commission_amount = platformFee;
+            req.body.owner_amount = total - platformFee;
+            req.body.wallet_balance_after = owners[ownerIndex].walletBalance;
+            req.body.payment_status = 'completed';
+            req.body.payment_type = 'cash';
+
+            // Record transaction log
+            const newTx = {
+              id: "tx-" + Math.floor(Math.random() * 100000),
+              ownerId: loc.ownerId,
+              bookingId: id,
+              amount: total,
+              commission: platformFee,
+              netAmount: -platformFee,
+              type: "debit",
+              status: "success",
+              timestamp: new Date().toISOString()
+            };
+            walletTransactions.unshift(newTx);
           }
         }
       }
@@ -1126,6 +1158,43 @@ app.post('/api/admin/settle-all', (req, res) => {
   res.json(owners);
 });
 
+app.post('/api/owners/:uid/adjust-wallet', async (req, res) => {
+  const { uid } = req.params;
+  const { type, amount, remarks } = req.body;
+  const ownerIndex = owners.findIndex(o => o.uid === uid);
+  if (ownerIndex === -1) {
+    return res.status(404).json({ error: "Owner not found" });
+  }
+
+  const amt = Number(amount);
+  if (isNaN(amt) || amt <= 0) {
+    return res.status(400).json({ error: "Invalid amount" });
+  }
+
+  if (type === 'credit') {
+    owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) + amt;
+  } else {
+    owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) - amt;
+  }
+
+  // Record transaction log
+  const newTx = {
+    id: "tx-" + Math.floor(Math.random() * 100000),
+    ownerId: uid,
+    bookingId: type === 'credit' ? 'manual-credit' : 'manual-debit',
+    amount: amt,
+    commission: 0,
+    netAmount: type === 'credit' ? amt : -amt,
+    type: type,
+    status: "success",
+    remarks: remarks || "Platform Adjustment",
+    timestamp: new Date().toISOString()
+  };
+  walletTransactions.unshift(newTx);
+  await saveAllData();
+  res.json({ success: true, owner: owners[ownerIndex] });
+});
+
 app.put('/api/owners/:uid', (req, res) => {
   const { uid } = req.params;
   const index = owners.findIndex(o => o.uid === uid);
@@ -1245,13 +1314,31 @@ app.post('/api/payments/verify', async (req, res) => {
         const ownerIndex = owners.findIndex(o => o.uid === loc.ownerId);
         if (ownerIndex !== -1) {
           const total = bookings[bookingIndex].totalAmount;
-          const commRate = settings.commissionPercentage || 10;
-          const platformFee = total * (commRate / 100);
+          const commType = settings.commissionType || 'percentage';
+          const commVal = Number(settings.commissionValue !== undefined ? settings.commissionValue : 10);
+          const commEnabled = settings.commissionEnabled !== false;
+
+          let platformFee = 0;
+          if (commEnabled) {
+            if (commType === 'percentage') {
+              platformFee = Math.round(total * (commVal / 100));
+            } else {
+              platformFee = commVal;
+            }
+          }
           const ownerShare = total - platformFee;
 
           owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) + ownerShare;
           owners[ownerIndex].onlineEarnings = (owners[ownerIndex].onlineEarnings || 0) + ownerShare;
           owners[ownerIndex].earnings = (owners[ownerIndex].earnings || 0) + ownerShare;
+
+          bookings[bookingIndex].commission_type = commType;
+          bookings[bookingIndex].commission_value = commVal;
+          bookings[bookingIndex].commission_amount = platformFee;
+          bookings[bookingIndex].owner_amount = ownerShare;
+          bookings[bookingIndex].wallet_balance_after = owners[ownerIndex].walletBalance;
+          bookings[bookingIndex].payment_status = 'paid';
+          bookings[bookingIndex].payment_type = 'online';
 
           // Record transaction log
           const newTx = {

@@ -1320,10 +1320,13 @@ export default function App() {
             {/* 2. Earnings Overview Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
               {[
+                { label: "Wallet Balance", value: `₹${user?.walletBalance ?? 0}`, desc: "Current wallet funds", icon: <DollarSign size={18} color="#00D4FF" />, border: '#00D4FF', textCol: '#00D4FF' },
                 { label: "Today's Earnings", value: `₹${todayEarningsGross}`, desc: "Active & completed today", icon: <Clock size={18} color="#A78BFA" />, border: '#7B61FF', textCol: '#A78BFA' },
-                { label: "This Week's Earnings", value: `₹${weekEarningsGross}`, desc: "Rolling 7 days total", icon: <Activity size={18} color="#60A5FA" />, border: '#00D4FF', textCol: '#60A5FA' },
-                { label: "This Month's Earnings", value: `₹${monthEarningsGross}`, desc: "June billing cycle", icon: <FileText size={18} color="#FBBF24" />, border: '#FF8C42', textCol: '#FBBF24' },
-                { label: "Total Lifetime Earnings", value: `₹${lifetimeEarningsGross}`, desc: "Gross platform intake", icon: <DollarSign size={18} color="#34D399" />, border: '#00E5A0', textCol: '#34D399' }
+                { label: "Online Earnings", value: `₹${user?.onlineEarnings ?? 0}`, desc: "Razorpay net intake", icon: <Activity size={18} color="#60A5FA" />, border: '#60A5FA', textCol: '#60A5FA' },
+                { label: "Cash Earnings", value: `₹${user?.cashEarnings ?? 0}`, desc: "Cash paid directly to host", icon: <FileText size={18} color="#FBBF24" />, border: '#FF8C42', textCol: '#FBBF24' },
+                { label: "Pending Settlement", value: `₹${(user?.walletBalance ?? 0) > 0 ? (user.walletBalance) : 0}`, desc: "Ready for weekly payout", icon: <CheckCircle size={18} color="#34D399" />, border: '#00E5A0', textCol: '#34D399' },
+                { label: "Negative Balance", value: `₹${(user?.walletBalance ?? 0) < 0 ? Math.abs(user.walletBalance) : 0}`, desc: "Commission owed to platform", icon: <AlertCircle size={18} color="#FF1744" />, border: '#FF1744', textCol: '#FF1744' },
+                { label: "Lifetime Earnings", value: `₹${user?.earnings ?? 0}`, desc: "Lifetime gross earnings", icon: <TrendingUp size={18} color="#EC4899" />, border: '#EC4899', textCol: '#EC4899' }
               ].map((card, i) => (
                 <div key={i} className="glass-panel" style={{ 
                   padding: '24px 20px', 
@@ -2860,6 +2863,63 @@ export default function App() {
                     ))
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Detailed Wallet Transactions Table */}
+            <div className="glass-panel" style={{ marginTop: '28px', padding: '28px' }}>
+              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#FFF', margin: 0 }}>📊 Detailed Wallet Transactions Ledger</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Detailed accounting table for audit reviews</p>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>
+                      <th style={{ padding: '12px' }}>Date</th>
+                      <th style={{ padding: '12px' }}>Booking ID</th>
+                      <th style={{ padding: '12px' }}>Customer</th>
+                      <th style={{ padding: '12px' }}>Type</th>
+                      <th style={{ padding: '12px' }}>Amount</th>
+                      <th style={{ padding: '12px' }}>Commission</th>
+                      <th style={{ padding: '12px' }}>Credit/Debit</th>
+                      <th style={{ padding: '12px' }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {walletTransactions.filter(t => t.ownerId === user.uid).length === 0 ? (
+                      <tr>
+                        <td colSpan="8" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>No transactions found.</td>
+                      </tr>
+                    ) : (
+                      walletTransactions.filter(t => t.ownerId === user.uid).map((tx, idx) => {
+                        const relatedBooking = bookings.find(b => b.id === tx.bookingId);
+                        return (
+                          <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                            <td style={{ padding: '14px 12px' }}>{new Date(tx.timestamp).toLocaleString()}</td>
+                            <td style={{ padding: '14px 12px', color: 'var(--primary)' }}>#{tx.bookingId}</td>
+                            <td style={{ padding: '14px 12px' }}>{relatedBooking ? (relatedBooking.userId === 'guest-user' ? 'Guest' : 'Member') : 'N/A'}</td>
+                            <td style={{ padding: '14px 12px' }}>
+                              <span style={{ fontSize: '10px', background: relatedBooking?.paymentType === 'cash' ? 'rgba(255, 140, 66, 0.12)' : 'rgba(0, 212, 255, 0.12)', color: relatedBooking?.paymentType === 'cash' ? '#ff8c42' : '#00d4ff', padding: '2px 6px', borderRadius: '4px' }}>
+                                {(relatedBooking?.paymentType || 'online').toUpperCase()}
+                              </span>
+                            </td>
+                            <td style={{ padding: '14px 12px' }}>₹{tx.amount}</td>
+                            <td style={{ padding: '14px 12px', color: '#FF9100' }}>₹{tx.commission}</td>
+                            <td style={{ padding: '14px 12px', color: tx.type === 'credit' ? '#00E676' : '#FF1744', fontWeight: 'bold' }}>
+                              {tx.type === 'credit' ? '+' : '-'}₹{Math.abs(tx.netAmount)}
+                            </td>
+                            <td style={{ padding: '14px 12px' }}>
+                              <span style={{ fontSize: '9px', fontWeight: '800', background: 'rgba(0, 229, 160, 0.12)', color: '#00E5A0', padding: '2px 6px', borderRadius: '4px' }}>
+                                {tx.status.toUpperCase()}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

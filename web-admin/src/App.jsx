@@ -152,6 +152,9 @@ export default function App() {
   const [unmaskAccountOwner, setUnmaskAccountOwner] = useState(false);
   const [selectedAdminParking, setSelectedAdminParking] = useState(null);
   const [commissionPercentage, setCommissionPercentage] = useState(10);
+  const [commissionType, setCommissionType] = useState('percentage');
+  const [commissionValue, setCommissionValue] = useState(10);
+  const [commissionEnabled, setCommissionEnabled] = useState(true);
   const [bookingGracePeriod, setBookingGracePeriod] = useState(15);
   const [global30MinRate, setGlobal30MinRate] = useState(20);
   const [globalHourlyRate, setGlobalHourlyRate] = useState(50);
@@ -181,6 +184,9 @@ export default function App() {
   const [editOwnerUpiId, setEditOwnerUpiId] = useState('');
   const [showAdminBankDropdown, setShowAdminBankDropdown] = useState(false);
   const [adminBankSearchQuery, setAdminBankSearchQuery] = useState('');
+  const [adjustType, setAdjustType] = useState('');
+  const [adjustAmount, setAdjustAmount] = useState('');
+  const [adjustRemarks, setAdjustRemarks] = useState('');
 
   // Entities state — declared early so useEffect below can reference them
   const [adminUsers, setAdminUsers] = useState([]);
@@ -305,7 +311,10 @@ export default function App() {
         const settingsRes = await fetch(`${API_URL}/settings`);
         if (settingsRes.ok) {
           const data = await settingsRes.json();
-          setCommissionPercentage(data.commissionPercentage);
+          setCommissionPercentage(data.commissionPercentage || 10);
+          setCommissionType(data.commissionType || 'percentage');
+          setCommissionValue(data.commissionValue !== undefined ? data.commissionValue : 10);
+          setCommissionEnabled(data.commissionEnabled !== false);
           setBookingGracePeriod(data.bookingGracePeriod);
           if (data.globalHourlyRate) { setGlobalHourlyRate(data.globalHourlyRate); setEditingHourly(String(data.globalHourlyRate)); }
           if (data.globalDailyRate) { setGlobalDailyRate(data.globalDailyRate); setEditingDaily(String(data.globalDailyRate)); }
@@ -820,16 +829,23 @@ export default function App() {
     .catch(err => console.error("Error sending broadcast:", err));
   };
 
-  const handleUpdateCommission = (newPercentage) => {
-    setCommissionPercentage(newPercentage);
+  const handleUpdateCommission = (type, val, enabled) => {
+    setCommissionType(type);
+    setCommissionValue(val);
+    setCommissionEnabled(enabled);
     fetch(`${API_URL}/settings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ commissionPercentage: newPercentage })
+      body: JSON.stringify({ 
+        commissionType: type,
+        commissionValue: val,
+        commissionEnabled: enabled
+      })
     })
     .then(res => res.json())
     .then(() => {
-      addAuditLog(`Adjusted platform commission rate to ${newPercentage}%`, 'settings');
+      addAuditLog(`Adjusted platform commission rules: ${enabled ? 'Enabled' : 'Disabled'} | Type: ${type} | Value: ${val}`, 'settings');
+      showAlert(`Commission rules successfully saved: ${enabled ? 'Enabled' : 'Disabled'} (${val}${type === 'percentage' ? '%' : ' INR'})`, "Settings Updated ✅");
     })
     .catch(err => console.error("Error updating settings:", err));
   };
@@ -1472,19 +1488,17 @@ export default function App() {
                         )}
                       </td>
                       <td style={{ padding: '14px' }}>
-                        {editingOwnerId === o.uid ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>₹</span>
-                            <input 
-                              type="number" 
-                              value={editOwnerEarnings} 
-                              onChange={(e) => setEditOwnerEarnings(e.target.value)} 
-                              style={{ width: '90px', padding: '6px', background: '#0a0a0a', border: '1px solid var(--primary)', borderRadius: '6px', color: '#FFF', fontSize: '13px', fontWeight: 'bold', outline: 'none' }}
-                            />
-                          </div>
-                        ) : (
-                          <span style={{ color: 'var(--primary)', fontSize: '15px', fontWeight: '800' }}>₹{o.earnings}</span>
-                        )}
+                        <div>
+                          Wallet: <span style={{ 
+                            fontWeight: 'bold', 
+                            color: (o.walletBalance || 0) < 0 ? '#FF1744' : '#00E676' 
+                          }}>
+                            ₹{o.walletBalance || 0}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                          Lifetime: <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{o.earnings || 0}</span>
+                        </div>
                       </td>
                       <td style={{ padding: '14px' }}>
                         <span style={{ 
@@ -1499,17 +1513,7 @@ export default function App() {
                       <td style={{ padding: '14px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => setSelectedAdminOwner(o)} style={{ padding: '6px 12px', background: 'rgba(123, 97, 255, 0.1)', border: '1px solid rgba(123, 97, 255, 0.3)', color: '#7B61FF', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Payout Profile</button>
-                          {editingOwnerId === o.uid ? (
-                            <>
-                              <button onClick={() => handleSaveOwnerBalance(o.uid)} style={{ padding: '6px 12px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Save</button>
-                              <button onClick={() => setEditingOwnerId(null)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', color: '#FFF', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => { setEditingOwnerId(o.uid); setEditOwnerEarnings(String(o.earnings)); }} style={{ padding: '6px 12px', background: 'rgba(0, 212, 255, 0.08)', border: '1px solid rgba(0, 212, 255, 0.2)', color: 'var(--primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Edit Balance</button>
-                              <button onClick={() => handleToggleOwnerSuspend(o.uid, o.status)} style={{ padding: '6px 12px', background: o.status === 'active' ? 'rgba(255,23,68,0.1)' : 'rgba(0, 230, 118, 0.08)', border: o.status === 'active' ? '1px solid rgba(255,23,68,0.2)' : '1px solid var(--primary)', color: o.status === 'active' ? '#FF1744' : 'var(--primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>{o.status === 'active' ? 'Suspend' : 'Activate'}</button>
-                            </>
-                          )}
+                          <button onClick={() => handleToggleOwnerSuspend(o.uid, o.status)} style={{ padding: '6px 12px', background: o.status === 'active' ? 'rgba(255,23,68,0.1)' : 'rgba(0, 230, 118, 0.08)', border: o.status === 'active' ? '1px solid rgba(255,23,68,0.2)' : '1px solid var(--primary)', color: o.status === 'active' ? '#FF1744' : 'var(--primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>{o.status === 'active' ? 'Suspend' : 'Activate'}</button>
                           <button onClick={() => handleDeleteOwner(o.uid)} style={{ padding: '6px 12px', background: 'rgba(255,23,68,0.1)', border: '1px solid rgba(255,23,68,0.2)', color: '#FF1744', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Delete</button>
                         </div>
                       </td>
@@ -1576,9 +1580,49 @@ export default function App() {
 
                 <div className="glass-panel" style={{ padding: '24px' }}>
                   <h3>Adjust Platform Commission</h3>
-                  <div style={{ margin: '20px 0' }}>
-                    <input type="range" min="5" max="25" value={commissionPercentage} onChange={(e) => handleUpdateCommission(parseInt(e.target.value))} style={{ width: '100%', accentColor: 'var(--primary)' }} />
-                    <p style={{ marginTop: '10px' }}>Rate: <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{commissionPercentage}%</span></p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', margin: '20px 0', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '13px', color: '#FFF', fontWeight: 'bold' }}>Status</span>
+                      <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '22px' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={commissionEnabled} 
+                          onChange={(e) => handleUpdateCommission(commissionType, commissionValue, e.target.checked)} 
+                          style={{ opacity: 0, width: 0, height: 0 }} 
+                        />
+                        <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: commissionEnabled ? 'var(--primary)' : '#ccc', transition: '.4s', borderRadius: '34px' }}>
+                          <span style={{ position: 'absolute', content: '""', height: '14px', width: '14px', left: commissionEnabled ? '22px' : '4px', bottom: '4px', backgroundColor: '#000', transition: '.4s', borderRadius: '50%' }}></span>
+                        </span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <span style={{ fontSize: '13px', color: '#FFF', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Commission Type</span>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => handleUpdateCommission('percentage', commissionValue, commissionEnabled)} 
+                          style={{ flex: 1, padding: '8px', background: commissionType === 'percentage' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: commissionType === 'percentage' ? '#000' : '#FFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                        >
+                          Percentage (%)
+                        </button>
+                        <button 
+                          onClick={() => handleUpdateCommission('fixed', commissionValue, commissionEnabled)} 
+                          style={{ flex: 1, padding: '8px', background: commissionType === 'fixed' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: commissionType === 'fixed' ? '#000' : '#FFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                        >
+                          Fixed Amount (₹)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span style={{ fontSize: '13px', color: '#FFF', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Commission Value</span>
+                      <input 
+                        type="number" 
+                        value={commissionValue} 
+                        onChange={(e) => handleUpdateCommission(commissionType, Number(e.target.value), commissionEnabled)} 
+                        style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#FFF', fontSize: '14px', outline: 'none' }} 
+                      />
+                    </div>
                   </div>
                   <button onClick={() => handleExportData('csv', 'revenue')} style={{ display: 'flex', gap: '8px', width: '100%', padding: '10px', background: 'var(--secondary)', border: 'none', borderRadius: '6px', color: '#FFF', cursor: 'pointer', justifyContent: 'center' }}><FileSpreadsheet size={16} /> Export CSV Ledger</button>
                 </div>
@@ -2219,6 +2263,91 @@ export default function App() {
                     💸 Process Weekly Payout
                   </button>
                 </div>
+              </div>
+
+              {/* Manual Adjustment Processor */}
+              <div className="glass-panel" style={{ padding: '20px', textAlign: 'left', borderLeft: '4px solid var(--secondary)', background: 'rgba(255,255,255,0.01)', marginTop: '20px' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFF', marginBottom: '8px', marginTop: '0' }}>
+                  🛠️ Manual Wallet Balance Adjustments
+                </h4>
+                {adjustType ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', marginTop: '10px' }}>
+                    <span style={{ fontSize: '11px', color: adjustType === 'credit' ? '#00E676' : '#FF1744', fontWeight: 'bold' }}>
+                      {adjustType === 'credit' ? '🟢 MANUAL CREDIT ADJUSTMENT' : '🔴 MANUAL DEBIT ADJUSTMENT'}
+                    </span>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 150px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>Amount (₹)</label>
+                        <input 
+                          type="number" 
+                          value={adjustAmount} 
+                          onChange={(e) => setAdjustAmount(e.target.value)} 
+                          placeholder="e.g. 500" 
+                          style={{ width: '100%', padding: '8px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#FFF', fontSize: '12px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: '2 1 250px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>Remarks / Reason</label>
+                        <input 
+                          type="text" 
+                          value={adjustRemarks} 
+                          onChange={(e) => setAdjustRemarks(e.target.value)} 
+                          placeholder="e.g. Bonus incentive or penalty deduction" 
+                          style={{ width: '100%', padding: '8px', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#FFF', fontSize: '12px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
+                      <button 
+                        onClick={() => {
+                          if (!adjustAmount || isNaN(adjustAmount) || Number(adjustAmount) <= 0) {
+                            showAlert("Please enter a valid positive amount.", "Invalid Amount");
+                            return;
+                          }
+                          fetch(`${API_URL}/owners/${activeOwner.uid}/adjust-wallet`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              type: adjustType,
+                              amount: adjustAmount,
+                              remarks: adjustRemarks
+                            })
+                          })
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.success) {
+                              setAdminOwners(prev => prev.map(o => o.uid === activeOwner.uid ? data.owner : o));
+                              showAlert(`Wallet successfully updated with ${adjustType} of ₹${adjustAmount}!`, "Adjustment Saved ✅");
+                              setAdjustType('');
+                              setAdjustAmount('');
+                              setAdjustRemarks('');
+                            } else {
+                              showAlert("Failed to adjust wallet.", "Error");
+                            }
+                          });
+                        }} 
+                        style={{ padding: '6px 12px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
+                      >
+                        Confirm Adjustment
+                      </button>
+                      <button 
+                        onClick={() => { setAdjustType(''); setAdjustAmount(''); setAdjustRemarks(''); }} 
+                        style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', color: '#FFF', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button onClick={() => setAdjustType('credit')} style={{ flex: 1, padding: '8px', background: 'rgba(0, 230, 118, 0.08)', border: '1px solid rgba(0, 230, 118, 0.2)', color: '#00E676', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>
+                      🟢 Credit Wallet Balance
+                    </button>
+                    <button onClick={() => setAdjustType('debit')} style={{ flex: 1, padding: '8px', background: 'rgba(255, 23, 68, 0.08)', border: '1px solid rgba(255, 23, 68, 0.2)', color: '#FF1744', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>
+                      🔴 Debit Wallet Balance
+                    </button>
+                  </div>
+                )}
               </div>
 
             </div>
