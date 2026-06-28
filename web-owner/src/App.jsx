@@ -3353,36 +3353,90 @@ export default function App() {
       )}
 
       {/* Booking OTP verification Modal */}
-      {showBookingOtpModal && selectedBookingForOtp && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="glass-panel animate-fade-in" style={{ width: '360px', padding: '28px', borderRadius: '16px', border: '1px solid var(--primary)', textAlign: 'center' }}>
-            <QrCode size={32} color="var(--primary)" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#FFF', marginBottom: '8px' }}>Verify Cash Booking</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.4' }}>
-              Ask the customer for the 4-digit verification code showing on their ticket, collect cash of <strong>₹{selectedBookingForOtp.totalAmount}</strong>, and enter the code below to complete checkout.
-            </p>
-            <input 
-              type="text" 
-              placeholder="e.g. 1234" 
-              value={bookingOtpInput} 
-              onChange={(e) => setBookingOtpInput(e.target.value.replace(/\D/g,'').slice(0, 4))}
-              style={{ width: '100%', padding: '12px', background: '#0a0a0a', border: bookingOtpError ? '1px solid #FF3366' : '1px solid rgba(0,212,255,0.2)', borderRadius: '8px', color: '#FFF', fontSize: '20px', fontWeight: 'bold', letterSpacing: '8px', textAlign: 'center', outline: 'none', marginBottom: '12px' }}
-            />
-            {bookingOtpError && (
-              <p style={{ fontSize: '11px', color: '#FF3366', margin: '0 0 16px 0', fontWeight: 'bold' }}>{bookingOtpError}</p>
-            )}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" onClick={(e) => handleVerifyBookingWithOtp(e)} className="glow-button" style={{ flex: 1, padding: '10px', fontSize: '13px' }}>Verify & Complete</button>
-                <button type="button" onClick={() => { setShowBookingOtpModal(false); setSelectedBookingForOtp(null); }} style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Cancel</button>
+      {showBookingOtpModal && selectedBookingForOtp && (() => {
+        const isTimeUp = new Date(selectedBookingForOtp.endTime).getTime() <= Date.now();
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div className="glass-panel animate-fade-in" style={{ width: '380px', padding: '28px', borderRadius: '18px', border: `2px solid ${isTimeUp ? '#FF1744' : 'var(--primary)'}`, textAlign: 'center' }}>
+              {/* Header */}
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>{isTimeUp ? '⏰' : '💵'}</div>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#FFF', marginBottom: '6px', marginTop: 0 }}>
+                {isTimeUp ? 'Collect Cash & Verify OTP' : 'Verify Cash Booking OTP'}
+              </h3>
+
+              {/* Status banner */}
+              {isTimeUp && (
+                <div style={{ background: 'rgba(255,23,68,0.12)', border: '1px solid rgba(255,23,68,0.3)', borderRadius: '8px', padding: '8px 14px', marginBottom: '16px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#FF1744', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    ⏰ Parking time has expired
+                  </span>
+                </div>
+              )}
+
+              {/* Booking summary */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px', marginBottom: '18px', textAlign: 'left' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Vehicle</span>
+                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFF' }}>{selectedBookingForOtp.vehicleNumber || '—'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Amount to Collect</span>
+                  <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary)' }}>₹{selectedBookingForOtp.totalAmount}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Booking ID</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{selectedBookingForOtp.id}</span>
+                </div>
               </div>
-              <button type="button" onClick={(e) => handleBypassBookingOtp(e)} style={{ width: '100%', padding: '10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#10B981', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', transition: 'all 0.2s ease' }}>
-                Collect Cash & Bypass OTP
-              </button>
+
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '18px', lineHeight: '1.6' }}>
+                Ask the customer for the <strong style={{ color: '#FFF' }}>4-digit OTP</strong> displayed on their booking screen. Collect <strong style={{ color: 'var(--primary)' }}>₹{selectedBookingForOtp.totalAmount} cash</strong>, then enter the OTP below to confirm checkout.
+              </p>
+
+              {/* OTP input */}
+              <div style={{ marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Enter Customer OTP</label>
+                <input
+                  type="text"
+                  placeholder="• • • •"
+                  value={bookingOtpInput}
+                  onChange={(e) => { setBookingOtpInput(e.target.value.replace(/\D/g,'').slice(0, 4)); setBookingOtpError(''); }}
+                  style={{ width: '100%', padding: '14px', background: '#0a0a0a', border: bookingOtpError ? '2px solid #FF3366' : '2px solid rgba(0,212,255,0.3)', borderRadius: '10px', color: '#FFF', fontSize: '28px', fontWeight: 'bold', letterSpacing: '12px', textAlign: 'center', outline: 'none', boxSizing: 'border-box', transition: 'border 0.2s' }}
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyBookingWithOtp(e); }}
+                />
+              </div>
+              {bookingOtpError && (
+                <p style={{ fontSize: '11px', color: '#FF3366', margin: '8px 0 12px 0', fontWeight: 'bold' }}>⚠️ {bookingOtpError}</p>
+              )}
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
+                <button
+                  type="button"
+                  onClick={(e) => handleVerifyBookingWithOtp(e)}
+                  disabled={bookingOtpInput.length !== 4}
+                  className="glow-button"
+                  style={{ flex: 2, padding: '12px', fontSize: '13px', fontWeight: '800', opacity: bookingOtpInput.length !== 4 ? 0.5 : 1, cursor: bookingOtpInput.length !== 4 ? 'not-allowed' : 'pointer' }}
+                >
+                  ✓ Confirm Checkout
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowBookingOtpModal(false); setSelectedBookingForOtp(null); setBookingOtpInput(''); setBookingOtpError(''); }}
+                  style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '14px', marginBottom: 0 }}>
+                🔒 OTP verification is required. Cash collection cannot be confirmed without the correct OTP.
+              </p>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

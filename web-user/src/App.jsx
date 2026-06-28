@@ -27,7 +27,7 @@ function BookingTimer({ endTime, status, onZero }) {
       const diff = end - now;
 
       if (diff <= 0) {
-        setTimeLeft('Slot closed / Overdue');
+        setTimeLeft('Time is up!');
         setIsOverdue(true);
         if (onZero) onZero();
         return;
@@ -66,7 +66,7 @@ function BookingTimer({ endTime, status, onZero }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <Clock size={16} color={isOverdue ? '#FF1744' : 'var(--primary)'} />
         <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-          {isOverdue ? 'Booking Overdue:' : 'Time Remaining:'}
+          {isOverdue ? 'Parking Time Over:' : 'Time Remaining:'}
         </span>
       </div>
       <span style={{
@@ -2554,20 +2554,33 @@ export default function App() {
                         </div>
                       </div>
 
-                      {activeBooking.paymentMethod === 'cash' && activeBooking.paymentStatus === 'pending' && (
-                        <div style={{ background: 'rgba(255, 193, 7, 0.1)', border: '1px solid #FFC107', borderRadius: '12px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <QrCode size={48} color="#FFC107" />
-                          <div>
-                            <span style={{ fontSize: '11px', color: '#FFC107', fontWeight: 'bold' }}>PENDING PAYMENT</span>
-                            <p style={{ fontSize: '13px', margin: '4px 0 0 0', color: '#FFF' }}>
-                              Verification OTP: <strong style={{ fontSize: '18px', color: '#FFC107' }}>{activeBooking.verificationCode}</strong>
-                            </p>
-                            <p style={{ fontSize: '11px', margin: '2px 0 0 0', color: 'var(--text-muted)' }}>
-                              Show this QR or tell the 4-digit code to the parking owner to pay in cash.
-                            </p>
+                      {/* Cash booking OTP panel — shown always when payment pending */}
+                      {activeBooking.paymentMethod === 'cash' && activeBooking.paymentStatus === 'pending' && (() => {
+                        const isTimeUp = new Date(activeBooking.endTime).getTime() <= Date.now();
+                        return isTimeUp ? (
+                          /* TIME'S UP STATE — bold prominent OTP */
+                          <div style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.15), rgba(255,140,0,0.12))', border: '2px solid #FF1744', borderRadius: '14px', padding: '20px', marginBottom: '20px', textAlign: 'center', animation: 'pulse 2s infinite' }}>
+                            <div style={{ fontSize: '28px', marginBottom: '6px' }}>⏰</div>
+                            <p style={{ fontSize: '13px', fontWeight: '800', color: '#FF1744', margin: '0 0 6px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>Parking Time Over — Pay Now!</p>
+                            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 16px 0' }}>Show this OTP to the parking owner to complete payment</p>
+                            <div style={{ background: '#0a0a0a', border: '2px solid #FFC107', borderRadius: '12px', padding: '14px 20px', display: 'inline-block', marginBottom: '12px' }}>
+                              <p style={{ fontSize: '11px', color: '#FFC107', fontWeight: 'bold', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '2px' }}>Your Checkout OTP</p>
+                              <p style={{ fontSize: '42px', fontWeight: '900', color: '#FFC107', margin: '0', fontFamily: 'monospace', letterSpacing: '12px' }}>{activeBooking.verificationCode}</p>
+                            </div>
+                            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', margin: '0' }}>Amount to pay: <strong style={{ color: '#FFF' }}>₹{activeBooking.totalAmount} (Cash)</strong></p>
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          /* DURING PARKING — show OTP quietly */
+                          <div style={{ background: 'rgba(255, 193, 7, 0.08)', border: '1px solid rgba(255,193,7,0.3)', borderRadius: '12px', padding: '14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <QrCode size={36} color="#FFC107" />
+                            <div>
+                              <span style={{ fontSize: '10px', color: '#FFC107', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Cash Payment OTP (show at checkout)</span>
+                              <p style={{ fontSize: '22px', fontWeight: '900', margin: '2px 0 0 0', color: '#FFC107', fontFamily: 'monospace', letterSpacing: '8px' }}>{activeBooking.verificationCode}</p>
+                              <p style={{ fontSize: '10px', margin: '2px 0 0 0', color: 'var(--text-muted)' }}>When your time is up, the owner will enter this OTP to complete your checkout.</p>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       <div style={{ marginBottom: '24px' }}>
                         <BookingTimer endTime={activeBooking.endTime} status={activeBooking.status} />
@@ -2575,9 +2588,11 @@ export default function App() {
 
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', background: 'rgba(0,0,0,0.1)', padding: '16px 24px', borderRadius: '12px' }}>
                         <div style={{ display: 'flex', gap: '12px' }}>
-                          <button onClick={() => handleCancelBooking(activeBooking.id)} style={{ padding: '10px 20px', background: 'rgba(255,23,68,0.1)', color: '#FF1744', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Cancel Booking</button>
                           {activeBooking.paymentMethod !== 'cash' && (
-                            <button onClick={() => handleCheckOut(activeBooking.id)} style={{ padding: '10px 20px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Simulate Exit (Check Out)</button>
+                            <button onClick={() => handleCancelBooking(activeBooking.id)} style={{ padding: '10px 20px', background: 'rgba(255,23,68,0.1)', color: '#FF1744', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Cancel Booking</button>
+                          )}
+                          {activeBooking.paymentMethod !== 'cash' && (
+                            <button onClick={() => handleCheckOut(activeBooking.id)} style={{ padding: '10px 20px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Check Out</button>
                           )}
                         </div>
                       </div>
