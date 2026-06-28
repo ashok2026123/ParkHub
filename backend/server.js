@@ -690,7 +690,7 @@ app.put('/api/owners/:uid', (req, res) => {
 
 async function syncOpenChargeMapData() {
   try {
-    const res = await fetch("https://api.openchargemap.io/v3/poi/?output=json&countrycode=IN&maxresults=100&compact=true&verbose=false&key=5dbb2c9b-640a-471a-85d3-f542a3eb946f");
+    const res = await fetch("https://api.openchargemap.io/v3/poi/?output=json&countrycode=IN&maxresults=2500&compact=true&verbose=false&key=5dbb2c9b-640a-471a-85d3-f542a3eb946f");
     if (!res.ok) return;
     const data = await res.json();
     let updated = false;
