@@ -1220,7 +1220,7 @@ app.post('/api/payments/verify', async (req, res) => {
   
   let isVerified = false;
   try {
-    const hmac = crypto.createHmac('sha256', razorpay.key_secret);
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'i4AoBu4S0Vt6vNStcOV3bqq6');
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generatedSignature = hmac.digest('hex');
     isVerified = (generatedSignature === razorpay_signature);
