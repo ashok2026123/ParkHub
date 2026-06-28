@@ -109,6 +109,7 @@ export default function App() {
   const [evReservations, setEvReservations] = useState([]);
   const [settlements, setSettlements] = useState([]);
   const [walletTransactions, setWalletTransactions] = useState([]);
+  const [fuelStations, setFuelStations] = useState([]);
   const [isProcessingSettlement, setIsProcessingSettlement] = useState(false);
 
   const handleLoginWithCredentials = async (emailOrPhone, password) => {
@@ -365,6 +366,11 @@ export default function App() {
         const custRes = await fetch(`${API_URL}/customers`);
         if (custRes.ok) setAdminUsers(await custRes.json());
       } catch (err) { console.error("Error fetching customers:", err); }
+
+      try {
+        const fuelRes = await fetch(`${API_URL}/fuel-stations/admin`);
+        if (fuelRes.ok) setFuelStations(await fuelRes.json());
+      } catch (e) { console.error("Error fetching fuel stations", e); }
 
       try {
         const evLocRes = await fetch(`${API_URL}/ev-stations`);
@@ -957,7 +963,29 @@ export default function App() {
             <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'bookings' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
               <Calendar size={16} /><span>Bookings Registry</span>
             </button>
-            <button onClick={() => setCurrentTab('revenue')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'revenue' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'revenue' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
+            <button 
+            onClick={() => setCurrentTab('fuel')} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              padding: '12px 16px', 
+              border: 'none', 
+              background: currentTab === 'fuel' ? 'var(--bg-tertiary)' : 'transparent', 
+              color: currentTab === 'fuel' ? 'var(--primary)' : 'var(--text-secondary)', 
+              borderRadius: '8px', 
+              cursor: 'pointer',
+              fontWeight: currentTab === 'fuel' ? '700' : '500',
+              transition: 'all 0.2s',
+              textAlign: 'left'
+            }}
+          >
+            <MapPin size={18} />
+            {isSidebarOpen && "Fuel Stations"}
+          </button>
+          
+          <button 
+            onClick={() => setCurrentTab('revenue')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'revenue' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'revenue' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
               <DollarSign size={16} /><span>Commissions & Payouts</span>
             </button>
             <button onClick={() => setCurrentTab('complaints')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px', borderRadius: '6px', border: 'none', background: currentTab === 'complaints' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'complaints' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: '500', fontSize: '13px' }}>
@@ -1546,6 +1574,70 @@ export default function App() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {currentTab === 'fuel' && (
+          <div className="animate-fade-in" style={{ padding: isMobile ? '16px' : '32px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '24px', fontWeight: '800' }}>Fuel Station Management</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Manage mapped fuel stations across India.</p>
+              </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                    <th style={{ padding: '14px' }}>Brand</th>
+                    <th style={{ padding: '14px' }}>Name</th>
+                    <th style={{ padding: '14px' }}>Address</th>
+                    <th style={{ padding: '14px' }}>Status</th>
+                    <th style={{ padding: '14px', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fuelStations.map(station => (
+                    <tr key={station.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '14px', color: '#FFF' }}>
+                      <td style={{ padding: '14px' }}>
+                        <span style={{ padding: '4px 8px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
+                          {station.brand}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px', fontWeight: '600' }}>{station.name}</td>
+                      <td style={{ padding: '14px', color: 'var(--text-muted)' }}>{station.address.length > 40 ? station.address.substring(0, 40) + '...' : station.address}</td>
+                      <td style={{ padding: '14px' }}>
+                        <span style={{ color: station.is_active ? '#00E676' : '#FF1744', fontSize: '12px', fontWeight: '600' }}>
+                          {station.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px', textAlign: 'right' }}>
+                        <button 
+                          onClick={async () => {
+                            showConfirm(`Delete ${station.name}?`, async () => {
+                              try {
+                                await fetch(`${API_URL}/fuel-stations/admin/${station.id}`, { method: 'DELETE' });
+                                setFuelStations(prev => prev.filter(s => s.id !== station.id));
+                                showAlert("Station deleted successfully.");
+                              } catch(e) { showAlert("Error deleting station.", "Error"); }
+                            });
+                          }}
+                          style={{ padding: '6px 12px', background: 'rgba(255, 23, 68, 0.1)', color: '#FF1744', border: '1px solid rgba(255, 23, 68, 0.3)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {fuelStations.length === 0 && (
+                    <tr>
+                      <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>No fuel stations found in cache.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

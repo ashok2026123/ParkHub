@@ -31,6 +31,7 @@ async function saveAllData() {
       fetch(`${FIREBASE_DB_URL}/customers.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customers) }),
       fetch(`${FIREBASE_DB_URL}/evStations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evStations) }),
       fetch(`${FIREBASE_DB_URL}/evReservations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evReservations) }),
+      fetch(`${FIREBASE_DB_URL}/fuelStations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fuelStations) }),
       fetch(`${FIREBASE_DB_URL}/walletTransactions.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(walletTransactions) }),
       fetch(`${FIREBASE_DB_URL}/settlements.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settlements) })
     ]);
@@ -41,7 +42,7 @@ async function saveAllData() {
 
 async function loadAllData() {
   try {
-    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes, evLocRes, evBookRes, walletTxRes, settlementRes] = await Promise.all([
+    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes, evLocRes, evBookRes, fuelRes, walletTxRes, settlementRes] = await Promise.all([
       fetch(`${FIREBASE_DB_URL}/locations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/bookings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/reviews.json`).then(r => r.json()),
@@ -54,6 +55,7 @@ async function loadAllData() {
       fetch(`${FIREBASE_DB_URL}/customers.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/evStations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/evReservations.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/fuelStations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/walletTransactions.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/settlements.json`).then(r => r.json())
     ]);
@@ -69,6 +71,7 @@ async function loadAllData() {
     if (custRes) customers = custRes;
     if (evLocRes) evStations = evLocRes;
     if (evBookRes) evReservations = evBookRes;
+    if (fuelRes) fuelStations = fuelRes;
     if (walletTxRes) walletTransactions = walletTxRes;
     if (settlementRes) settlements = settlementRes;
 
@@ -123,6 +126,7 @@ let broadcastLogs = [];
 let customers = [];
 let evStations = [];
 let evReservations = [];
+let fuelStations = [];
 
 // ==========================================
 // ACCURATE SLOT RECALCULATION FROM BOOKINGS
@@ -738,6 +742,135 @@ async function syncOpenChargeMapData() {
 // Sync OCM every hour
 setInterval(syncOpenChargeMapData, 3600000);
 setTimeout(syncOpenChargeMapData, 5000);
+
+// ==========================================
+// FUEL STATIONS (OpenStreetMap Overpass API)
+// ==========================================
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; 
+}
+
+app.get('/api/fuel-stations/search', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+  const radius = parseFloat(req.query.radius) || 10; // km
+  
+  if (!lat || !lng) return res.status(400).json({ error: "Missing lat/lng" });
+
+  try {
+    const nearbyCached = fuelStations.filter(s => getDistance(lat, lng, s.latitude, s.longitude) <= radius * 1.5);
+    
+    if (nearbyCached.length < 5) {
+      const r = radius * 1.5; 
+      const latDelta = r / 111;
+      const lonDelta = r / (111 * Math.cos(lat * (Math.PI / 180)));
+      const minLat = lat - latDelta;
+      const minLon = lng - lonDelta;
+      const maxLat = lat + latDelta;
+      const maxLon = lng + lonDelta;
+
+      const overpassQuery = `
+        [out:json][timeout:25];
+        (
+          node["amenity"="fuel"](${minLat},${minLon},${maxLat},${maxLon});
+          way["amenity"="fuel"](${minLat},${minLon},${maxLat},${maxLon});
+        );
+        out center;
+      `;
+
+      const response = await fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        body: overpassQuery,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        let addedNew = false;
+        
+        data.elements.forEach(el => {
+          const id = `fuel-osm-${el.id}`;
+          if (!fuelStations.some(s => s.id === id)) {
+            const tags = el.tags || {};
+            const eLat = el.lat || el.center?.lat;
+            const eLon = el.lon || el.center?.lon;
+            
+            if (eLat && eLon) {
+              const brand = tags.brand || tags.operator || "Independent";
+              const newStation = {
+                id,
+                osm_id: el.id,
+                name: tags.name || `${brand} Fuel Station`,
+                brand: brand,
+                address: [tags["addr:street"], tags["addr:city"], tags["addr:state"], tags["addr:postcode"]].filter(Boolean).join(", ") || "Unknown Address",
+                latitude: eLat,
+                longitude: eLon,
+                opening_hours: tags.opening_hours || "24/7",
+                source: 'osm',
+                is_active: true,
+                last_updated: new Date().toISOString()
+              };
+              fuelStations.push(newStation);
+              addedNew = true;
+            }
+          }
+        });
+        
+        if (addedNew) {
+          saveAllData();
+        }
+      }
+    }
+    
+    const results = fuelStations.filter(s => s.is_active && getDistance(lat, lng, s.latitude, s.longitude) <= radius);
+    res.json(results);
+  } catch (err) {
+    console.error("Error fetching fuel stations:", err);
+    res.status(500).json({ error: "Failed to fetch fuel stations" });
+  }
+});
+
+app.get('/api/fuel-stations/admin', (req, res) => {
+  res.json(fuelStations);
+});
+
+app.post('/api/fuel-stations/admin', (req, res) => {
+  const newStation = {
+    id: `fuel-custom-${Date.now()}`,
+    source: 'admin',
+    is_active: true,
+    last_updated: new Date().toISOString(),
+    ...req.body
+  };
+  fuelStations.push(newStation);
+  res.status(201).json(newStation);
+});
+
+app.put('/api/fuel-stations/admin/:id', (req, res) => {
+  const idx = fuelStations.findIndex(s => s.id === req.params.id);
+  if (idx !== -1) {
+    fuelStations[idx] = { ...fuelStations[idx], ...req.body, last_updated: new Date().toISOString() };
+    res.json(fuelStations[idx]);
+  } else {
+    res.status(404).json({ error: "Station not found" });
+  }
+});
+
+app.delete('/api/fuel-stations/admin/:id', (req, res) => {
+  const idx = fuelStations.findIndex(s => s.id === req.params.id);
+  if (idx !== -1) {
+    fuelStations.splice(idx, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: "Station not found" });
+  }
+});
 
 // ==========================================
 // RAZORPAY & SETTLEMENT APIS

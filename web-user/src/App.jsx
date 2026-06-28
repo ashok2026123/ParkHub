@@ -109,11 +109,15 @@ export default function App() {
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [complaints, setComplaints] = useState([]);
   
-  const [searchMode, setSearchMode] = useState('parking'); // 'parking' | 'ev'
+  const [searchMode, setSearchMode] = useState('parking'); // 'parking' | 'ev' | 'fuel'
   const [evStations, setEvStations] = useState([]);
   const [evReservations, setEvReservations] = useState([]);
   const [evConnectorFilter, setEvConnectorFilter] = useState('all');
   const [evTypeFilter, setEvTypeFilter] = useState('all');
+  
+  const [fuelStations, setFuelStations] = useState([]);
+  const [fuelBrandFilter, setFuelBrandFilter] = useState('all');
+  const [isFuelLoading, setIsFuelLoading] = useState(false);
   
   const [showEvReserveModal, setShowEvReserveModal] = useState(false);
   const [selectedEvStation, setSelectedEvStation] = useState(null);
@@ -153,6 +157,11 @@ export default function App() {
         const evRes = await fetch(`${API_URL}/ev-stations`);
         if (evRes.ok) setEvStations(await evRes.json());
       } catch (err) { console.error("Error fetching EV stations:", err); }
+
+      try {
+        const fuelRes = await fetch(`${API_URL}/fuel-stations/admin`);
+        if (fuelRes.ok) setFuelStations(await fuelRes.json());
+      } catch (err) { console.error("Error fetching fuel stations globally:", err); }
 
       try {
         const bookRes = await fetch(`${API_URL}/bookings`);
@@ -247,6 +256,22 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (searchMode === 'fuel' && userCoords) {
+      setIsFuelLoading(true);
+      fetch(`${API_URL}/fuel-stations/search?lat=${userCoords.lat}&lng=${userCoords.lng}&radius=15`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.error) setFuelStations(data);
+          setIsFuelLoading(false);
+        })
+        .catch(err => {
+          console.error("Error fetching fuel stations:", err);
+          setIsFuelLoading(false);
+        });
+    }
+  }, [searchMode, userCoords]);
 
   const getEstimatedTime = (km) => {
     if (!km) return null;
@@ -686,6 +711,36 @@ export default function App() {
     });
   }, [filteredEvStations, userCoords, sortBy]);
 
+  const filteredFuelStations = React.useMemo(() => {
+    return fuelStations.filter(station => {
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch = !query || 
+        station.name.toLowerCase().includes(query) || 
+        station.address.toLowerCase().includes(query);
+      const matchesBrand = fuelBrandFilter === 'all' || station.brand === fuelBrandFilter;
+      return matchesSearch && matchesBrand;
+    });
+  }, [fuelStations, searchQuery, fuelBrandFilter]);
+
+  const sortedFuelStations = React.useMemo(() => {
+    const mapped = filteredFuelStations.map(station => {
+      if (userCoords) {
+        const dist = getDistance(userCoords.lat, userCoords.lng, station.latitude, station.longitude);
+        return { ...station, distance: dist };
+      }
+      return { ...station, distance: undefined };
+    });
+
+    return mapped.sort((a, b) => {
+      if (a.distance !== undefined && b.distance !== undefined) {
+        return a.distance - b.distance;
+      }
+      if (a.distance !== undefined) return -1;
+      if (b.distance !== undefined) return 1;
+      return 0;
+    });
+  }, [filteredFuelStations, userCoords]);
+
   // Compute top 3 nearest parking location IDs (always based on distance)
   const nearestThreeIds = React.useMemo(() => {
     if (!userCoords) return [];
@@ -798,7 +853,34 @@ export default function App() {
 
         if (isSelected) {
           leafletMapInstance.current.panTo([station.latitude, station.longitude]);
+          leafletMapInstance.current.panTo([station.latitude, station.longitude]);
         }
+      });
+    } else if (searchMode === 'fuel') {
+      sortedFuelStations.forEach(station => {
+        let pinColor = '#2196F3'; // Blue = Fuel
+
+        const iconHtml = `
+          <div style="display: flex; flex-direction: column; align-items: center; width: 100px;">
+            <div style="background: #1e1e1e; color: #FFF; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
+              <span>⛽ ${station.brand}</span>
+            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3" fill="#FFF"></circle>
+            </svg>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: 'custom-map-marker',
+          iconSize: [100, 60],
+          iconAnchor: [50, 60]
+        });
+
+        const marker = L.marker([station.latitude, station.longitude], { icon: customIcon });
+        marker.addTo(markersGroupRef.current);
       });
     } else {
       sortedLocations.forEach(loc => {
@@ -846,7 +928,7 @@ export default function App() {
         }
       });
     }
-  }, [sortedLocations, sortedEvStations, selectedLocation, selectedEvStation, searchMode, currentTab]);
+  }, [sortedLocations, sortedEvStations, sortedFuelStations, selectedLocation, selectedEvStation, searchMode, currentTab]);
 
   // Center to India or user location based on SearchMode
   useEffect(() => {
@@ -1775,6 +1857,26 @@ export default function App() {
               >
                 ⚡ EV Charging Spots
               </button>
+              <button 
+                onClick={() => { setSearchMode('fuel'); setSelectedLocation(null); setSelectedEvStation(null); setSearchQuery(''); }} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  padding: '10px 20px', 
+                  borderRadius: '30px', 
+                  border: searchMode === 'fuel' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
+                  background: searchMode === 'fuel' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  color: searchMode === 'fuel' ? 'var(--primary)' : '#FFF', 
+                  fontSize: '13px', 
+                  fontWeight: '700', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: searchMode === 'fuel' ? '0 4px 15px rgba(0, 212, 255, 0.2)' : 'none'
+                }}
+              >
+                ⛽ Fuel Stations
+              </button>
             </div>
 
             <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
@@ -1783,10 +1885,24 @@ export default function App() {
                 <input type="text" value={searchQuery} onChange={handleSearch} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#FFF', fontSize: '14px', outline: 'none' }} />
               </div>
 
-              <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
-                <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
-                <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
+              <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
+                {searchMode === 'fuel' ? (
+                  <>
+                    <button onClick={() => setFuelBrandFilter('all')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>All Brands</button>
+                    <button onClick={() => setFuelBrandFilter('IndianOil')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'IndianOil' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>IndianOil</button>
+                    <button onClick={() => setFuelBrandFilter('BPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'BPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>BPCL</button>
+                    <button onClick={() => setFuelBrandFilter('HPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'HPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>HPCL</button>
+                    <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
+                    <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
+                    <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
+                    <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
+                    <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
+                  </>
+                )}
               </div>
 
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: '10px 14px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#FFF', fontSize: '13px', cursor: 'pointer', outline: 'none' }}>
@@ -1885,7 +2001,82 @@ export default function App() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '560px', overflowY: 'auto' }}>
-                {searchMode === 'ev' ? (
+                {searchMode === 'fuel' ? (
+                  <>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Nearby Fuel Stations ({sortedFuelStations.length})</h3>
+                    {isFuelLoading && (
+                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--primary)' }}>
+                        <RefreshCw className="spinning" size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
+                        <p style={{ marginTop: '10px', fontSize: '12px' }}>Locating Fuel Stations...</p>
+                      </div>
+                    )}
+                    {sortedFuelStations.map(station => (
+                      <div 
+                        key={station.id}
+                        className="glass-panel"
+                        style={{ 
+                          padding: '16px', 
+                          border: '1px solid var(--glass-border)',
+                          background: 'var(--glass-bg)',
+                          transition: 'all 0.2s',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          if (leafletMapInstance.current) {
+                            leafletMapInstance.current.panTo([station.latitude, station.longitude]);
+                            leafletMapInstance.current.setZoom(16);
+                          }
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '10px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', textTransform: 'uppercase' }}>
+                                {station.brand}
+                              </span>
+                              {station.distance !== undefined && (
+                                <span style={{ fontSize: '10px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>
+                                  {formatDistance(station.distance)}
+                                </span>
+                              )}
+                              <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: '4px' }}>
+                                {station.opening_hours || '24/7'}
+                              </span>
+                            </div>
+                            <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#FFF' }}>{station.name}</h4>
+                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>{station.address}</p>
+                          </div>
+                          
+                          <div style={{ marginLeft: '12px' }}>
+                            <a 
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`}
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '8px 16px',
+                                background: '#2196F3',
+                                color: '#FFF',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                textDecoration: 'none',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
+                              }}
+                            >
+                              <Navigation size={14} style={{ fill: '#FFF' }} />
+                              <span>Navigate</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : searchMode === 'ev' ? (
                   selectedEvStation ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
                       <button onClick={() => setSelectedEvStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
