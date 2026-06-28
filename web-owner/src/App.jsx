@@ -279,6 +279,35 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Auto-open cash verification modal if a user notifies owner
+  useEffect(() => {
+    if (!showBookingOtpModal && bookings.length > 0 && user) {
+      const ownerLocIdsLocal = locations.filter(l => l.ownerId === user.uid).map(l => l.id);
+      const notifyBooking = bookings.find(b => 
+        ownerLocIdsLocal.includes(b.locationId) && 
+        b.paymentMethod === 'cash' && 
+        b.paymentStatus === 'pending' && 
+        b.readyForCashCheckout === true
+      );
+      if (notifyBooking) {
+        // Clear the flag so it doesn't keep triggering if closed
+        fetch(`${API_URL}/bookings/${notifyBooking.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ readyForCashCheckout: false })
+        }).catch(err => console.error("Error clearing ready flag:", err));
+        
+        setSelectedBookingForOtp(notifyBooking);
+        setShowBookingOtpModal(true);
+        // Play notification sound
+        try {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.play();
+        } catch (e) {}
+      }
+    }
+  }, [bookings, showBookingOtpModal, user, locations]);
+
   const handleLoginWithCredentials = async (emailOrPhone, password) => {
     const cleanInput = emailOrPhone.trim().toLowerCase().replace(/\s+/g, '');
     
@@ -643,7 +672,7 @@ export default function App() {
   };
   const ownerBks = bookings.filter(b => ownerLocIds.includes(b.locationId));
   const totalEarnings = Math.max(
-    ownerBks.reduce((sum, b) => b.status === 'completed' || b.status === 'active' ? sum + b.totalAmount : sum, 0),
+    ownerBks.reduce((sum, b) => (b.paymentStatus === 'paid' || b.paymentStatus === 'completed' || (b.status === 'completed' && b.paymentMethod !== 'cash')) ? sum + b.totalAmount : sum, 0),
     ownerProfile.earnings || 0
   );
 
@@ -663,7 +692,9 @@ export default function App() {
     return new Date(b.createdAt || b.bookingDate || b.startTime || Date.now()).getTime();
   };
 
-  const activeAndCompletedBks = ownerBks.filter(b => b.status === 'completed' || b.status === 'active');
+  const isBookingPaid = (b) => b.paymentStatus === 'paid' || b.paymentStatus === 'completed' || (b.status === 'completed' && b.paymentMethod !== 'cash');
+
+  const activeAndCompletedBks = ownerBks.filter(b => isBookingPaid(b));
 
   // Earnings Categories
   const todayEarningsGross = activeAndCompletedBks

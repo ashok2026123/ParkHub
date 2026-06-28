@@ -1345,6 +1345,23 @@ export default function App() {
     }
   };
 
+  // Notify owner to collect cash
+  const handleNotifyOwnerCash = async (booking) => {
+    try {
+      const res = await fetch(`${API_URL}/bookings/${booking.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ readyForCashCheckout: true })
+      });
+      const updated = await res.json();
+      setBookings(prev => prev.map(b => b.id === booking.id ? updated : b));
+      showAlert("Owner notified! The cash collection window will pop up on their screen.", "Owner Notified 🔔");
+    } catch (err) {
+      console.error("Notify error:", err);
+      showAlert("Failed to notify owner.", "Error");
+    }
+  };
+
   // Switch a pending cash booking to Online (Razorpay) payment
   const handleSwitchCashToOnline = async (booking) => {
     const loadScript = () => new Promise((resolve) => {
@@ -2688,12 +2705,19 @@ export default function App() {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: '12px' }}>
                         <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {/* Pay with Cash */}
+                          <button
+                            onClick={() => handleNotifyOwnerCash(activeBooking)}
+                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,140,0,0.15))', border: '1px solid rgba(255,193,7,0.4)', color: '#FFC107', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            💵 Pay with Cash
+                          </button>
                           {/* Pay Online */}
                           <button
                             onClick={() => handleSwitchCashToOnline(activeBooking)}
                             style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#00d4ff', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                           >
-                            💳 Pay Online (UPI / Card)
+                            💳 Pay Online (UPI/Card)
                           </button>
                           {/* Pay with Wallet */}
                           <button
