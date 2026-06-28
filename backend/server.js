@@ -856,20 +856,44 @@ app.get('/api/fuel-stations/search', async (req, res) => {
   try {
     const nearbyCached = fuelStations.filter(s => getDistance(lat, lng, s.latitude, s.longitude) <= radius * 1.5);
     
-    if (nearbyCached.length < 5) {
-      const r = radius * 1.5; 
-      const latDelta = r / 111;
-      const lonDelta = r / (111 * Math.cos(lat * (Math.PI / 180)));
-      const minLat = lat - latDelta;
-      const minLon = lng - lonDelta;
-      const maxLat = lat + latDelta;
-      const maxLon = lng + lonDelta;
+    // Always return cached first, the backend syncs it in background
+    return res.json(nearbyCached);
+  } catch (err) {
+    console.error("Error in local fuel search endpoint:", err);
+    res.status(500).json({ error: "Failed to search fuel stations locally" });
+  }
+});
 
+// Admin manual force sync
+app.post('/api/fuel-stations/sync', async (req, res) => {
+  await syncFuelStationsData();
+  res.json({ message: "Fuel stations synced", count: fuelStations.length });
+});
+
+async function syncFuelStationsData() {
+  console.log("Starting background OSM fuel stations sync for major Indian cities...");
+  
+  // Bounding boxes for top Indian cities
+  const cities = [
+    { name: "Chennai", minLat: 12.8, minLon: 80.0, maxLat: 13.2, maxLon: 80.3 },
+    { name: "Bangalore", minLat: 12.7, minLon: 77.4, maxLat: 13.1, maxLon: 77.8 },
+    { name: "Mumbai", minLat: 18.9, minLon: 72.8, maxLat: 19.3, maxLon: 73.1 },
+    { name: "Delhi", minLat: 28.4, minLon: 76.8, maxLat: 28.9, maxLon: 77.4 },
+    { name: "Hyderabad", minLat: 17.2, minLon: 78.3, maxLat: 17.6, maxLon: 78.6 },
+    { name: "Kolkata", minLat: 22.4, minLon: 88.2, maxLat: 22.7, maxLon: 88.5 },
+    { name: "Pune", minLat: 18.4, minLon: 73.7, maxLat: 18.7, maxLon: 74.0 },
+    { name: "Ahmedabad", minLat: 22.9, minLon: 72.5, maxLat: 23.1, maxLon: 72.7 }
+  ];
+
+  let updated = false;
+
+  for (let city of cities) {
+    try {
       const overpassQuery = `
         [out:json][timeout:25];
         (
-          node["amenity"="fuel"](${minLat},${minLon},${maxLat},${maxLon});
-          way["amenity"="fuel"](${minLat},${minLon},${maxLat},${maxLon});
+          node["amenity"="fuel"](${city.minLat},${city.minLon},${city.maxLat},${city.maxLon});
+          way["amenity"="fuel"](${city.minLat},${city.minLon},${city.maxLat},${city.maxLon});
         );
         out center;
       `;
@@ -882,7 +906,6 @@ app.get('/api/fuel-stations/search', async (req, res) => {
       
       if (response.ok) {
         const data = await response.json();
-        let addedNew = false;
         
         data.elements.forEach(el => {
           const id = `fuel-osm-${el.id}`;
@@ -892,39 +915,54 @@ app.get('/api/fuel-stations/search', async (req, res) => {
             const eLon = el.lon || el.center?.lon;
             
             if (eLat && eLon) {
-              const brand = tags.brand || tags.operator || "Independent";
+              const operator = (tags.operator || tags.brand || "Independent").toLowerCase();
+              let brand = "Independent";
+              if (operator.includes("indianoil") || operator.includes("ioc")) brand = "IndianOil";
+              else if (operator.includes("bharat") || operator.includes("bpcl")) brand = "BPCL";
+              else if (operator.includes("hindustan") || operator.includes("hpcl")) brand = "HPCL";
+              else if (operator.includes("shell")) brand = "Shell";
+              else if (operator.includes("reliance") || operator.includes("jio")) brand = "Reliance";
+              else if (operator.includes("nayara") || operator.includes("essar")) brand = "Nayara";
+              else brand = tags.brand || tags.operator || "Independent";
+
               const newStation = {
                 id,
                 osm_id: el.id,
                 name: tags.name || `${brand} Fuel Station`,
                 brand: brand,
-                address: [tags["addr:street"], tags["addr:city"], tags["addr:state"], tags["addr:postcode"]].filter(Boolean).join(", ") || "Unknown Address",
+                address: `${tags["addr:street"] || ""} ${tags["addr:city"] || city.name} India`.trim(),
                 latitude: eLat,
                 longitude: eLon,
-                opening_hours: tags.opening_hours || "24/7",
-                source: 'osm',
-                is_active: true,
-                last_updated: new Date().toISOString()
+                diesel: tags.fuel_diesel === "yes" || true,
+                petrol: tags.fuel_octane_91 === "yes" || tags.fuel_octane_95 === "yes" || true,
+                cng: tags.fuel_cng === "yes" || false,
+                lastUpdated: new Date().toISOString()
               };
-              fuelStations.push(newStation);
-              addedNew = true;
+              
+              // Deduplication
+              const isDuplicate = fuelStations.some(s => getDistance(newStation.latitude, newStation.longitude, s.latitude, s.longitude) < 0.05);
+              if (!isDuplicate) {
+                fuelStations.push(newStation);
+                updated = true;
+              }
             }
           }
         });
-        
-        if (addedNew) {
-          saveAllData();
-        }
       }
+    } catch (err) {
+      console.error(`Error syncing fuel stations for ${city.name}:`, err);
     }
-    
-    const results = fuelStations.filter(s => s.is_active && getDistance(lat, lng, s.latitude, s.longitude) <= radius);
-    res.json(results);
-  } catch (err) {
-    console.error("Error fetching fuel stations:", err);
-    res.status(500).json({ error: "Failed to fetch fuel stations" });
   }
-});
+
+  if (updated) {
+    saveAllData();
+    console.log(`Synced & updated Fuel Stations: ${fuelStations.length} total stations.`);
+  }
+}
+
+// Sync Fuel Stations every 24 hours (86400000 ms)
+setInterval(syncFuelStationsData, 86400000);
+setTimeout(syncFuelStationsData, 10000); // Run 10 seconds after boot
 
 app.get('/api/fuel-stations/admin', (req, res) => {
   res.json(fuelStations);
