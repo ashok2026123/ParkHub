@@ -196,6 +196,7 @@ export default function App() {
   const [adminName, setAdminName] = useState('Admin User');
   
   const [isEvSyncing, setIsEvSyncing] = useState(false);
+  const [isFuelSyncing, setIsFuelSyncing] = useState(false);
 
   const [adminUsers, setAdminUsers] = useState([]);
 
@@ -510,7 +511,6 @@ export default function App() {
       .catch(err => console.error("Error deleting location:", err));
     }, "Confirm Delete");
   };
-
   const handleSyncEvStations = async () => {
     setIsEvSyncing(true);
     try {
@@ -530,6 +530,28 @@ export default function App() {
       showAlert("Network error during sync.", "Error");
     } finally {
       setIsEvSyncing(false);
+    }
+  };
+
+  const handleSyncFuelStations = async () => {
+    setIsFuelSyncing(true);
+    try {
+      const res = await fetch(`${API_URL}/fuel-stations/admin/sync`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        showAlert(`Successfully synchronized fuel stations. Added: ${data.added || 0}`, "Sync Complete");
+        addAuditLog("Triggered fuel station sync (OSM)", "system");
+        
+        // Refresh Fuel list
+        const fRes = await fetch(`${API_URL}/fuel-stations`);
+        if (fRes.ok) setFuelStations(await fRes.json());
+      } else {
+        showAlert("Failed to sync fuel stations.", "Error");
+      }
+    } catch (e) {
+      showAlert("Network error during fuel sync.", "Error");
+    } finally {
+      setIsFuelSyncing(false);
     }
   };
 
@@ -1641,6 +1663,27 @@ export default function App() {
                 <h2 style={{ fontSize: '24px', fontWeight: '800' }}>Fuel Station Management</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Manage mapped fuel stations across India.</p>
               </div>
+              <button 
+                onClick={handleSyncFuelStations}
+                disabled={isFuelSyncing}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 16px', background: isFuelSyncing ? 'rgba(0, 212, 255, 0.5)' : '#00d4ff',
+                  color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isFuelSyncing ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isFuelSyncing ? (
+                  <>
+                    <RefreshCw size={16} className="spinning" style={{ animation: 'spin 1.5s linear infinite' }} />
+                    Syncing Data...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw size={16} />
+                    Force Sync (OSM)
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="glass-panel" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', overflowX: 'auto' }}>

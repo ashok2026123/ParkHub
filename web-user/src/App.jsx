@@ -115,6 +115,8 @@ export default function App() {
   const [evConnectorFilter, setEvConnectorFilter] = useState('all');
   const [evTypeFilter, setEvTypeFilter] = useState('all'); // ac | dc
   const [evNetworkFilter, setEvNetworkFilter] = useState('all');
+  const [fuelNetworkFilter, setFuelNetworkFilter] = useState('all');
+  const [fuelDistanceFilter, setFuelDistanceFilter] = useState('all');
   const [evStatusFilter, setEvStatusFilter] = useState('all'); // all | available
   
   const [fuelStations, setFuelStations] = useState([]);
@@ -714,26 +716,38 @@ export default function App() {
   }, [filteredEvStations, userCoords, sortBy]);
 
   const filteredFuelStations = React.useMemo(() => {
-    return fuelStations.filter(station => {
-      const query = searchQuery.trim().toLowerCase();
-      const matchesSearch = !query || 
-        station.name.toLowerCase().includes(query) || 
-        station.address.toLowerCase().includes(query);
-      const matchesBrand = fuelBrandFilter === 'all' || station.brand === fuelBrandFilter;
-      return matchesSearch && matchesBrand;
-    });
-  }, [fuelStations, searchQuery, fuelBrandFilter]);
+    let filtered = fuelStations;
 
-  const sortedFuelStations = React.useMemo(() => {
-    const mapped = filteredFuelStations.map(station => {
+    if (searchQuery) {
+      const lowerQ = searchQuery.toLowerCase();
+      filtered = filtered.filter(s => 
+        (s.name && s.name.toLowerCase().includes(lowerQ)) ||
+        (s.address && s.address.toLowerCase().includes(lowerQ)) ||
+        (s.brand && s.brand.toLowerCase().includes(lowerQ))
+      );
+    }
+
+    if (fuelNetworkFilter !== 'all') {
+      filtered = filtered.filter(s => s.brand && s.brand.toLowerCase() === fuelNetworkFilter.toLowerCase());
+    }
+
+    if (fuelDistanceFilter !== 'all' && userCoords) {
+      const maxDistance = parseFloat(fuelDistanceFilter);
+      filtered = filtered.filter(s => {
+        const dist = getDistance(userCoords.lat, userCoords.lng, s.latitude, s.longitude);
+        return dist <= maxDistance;
+      });
+    }
+
+    return filtered.map(s => {
+      let distStr = "";
+      let dist = undefined;
       if (userCoords) {
-        const dist = getDistance(userCoords.lat, userCoords.lng, station.latitude, station.longitude);
-        return { ...station, distance: dist };
+        dist = getDistance(userCoords.lat, userCoords.lng, s.latitude, s.longitude);
+        distStr = formatDistance(dist);
       }
-      return { ...station, distance: undefined };
-    });
-
-    return mapped.sort((a, b) => {
+      return { ...s, distanceStr: distStr, distance: dist };
+    }).sort((a, b) => {
       if (a.distance !== undefined && b.distance !== undefined) {
         return a.distance - b.distance;
       }
@@ -741,7 +755,7 @@ export default function App() {
       if (b.distance !== undefined) return 1;
       return 0;
     });
-  }, [filteredFuelStations, userCoords]);
+  }, [fuelStations, searchQuery, fuelNetworkFilter, fuelDistanceFilter, userCoords]);
 
   // Compute top 3 nearest parking location IDs (always based on distance)
   const nearestThreeIds = React.useMemo(() => {
@@ -1897,6 +1911,27 @@ export default function App() {
                     <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
                     <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
                     <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
+                  </>
+                ) : searchMode === 'fuel' ? (
+                  <>
+                    <select value={fuelNetworkFilter} onChange={(e) => setFuelNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">All Brands</option>
+                      <option value="indianoil">IndianOil</option>
+                      <option value="bpcl">BPCL</option>
+                      <option value="hpcl">HPCL</option>
+                      <option value="shell">Shell</option>
+                      <option value="reliance">Reliance</option>
+                      <option value="nayara">Nayara</option>
+                      <option value="jio-bp">Jio-bp</option>
+                      <option value="independent">Independent</option>
+                    </select>
+
+                    <select value={fuelDistanceFilter} onChange={(e) => setFuelDistanceFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">Any Distance</option>
+                      <option value="2">Within 2 km</option>
+                      <option value="5">Within 5 km</option>
+                      <option value="10">Within 10 km</option>
+                    </select>
                   </>
                 ) : searchMode === 'ev' ? (
                   <>
