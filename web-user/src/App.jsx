@@ -259,21 +259,7 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (searchMode === 'fuel' && userCoords) {
-      setIsFuelLoading(true);
-      fetch(`${API_URL}/fuel-stations/search?lat=${userCoords.lat}&lng=${userCoords.lng}&radius=15`)
-        .then(r => r.json())
-        .then(data => {
-          if (!data.error) setFuelStations(data);
-          setIsFuelLoading(false);
-        })
-        .catch(err => {
-          console.error("Error fetching fuel stations:", err);
-          setIsFuelLoading(false);
-        });
-    }
-  }, [searchMode, userCoords]);
+  // Removed local fuel station fetch to show all stations globally by default.
 
   const getEstimatedTime = (km) => {
     if (!km) return null;
@@ -2052,7 +2038,7 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '560px', overflowY: 'auto' }}>
                 {searchMode === 'fuel' ? (
                   <>
-                    <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Nearby Fuel Stations ({sortedFuelStations.length})</h3>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Available Fuel Stations ({sortedFuelStations.length})</h3>
                     {isFuelLoading && (
                       <div style={{ padding: '20px', textAlign: 'center', color: 'var(--primary)' }}>
                         <RefreshCw className="spinning" size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
