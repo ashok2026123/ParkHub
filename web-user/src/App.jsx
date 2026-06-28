@@ -2747,25 +2747,58 @@ export default function App() {
             <div className="glass-panel" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Past Bookings</h3>
-                {selectedPastBookings.length > 0 && (
-                  <button 
-                    onClick={handleDeleteSelectedBookings}
-                    style={{ 
-                      padding: '8px 16px', 
-                      background: '#FF1744', 
-                      color: '#FFF', 
-                      border: 'none', 
-                      borderRadius: '6px', 
-                      cursor: 'pointer', 
-                      fontWeight: 'bold', 
-                      fontSize: '12px',
-                      boxShadow: '0 0 10px rgba(255, 23, 68, 0.4)',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    🗑️ Delete Selected ({selectedPastBookings.length})
-                  </button>
-                )}
+                {(() => {
+                  const pastBookings = bookings.filter(b => b.userId === user.uid && b.status !== 'active');
+                  if (pastBookings.length === 0) return null;
+                  
+                  const allSelected = pastBookings.length > 0 && selectedPastBookings.length === pastBookings.length;
+                  
+                  return (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => {
+                          if (allSelected) {
+                            setSelectedPastBookings([]);
+                          } else {
+                            setSelectedPastBookings(pastBookings.map(b => b.id));
+                          }
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          color: '#FFF',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '12px',
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        {allSelected ? 'Deselect All' : 'Select All'}
+                      </button>
+                      {selectedPastBookings.length > 0 && (
+                        <button 
+                          onClick={handleDeleteSelectedBookings}
+                          style={{ 
+                            padding: '8px 16px', 
+                            background: '#FF1744', 
+                            color: '#FFF', 
+                            border: 'none', 
+                            borderRadius: '6px', 
+                            cursor: 'pointer', 
+                            fontWeight: 'bold', 
+                            fontSize: '12px',
+                            boxShadow: '0 0 10px rgba(255, 23, 68, 0.4)',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          🗑️ Delete Selected ({selectedPastBookings.length})
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {(() => {
