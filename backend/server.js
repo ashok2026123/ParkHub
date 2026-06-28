@@ -7,8 +7,8 @@ import Razorpay from 'razorpay';
 dotenv.config();
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_fakeKeyId1234',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'fakeSecretKey1234567890'
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_T71PJdC3zXI1H8',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'i4AoBu4S0Vt6vNStcOV3bqq6'
 });
 
 const app = express();
