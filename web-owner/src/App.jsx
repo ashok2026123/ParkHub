@@ -671,6 +671,7 @@ export default function App() {
     showAlert(`Host is now ${nextOnline ? 'ONLINE' : 'OFFLINE'}. All slots are ${nextOnline ? 'visible' : 'hidden'} to users.`, "Status Updated");
   };
   const ownerBks = bookings.filter(b => ownerLocIds.includes(b.locationId));
+  const pendingCashBookings = ownerBks.filter(b => b.paymentMethod === 'cash' && b.paymentStatus === 'pending');
   const totalEarnings = Math.max(
     ownerBks.reduce((sum, b) => (b.paymentStatus === 'paid' || b.paymentStatus === 'completed' || (b.status === 'completed' && b.paymentMethod !== 'cash')) ? sum + b.totalAmount : sum, 0),
     ownerProfile.earnings || 0
@@ -1405,6 +1406,47 @@ export default function App() {
                 </div>
               ))}
             </div>
+
+            {/* Pending Cash Collections (Only show if there are any) */}
+            {pendingCashBookings.length > 0 && (
+              <div style={{ marginTop: '10px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '22px' }}>💵</span> Active Cash Collections
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+                  {pendingCashBookings.map(booking => {
+                    const isTimeUp = new Date(booking.endTime).getTime() <= Date.now();
+                    return (
+                      <div key={booking.id} className="glass-panel" style={{ padding: '16px', borderRadius: '12px', border: `1px solid ${isTimeUp ? '#FF1744' : 'rgba(255,193,7,0.4)'}`, background: isTimeUp ? 'rgba(255,23,68,0.05)' : 'rgba(255,193,7,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                          <div>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Vehicle</span>
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#FFF' }}>{booking.vehicleNumber || 'Unknown'}</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Amount Due</span>
+                            <div style={{ fontSize: '18px', fontWeight: '900', color: isTimeUp ? '#FF1744' : '#FFC107' }}>₹{booking.totalAmount}</div>
+                          </div>
+                        </div>
+                        {isTimeUp && (
+                          <div style={{ fontSize: '11px', color: '#FF1744', fontWeight: 'bold', marginBottom: '12px' }}>⚠️ Time Expired! Collect Cash Now.</div>
+                        )}
+                        <button 
+                          onClick={() => {
+                            setSelectedBookingForOtp(booking);
+                            setShowBookingOtpModal(true);
+                          }}
+                          className="glow-button"
+                          style={{ width: '100%', padding: '10px', fontSize: '12px', fontWeight: '700', borderRadius: '8px', border: `1px solid ${isTimeUp ? '#FF1744' : '#FFC107'}`, background: isTimeUp ? 'rgba(255,23,68,0.15)' : 'rgba(255,193,7,0.15)', color: isTimeUp ? '#FF1744' : '#FFC107', cursor: 'pointer' }}
+                        >
+                          Enter 4-Digit OTP & Collect Cash
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* 3. Settlement Details & Commission Split */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', gap: '24px' }}>
