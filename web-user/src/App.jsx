@@ -2702,39 +2702,42 @@ export default function App() {
                       </div>
 
                       {/* Action buttons for cash booking */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: '12px' }}>
-                        <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          {/* Pay with Cash */}
-                          <button
-                            onClick={() => handleNotifyOwnerCash(activeBooking)}
-                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,140,0,0.15))', border: '1px solid rgba(255,193,7,0.4)', color: '#FFC107', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          >
-                            💵 Pay with Cash
-                          </button>
-                          {/* Pay Online */}
-                          <button
-                            onClick={() => handleSwitchCashToOnline(activeBooking)}
-                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#00d4ff', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          >
-                            💳 Pay Online (UPI/Card)
-                          </button>
-                          {/* Pay with Wallet */}
-                          <button
-                            onClick={() => handleSwitchCashToWallet(activeBooking)}
-                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,230,118,0.1))', border: '1px solid rgba(123,97,255,0.4)', color: '#7B61FF', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          >
-                            👛 Pay with Wallet (₹{user?.walletBalance || 0})
-                          </button>
+                      {activeBooking.paymentStatus === 'pending' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
+                          <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {/* Pay with Cash */}
+                            <button
+                              onClick={() => handleNotifyOwnerCash(activeBooking)}
+                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,140,0,0.15))', border: '1px solid rgba(255,193,7,0.4)', color: '#FFC107', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            >
+                              💵 Pay with Cash
+                            </button>
+                            {/* Pay Online */}
+                            <button
+                              onClick={() => handleSwitchCashToOnline(activeBooking)}
+                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#00d4ff', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            >
+                              💳 Pay Online (UPI/Card)
+                            </button>
+                            {/* Pay with Wallet */}
+                            <button
+                              onClick={() => handleSwitchCashToWallet(activeBooking)}
+                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,230,118,0.1))', border: '1px solid rgba(123,97,255,0.4)', color: '#7B61FF', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            >
+                              👛 Pay with Wallet (₹{user?.walletBalance || 0})
+                            </button>
+                          </div>
                         </div>
-                        {/* Cancel */}
-                        <button
-                          onClick={() => handleCancelBooking(activeBooking.id)}
-                          style={{ width: '100%', padding: '9px', background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)', color: '#FF1744', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}
-                        >
-                          ✕ Cancel Booking
-                        </button>
-                      </div>
+                      )}
+                      
+                      {/* Cancel */}
+                      <button
+                        onClick={() => handleCancelBooking(activeBooking.id)}
+                        style={{ width: '100%', padding: '9px', background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)', color: '#FF1744', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}
+                      >
+                        ✕ Cancel Booking
+                      </button>
                     </div>
                   ))}
                 </div>
