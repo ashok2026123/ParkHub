@@ -2227,7 +2227,19 @@ export default function App() {
                       <h4 style={{ fontSize: '15px', fontWeight: 'bold' }}>Booking ID: {bk.id}</h4>
                       <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Vehicle Plate: {bk.vehicleNumber} ({bk.vehicleType === 'four-wheeler' ? '4-wheeler' : '2-wheeler'})</p>
                     </div>
-                    <span style={{ fontSize: '11px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>{bk.status.toUpperCase()}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                      <span style={{ fontSize: '11px', background: bk.status === 'active' ? 'rgba(0,230,118,0.12)' : bk.status === 'pending' ? 'rgba(255,140,66,0.12)' : 'rgba(255,23,68,0.12)', color: bk.status === 'active' ? '#00E676' : bk.status === 'pending' ? '#ff8c42' : '#FF1744', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>{bk.status.toUpperCase()}</span>
+                      <span style={{ 
+                        fontSize: '10px', 
+                        background: bk.paymentStatus === 'paid' ? 'rgba(0, 212, 255, 0.12)' : bk.paymentMethod === 'online' ? 'rgba(255, 140, 66, 0.12)' : 'rgba(255,255,255,0.05)', 
+                        color: bk.paymentStatus === 'paid' ? '#00d4ff' : bk.paymentMethod === 'online' ? '#ff8c42' : 'var(--text-secondary)', 
+                        padding: '2px 6px', 
+                        borderRadius: '4px', 
+                        fontWeight: 'bold' 
+                      }}>
+                        {bk.paymentStatus === 'paid' ? '💳 ONLINE PAID' : bk.paymentMethod === 'online' ? '⏳ ONLINE PENDING' : '💵 CASH ON ARRIVAL'}
+                      </span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <p style={{ fontSize: '13px' }}>Gross paid: <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>₹{bk.totalAmount}</span></p>
