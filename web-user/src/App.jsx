@@ -1311,7 +1311,6 @@ export default function App() {
     .then(res => res.json())
     .then(updatedBooking => {
       setBookings(prev => prev.map(b => b.id === bookingId ? updatedBooking : b));
-      // Refresh locations from server to get accurate slot counts
       fetch(`${API_URL}/locations`)
         .then(r => r.json())
         .then(data => setLocations(data))
@@ -1322,6 +1321,105 @@ export default function App() {
       console.error("Error cancelling booking:", err);
       showAlert("Failed to cancel booking. Please try again.", "Error");
     });
+  };
+
+  // Switch a pending cash booking to Wallet payment
+  const handleSwitchCashToWallet = async (booking) => {
+    const walletBalance = user?.walletBalance || 0;
+    if (walletBalance < booking.totalAmount) {
+      showAlert(`Insufficient wallet balance. You have ₹${walletBalance} but need ₹${booking.totalAmount}.`, "Insufficient Balance");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/bookings/${booking.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethod: 'wallet', paymentStatus: 'paid', status: 'active' })
+      });
+      const updated = await res.json();
+      setBookings(prev => prev.map(b => b.id === booking.id ? updated : b));
+      showAlert("Payment completed using your ParkHub Wallet! Booking confirmed.", "Payment Success ✅");
+    } catch (err) {
+      console.error("Wallet switch error:", err);
+      showAlert("Failed to process wallet payment.", "Error");
+    }
+  };
+
+  // Switch a pending cash booking to Online (Razorpay) payment
+  const handleSwitchCashToOnline = async (booking) => {
+    const loadScript = () => new Promise((resolve) => {
+      if (window.Razorpay) { resolve(true); return; }
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = () => resolve(true);
+      s.onerror = () => resolve(false);
+      document.body.appendChild(s);
+    });
+
+    const loaded = await loadScript();
+    if (!loaded) {
+      showAlert("Failed to load Razorpay. Check your internet connection.", "Payment Error");
+      return;
+    }
+
+    try {
+      const orderRes = await fetch(`${API_URL}/payments/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: booking.totalAmount, bookingId: booking.id })
+      });
+      const orderData = await orderRes.json();
+
+      if (!orderData.orderId) {
+        showAlert("Failed to create Razorpay order.", "Payment Error");
+        return;
+      }
+
+      const options = {
+        key: orderData.key || 'rzp_live_T71PJdC3zXI1H8',
+        amount: orderData.amount * 100,
+        currency: 'INR',
+        name: 'ParkHub Parking',
+        description: `Cash → Online Payment for ${booking.vehicleNumber}`,
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${API_URL}/payments/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                bookingId: booking.id
+              })
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              setBookings(prev => prev.map(b => b.id === booking.id ? verifyData.booking : b));
+              showAlert("Online payment verified! Your parking is confirmed.", "Payment Success ✅");
+            } else {
+              showAlert("Payment signature verification failed.", "Payment Failed ❌");
+            }
+          } catch (e) {
+            showAlert("Error verifying payment.", "Payment Error");
+          }
+        },
+        prefill: {
+          name: user?.name || 'Guest',
+          email: user?.email || 'guest@spotuser.com',
+          contact: user?.phone || '+919999999999'
+        },
+        theme: { color: '#00d4ff' },
+        modal: { ondismiss: function () {} }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Razorpay switch error:', err);
+      showAlert('Failed to initiate online payment.', 'Payment Error');
+    }
   };
 
 
@@ -2586,15 +2684,32 @@ export default function App() {
                         <BookingTimer endTime={activeBooking.endTime} status={activeBooking.status} />
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', background: 'rgba(0,0,0,0.1)', padding: '16px 24px', borderRadius: '12px' }}>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                          {activeBooking.paymentMethod !== 'cash' && (
-                            <button onClick={() => handleCancelBooking(activeBooking.id)} style={{ padding: '10px 20px', background: 'rgba(255,23,68,0.1)', color: '#FF1744', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Cancel Booking</button>
-                          )}
-                          {activeBooking.paymentMethod !== 'cash' && (
-                            <button onClick={() => handleCheckOut(activeBooking.id)} style={{ padding: '10px 20px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Check Out</button>
-                          )}
+                      {/* Action buttons for cash booking */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: '12px' }}>
+                        <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {/* Pay Online */}
+                          <button
+                            onClick={() => handleSwitchCashToOnline(activeBooking)}
+                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#00d4ff', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            💳 Pay Online (UPI / Card)
+                          </button>
+                          {/* Pay with Wallet */}
+                          <button
+                            onClick={() => handleSwitchCashToWallet(activeBooking)}
+                            style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(123,97,255,0.15), rgba(0,230,118,0.1))', border: '1px solid rgba(123,97,255,0.4)', color: '#7B61FF', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            👛 Pay with Wallet (₹{user?.walletBalance || 0})
+                          </button>
                         </div>
+                        {/* Cancel */}
+                        <button
+                          onClick={() => handleCancelBooking(activeBooking.id)}
+                          style={{ width: '100%', padding: '9px', background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)', color: '#FF1744', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}
+                        >
+                          ✕ Cancel Booking
+                        </button>
                       </div>
                     </div>
                   ))}
