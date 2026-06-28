@@ -193,6 +193,10 @@ export default function App() {
   const [adjustRemarks, setAdjustRemarks] = useState('');
 
   // Entities state — declared early so useEffect below can reference them
+  const [adminName, setAdminName] = useState('Admin User');
+  
+  const [isEvSyncing, setIsEvSyncing] = useState(false);
+
   const [adminUsers, setAdminUsers] = useState([]);
 
   const [adminOwners, setAdminOwners] = useState([]);
@@ -505,6 +509,28 @@ export default function App() {
       })
       .catch(err => console.error("Error deleting location:", err));
     }, "Confirm Delete");
+  };
+
+  const handleSyncEvStations = async () => {
+    setIsEvSyncing(true);
+    try {
+      const res = await fetch(`${API_URL}/ev-stations/sync`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        showAlert(`Successfully synchronized Hybrid EV data. Total stations: ${data.count}`, "Sync Complete");
+        addAuditLog("Triggered hybrid EV station sync (OSM + OCM)", "system");
+        
+        // Refresh EV list
+        const evRes = await fetch(`${API_URL}/ev-stations`);
+        if (evRes.ok) setEvStations(await evRes.json());
+      } else {
+        showAlert("Failed to sync EV stations.", "Error");
+      }
+    } catch (e) {
+      showAlert("Network error during sync.", "Error");
+    } finally {
+      setIsEvSyncing(false);
+    }
   };
 
   const handleApproveEvStation = (id) => {
@@ -981,7 +1007,7 @@ export default function App() {
             }}
           >
             <MapPin size={18} />
-            {isSidebarOpen && "Fuel Stations"}
+            Fuel Stations
           </button>
           
           <button 
@@ -1262,7 +1288,30 @@ export default function App() {
 
         {currentTab === 'ev' && (
           <div className="animate-fade-in">
-            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px' }}>⚡ Manage EV Charging Hubs</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '800' }}>⚡ Manage EV Charging Hubs</h2>
+              <button 
+                onClick={handleSyncEvStations}
+                disabled={isEvSyncing}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 16px', background: isEvSyncing ? 'rgba(0, 230, 118, 0.5)' : '#00E676',
+                  color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isEvSyncing ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isEvSyncing ? (
+                  <>
+                    <RefreshCw size={16} className="spinning" style={{ animation: 'spin 1.5s linear infinite' }} />
+                    Syncing Hybrid Data...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw size={16} />
+                    Force Sync (OCM + OSM)
+                  </>
+                )}
+              </button>
+            </div>
             
             {/* Pending Approvals Section */}
             {evStations.filter(s => !s.isApproved).length > 0 && (
@@ -1287,11 +1336,13 @@ export default function App() {
 
             {/* Active EV Stations Table */}
             <div className="glass-panel" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>Active EV Charging Network</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Active EV Charging Network ({evStations.length})</h3>
+              </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                    <th style={{ padding: '12px' }}>ID</th>
+                    <th style={{ padding: '12px' }}>Network / ID</th>
                     <th style={{ padding: '12px' }}>Name</th>
                     <th style={{ padding: '12px' }}>Address</th>
                     <th style={{ padding: '12px' }}>Rates</th>
@@ -1301,9 +1352,12 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {evStations.map(station => (
+                  {evStations.filter(s => s.isApproved).slice(0, 100).map(station => (
                     <tr key={station.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '14px', fontFamily: 'monospace' }}>{station.id}</td>
+                      <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
+                        <span style={{ display: 'block', color: 'var(--primary)', fontWeight: 'bold' }}>{station.network || 'Public'}</span>
+                        {station.id.slice(0, 15)}...
+                      </td>
                       <td style={{ padding: '14px', fontWeight: 'bold' }}>{station.name}</td>
                       <td style={{ padding: '14px', color: 'var(--text-secondary)' }}>{station.address}</td>
                       <td style={{ padding: '14px', color: 'var(--primary)', fontWeight: 'bold' }}>₹{station.rates?.perKwh}/kWh</td>
@@ -1581,7 +1635,7 @@ export default function App() {
         )}
 
         {currentTab === 'fuel' && (
-          <div className="animate-fade-in" style={{ padding: isMobile ? '16px' : '32px' }}>
+          <div className="animate-fade-in" style={{ padding: '32px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
                 <h2 style={{ fontSize: '24px', fontWeight: '800' }}>Fuel Station Management</h2>

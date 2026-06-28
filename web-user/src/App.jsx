@@ -113,7 +113,9 @@ export default function App() {
   const [evStations, setEvStations] = useState([]);
   const [evReservations, setEvReservations] = useState([]);
   const [evConnectorFilter, setEvConnectorFilter] = useState('all');
-  const [evTypeFilter, setEvTypeFilter] = useState('all');
+  const [evTypeFilter, setEvTypeFilter] = useState('all'); // ac | dc
+  const [evNetworkFilter, setEvNetworkFilter] = useState('all');
+  const [evStatusFilter, setEvStatusFilter] = useState('all'); // all | available
   
   const [fuelStations, setFuelStations] = useState([]);
   const [fuelBrandFilter, setFuelBrandFilter] = useState('all');
@@ -680,11 +682,25 @@ export default function App() {
       const query = searchQuery.trim().toLowerCase();
       const matchesSearch = !query || 
         station.name.toLowerCase().includes(query) || 
-        station.address.toLowerCase().includes(query);
+        station.address.toLowerCase().includes(query) ||
+        (station.network && station.network.toLowerCase().includes(query));
+      
       const matchesApproved = station.isApproved;
-      return matchesSearch && matchesApproved;
+      
+      const matchesNetwork = evNetworkFilter === 'all' || station.network === evNetworkFilter;
+      
+      const matchesConnector = evConnectorFilter === 'all' || (station.chargers && station.chargers.some(c => c.type === evConnectorFilter));
+      
+      const matchesType = evTypeFilter === 'all' || 
+        (evTypeFilter === 'dc' && station.chargers && station.chargers.some(c => c.power >= 50)) ||
+        (evTypeFilter === 'ac' && station.chargers && station.chargers.some(c => c.power < 50));
+        
+      const matchesStatus = evStatusFilter === 'all' || 
+        (evStatusFilter === 'available' && station.chargers && station.chargers.some(c => c.status === 'Available'));
+
+      return matchesSearch && matchesApproved && matchesNetwork && matchesConnector && matchesType && matchesStatus;
     });
-  }, [evStations, searchQuery]);
+  }, [evStations, searchQuery, evNetworkFilter, evConnectorFilter, evTypeFilter, evStatusFilter]);
 
   const sortedEvStations = React.useMemo(() => {
     const mapped = filteredEvStations.map(station => {
@@ -1896,6 +1912,39 @@ export default function App() {
                     <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
                     <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
                   </>
+                ) : searchMode === 'ev' ? (
+                  <>
+                    <select value={evNetworkFilter} onChange={(e) => setEvNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">All Networks</option>
+                      <option value="Tata Power EZ Charge">Tata Power</option>
+                      <option value="Statiq">Statiq</option>
+                      <option value="ChargeZone">ChargeZone</option>
+                      <option value="Bolt.Earth">Bolt.Earth</option>
+                      <option value="Jio-bp pulse">Jio-bp</option>
+                      <option value="Zeon Charging">Zeon</option>
+                      <option value="Kazam">Kazam</option>
+                      <option value="Public EV Charger">Other Public</option>
+                    </select>
+
+                    <select value={evConnectorFilter} onChange={(e) => setEvConnectorFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">All Connectors</option>
+                      <option value="CCS2">CCS2</option>
+                      <option value="Type 2">Type 2</option>
+                      <option value="CHAdeMO">CHAdeMO</option>
+                      <option value="GB/T">GB/T</option>
+                    </select>
+
+                    <select value={evTypeFilter} onChange={(e) => setEvTypeFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">Any Speed (AC/DC)</option>
+                      <option value="dc">DC Fast (&gt;= 50kW)</option>
+                      <option value="ac">AC Slow (&lt; 50kW)</option>
+                    </select>
+
+                    <select value={evStatusFilter} onChange={(e) => setEvStatusFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                      <option value="all">All Statuses</option>
+                      <option value="available">Available Now</option>
+                    </select>
+                  </>
                 ) : (
                   <>
                     <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#FFF', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
@@ -2092,10 +2141,12 @@ export default function App() {
                           {selectedEvStation.distance !== undefined && (
                             <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>📍 {formatDistance(selectedEvStation.distance)}</span>
                           )}
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Updated: {new Date(selectedEvStation.lastUpdated || Date.now()).toLocaleDateString()}</span>
                         </div>
                       </div>
                       <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>{selectedEvStation.name}</h3>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedEvStation.address}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedEvStation.network}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{selectedEvStation.address}</p>
                       
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '16px 0', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '12px 0' }}>
                         <div style={{ flex: 1, minWidth: '100px' }}>
@@ -2108,6 +2159,33 @@ export default function App() {
                             {selectedEvStation.amenities?.map(a => <span key={a} style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 5px', borderRadius: '4px' }}>{a}</span>)}
                           </p>
                         </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedEvStation.latitude},${selectedEvStation.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            flex: 1,
+                            padding: '10px',
+                            background: '#2196F3',
+                            color: '#FFF',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            fontWeight: '700',
+                            textDecoration: 'none',
+                            transition: 'all 0.2s',
+                            boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
+                          }}
+                        >
+                          <Navigation size={16} style={{ fill: '#FFF' }} />
+                          <span>Navigate to Station</span>
+                        </a>
                       </div>
 
                       <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Select Charger & Reserve</h4>

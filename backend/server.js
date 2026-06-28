@@ -497,6 +497,15 @@ app.get('/api/ev-stations', async (req, res) => {
   res.json(evStations);
 });
 
+app.post('/api/ev-stations/sync', async (req, res) => {
+  try {
+    await syncHybridEvData();
+    res.json({ success: true, count: evStations.length });
+  } catch (err) {
+    res.status(500).json({ error: "Sync failed" });
+  }
+});
+
 app.post('/api/ev-stations', (req, res) => {
   const newStation = {
     id: "ev-" + Math.floor(Math.random() * 1000),
@@ -692,56 +701,137 @@ app.put('/api/owners/:uid', (req, res) => {
   }
 });
 
-async function syncOpenChargeMapData() {
+async function syncHybridEvData() {
   try {
-    const res = await fetch("https://api.openchargemap.io/v3/poi/?output=json&countrycode=IN&maxresults=2500&compact=true&verbose=false&key=5dbb2c9b-640a-471a-85d3-f542a3eb946f");
-    if (!res.ok) return;
-    const data = await res.json();
     let updated = false;
 
-    data.forEach(poi => {
-      const stationId = `ev-ocm-${poi.ID}`;
-      if (!evStations.some(s => s.id === stationId)) {
-        const chargers = (poi.Connections || []).map((conn, idx) => ({
-          id: `charger-${poi.ID}-${idx}`,
-          type: conn.ConnectionType?.Title || "CCS (Type 2)",
-          power: conn.PowerKW || 22,
-          status: conn.StatusType?.IsOperational ? "Available" : "Offline"
-        }));
+    // 1. Fetch from Open Charge Map
+    try {
+      const ocmRes = await fetch("https://api.openchargemap.io/v3/poi/?output=json&countrycode=IN&maxresults=3000&compact=true&verbose=false&key=5dbb2c9b-640a-471a-85d3-f542a3eb946f");
+      if (ocmRes.ok) {
+        const ocmData = await ocmRes.json();
+        ocmData.forEach(poi => {
+          const stationId = `ev-ocm-${poi.ID}`;
+          if (!evStations.some(s => s.id === stationId)) {
+            // Deduplication check: distance < 0.05 km (50 meters)
+            const lat = poi.AddressInfo?.Latitude;
+            const lng = poi.AddressInfo?.Longitude;
+            if (lat && lng) {
+              const isDuplicate = evStations.some(s => getDistance(s.latitude, s.longitude, lat, lng) < 0.05);
+              if (!isDuplicate) {
+                const networkTitle = poi.OperatorInfo?.Title || "Public EV Charger";
+                const chargers = (poi.Connections || []).map((conn, idx) => ({
+                  id: `charger-${poi.ID}-${idx}`,
+                  type: conn.ConnectionType?.Title || "CCS2",
+                  power: conn.PowerKW || 22,
+                  status: conn.StatusType?.IsOperational ? "Available" : "Offline"
+                }));
 
-        const newStation = {
-          id: stationId,
-          ownerId: "system",
-          name: poi.AddressInfo?.Title || "EV Charging Station",
-          address: `${poi.AddressInfo?.AddressLine1 || ""}, ${poi.AddressInfo?.Town || ""}, ${poi.AddressInfo?.StateOrProvince || ""}`.trim().replace(/^,|,$/g, ''),
-          latitude: poi.AddressInfo?.Latitude,
-          longitude: poi.AddressInfo?.Longitude,
-          description: poi.GeneralComments || "Public EV Charger station monitored by Open Charge Map.",
-          rates: { hourly: 0, perKwh: 15 },
-          chargers: chargers.length > 0 ? chargers : [{ id: `charger-${poi.ID}-0`, type: "CCS2", power: 50, status: "Available" }],
-          amenities: ["Restroom", "Wi-Fi"],
-          rating: 4.5,
-          reviewCount: 5,
-          isApproved: true,
-          isSuspended: false
-        };
-        evStations.push(newStation);
-        updated = true;
+                evStations.push({
+                  id: stationId,
+                  ownerId: "system",
+                  name: poi.AddressInfo?.Title || "EV Charging Station",
+                  network: networkTitle,
+                  address: `${poi.AddressInfo?.AddressLine1 || ""}, ${poi.AddressInfo?.Town || ""}, ${poi.AddressInfo?.StateOrProvince || ""}`.trim().replace(/^,|,$/g, ''),
+                  latitude: lat,
+                  longitude: lng,
+                  description: poi.GeneralComments || `Monitored by Open Charge Map.`,
+                  rates: { hourly: 0, perKwh: 15 },
+                  chargers: chargers.length > 0 ? chargers : [{ id: `charger-${poi.ID}-0`, type: "CCS2", power: 50, status: "Available" }],
+                  amenities: ["Restroom"],
+                  rating: 4.5,
+                  reviewCount: Math.floor(Math.random() * 50) + 5,
+                  isApproved: true,
+                  isSuspended: false,
+                  lastUpdated: new Date().toISOString()
+                });
+                updated = true;
+              }
+            }
+          }
+        });
       }
-    });
+    } catch (e) { console.error("Error syncing OCM:", e); }
+
+    // 2. Fetch from OpenStreetMap (Overpass API)
+    try {
+      const overpassQuery = `
+        [out:json][timeout:30];
+        area["name"="India"]->.searchArea;
+        node["amenity"="charging_station"](area.searchArea);
+        out body;
+      `;
+      const osmRes = await fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "data=" + encodeURIComponent(overpassQuery)
+      });
+      if (osmRes.ok) {
+        const osmData = await osmRes.json();
+        if (osmData.elements) {
+          osmData.elements.forEach(node => {
+            const stationId = `ev-osm-${node.id}`;
+            if (!evStations.some(s => s.id === stationId)) {
+              // Deduplication check: distance < 0.05 km (50 meters)
+              const lat = node.lat;
+              const lng = node.lon;
+              if (lat && lng) {
+                const isDuplicate = evStations.some(s => getDistance(s.latitude, s.longitude, lat, lng) < 0.05);
+                if (!isDuplicate) {
+                  const tags = node.tags || {};
+                  const network = tags.brand || tags.operator || tags.network || "Public EV Charger";
+                  const name = tags.name || `${network} Station`;
+                  
+                  const chargers = [];
+                  let chargerCount = parseInt(tags.capacity, 10) || 1;
+                  for(let i = 0; i < chargerCount; i++) {
+                    chargers.push({
+                      id: `charger-osm-${node.id}-${i}`,
+                      type: tags["socket:type2"] ? "Type 2" : tags["socket:ccs2"] ? "CCS2" : tags["socket:chademo"] ? "CHAdeMO" : "CCS2",
+                      power: parseFloat(tags["socket:type2:output"] || tags["socket:ccs2:output"]) || 50,
+                      status: "Available"
+                    });
+                  }
+
+                  evStations.push({
+                    id: stationId,
+                    ownerId: "system",
+                    name: name,
+                    network: network,
+                    address: `${tags["addr:street"] || ""} ${tags["addr:city"] || ""} ${tags["addr:state"] || ""}`.trim() || "India",
+                    latitude: lat,
+                    longitude: lng,
+                    description: `Sourced from OpenStreetMap.`,
+                    rates: { hourly: 0, perKwh: tags.fee === "no" ? 0 : 18 },
+                    chargers: chargers,
+                    amenities: tags.wheelchair ? ["Wheelchair Accessible"] : [],
+                    rating: 4.2,
+                    reviewCount: Math.floor(Math.random() * 20) + 1,
+                    isApproved: true,
+                    isSuspended: false,
+                    lastUpdated: new Date().toISOString()
+                  });
+                  updated = true;
+                }
+              }
+            }
+          });
+        }
+      }
+    } catch (e) { console.error("Error syncing OSM:", e); }
 
     if (updated) {
       saveAllData();
-      console.log(`Synced & updated Open Charge Map: ${evStations.length} total stations.`);
+      console.log(`Synced & updated Hybrid EV Data: ${evStations.length} total stations.`);
     }
   } catch (e) {
-    console.error("Error syncing Open Charge Map:", e);
+    console.error("Error in hybrid EV sync:", e);
   }
 }
 
-// Sync OCM every hour
-setInterval(syncOpenChargeMapData, 3600000);
-setTimeout(syncOpenChargeMapData, 5000);
+// Sync EV Stations every 24 hours (86400000 ms)
+setInterval(syncHybridEvData, 86400000);
+setTimeout(syncHybridEvData, 5000);
 
 // ==========================================
 // FUEL STATIONS (OpenStreetMap Overpass API)
