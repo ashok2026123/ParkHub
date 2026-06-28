@@ -1134,7 +1134,130 @@ export default function App() {
         });
       }, 1500);
     } else if (selectedPaymentMethod === 'online') {
-      setShowUPIScreen(true);
+      setIsProcessingPayment(true);
+      const loadScript = () => {
+        return new Promise((resolve) => {
+          if (window.Razorpay) { resolve(true); return; }
+          const s = document.createElement("script");
+          s.src = "https://checkout.razorpay.com/v1/checkout.js";
+          s.onload = () => resolve(true);
+          s.onerror = () => resolve(false);
+          document.body.appendChild(s);
+        });
+      };
+
+      loadScript().then(async (loaded) => {
+        if (!loaded) {
+          showAlert("Failed to load Razorpay payment gateway. Please check your internet connection.", "Payment Error");
+          setIsProcessingPayment(false);
+          return;
+        }
+
+        const v = bookingVehicles[0];
+        const basePrice = v.type === 'four-wheeler' 
+          ? selectedLocation.rates.hourly * bookingDuration
+          : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
+        const discounted = basePrice * (1 - couponDiscount / 100);
+        const totalAmt = Math.max(0, Math.round(discounted));
+
+        const pendingBooking = {
+          userId: user ? user.uid : "guest-user",
+          locationId: selectedLocation.id,
+          vehicleNumber: v.number.toUpperCase(),
+          vehicleType: v.type,
+          startTime: new Date().toISOString(),
+          endTime: new Date(Date.now() + bookingDuration * 3600000).toISOString(),
+          status: "pending",
+          totalAmount: totalAmt,
+          paymentMethod: 'online',
+          paymentStatus: 'pending',
+          qrCodeData: `QR_PE_${selectedLocation.id}_${v.number.toUpperCase()}`
+        };
+
+        try {
+          const createRes = await fetch(`${API_URL}/bookings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pendingBooking)
+          });
+          const savedBooking = await createRes.json();
+
+          const orderRes = await fetch(`${API_URL}/payments/order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: totalAmt, bookingId: savedBooking.id })
+          });
+          const orderData = await orderRes.json();
+
+          if (!orderData.orderId) {
+            showAlert("Failed to initiate Razorpay order.", "Payment Error");
+            setIsProcessingPayment(false);
+            return;
+          }
+
+          const options = {
+            key: "rzp_live_fakeKeyId1234",
+            amount: orderData.amount * 100,
+            currency: "INR",
+            name: "ParkHub Parking",
+            description: `Slot Reservation for ${v.number.toUpperCase()}`,
+            order_id: orderData.orderId,
+            handler: async function (response) {
+              setIsProcessingPayment(true);
+              try {
+                const verifyRes = await fetch(`${API_URL}/payments/verify`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    bookingId: savedBooking.id
+                  })
+                });
+                const verifyData = await verifyRes.json();
+                if (verifyData.success) {
+                  setBookings(prev => [verifyData.booking, ...prev.filter(b => b.id !== savedBooking.id)]);
+                  showAlert("Payment verified and slot reservation confirmed!", "Payment Success ✅");
+                  
+                  fetch(`${API_URL}/locations`)
+                    .then(r => r.json())
+                    .then(data => setLocations(data))
+                    .catch(() => {});
+
+                  setSelectedLocation(null);
+                  setCurrentTab('bookings');
+                } else {
+                  showAlert("Payment signature verification failed.", "Payment Failed ❌");
+                }
+              } catch (e) {
+                console.error("Error verifying payment signature:", e);
+                showAlert("Error verifying payment signature.", "Payment Error");
+              } finally {
+                setIsProcessingPayment(false);
+              }
+            },
+            prefill: {
+              name: user ? user.name : "Guest User",
+              email: user ? user.email : "guest@spotuser.com",
+              contact: user ? user.phone : "+919999999999"
+            },
+            theme: { color: "#00d4ff" },
+            modal: {
+              ondismiss: function () {
+                setIsProcessingPayment(false);
+              }
+            }
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+        } catch (err) {
+          console.error("Error during online booking initiation:", err);
+          showAlert("Failed to reserve parking slot.", "Booking Error");
+          setIsProcessingPayment(false);
+        }
+      });
     } else {
       // Cash payment
       setIsProcessingPayment(true);
@@ -1185,148 +1308,68 @@ export default function App() {
     }
   };
 
-  const initiateRazorpayPayment = async ({ amount, email, contact, onVerified, onFailed }) => {
-    try {
-      const res = await fetch(`${API_URL}/create-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(amount * 100) })
-      });
-      
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to create order');
-      }
-
-      const orderData = await res.json();
-      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T6zJfP4Q3AGw4B';
-
-      const options = {
-        key: keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "ParkHub",
-        description: "Smart Spot Booking Fee",
-        order_id: orderData.order_id,
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch(`${API_URL}/verify-payment`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-              })
-            });
-
-            if (verifyRes.ok) {
-              onVerified(response);
-            } else {
-              const verifyErr = await verifyRes.json();
-              onFailed(verifyErr.error || 'Payment verification failed');
-            }
-          } catch (e) {
-            onFailed('Verification request failed');
-          }
-        },
-        prefill: {
-          name: user ? user.name : "Guest Customer",
-          email: email || (user ? user.email : "guest@parkhub.in"),
-          contact: contact || "9999999999"
-        },
-        theme: {
-          color: "#00d4ff"
-        },
-        modal: {
-          ondismiss: function () {
-            onFailed('Payment window closed by user');
-          }
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
-        onFailed(response.error.description || 'Payment transaction failed');
-      });
-      rzp.open();
-    } catch (e) {
-      onFailed(e.message || 'Razorpay order initialization failed');
-    }
-  };
-
   const handleConfirmUPIPayment = () => {
-    let sumAmount = 0;
-    bookingVehicles.forEach(v => {
-      const basePrice = v.type === 'four-wheeler' 
-        ? selectedLocation.rates.hourly * bookingDuration
-        : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
-      const discounted = basePrice * (1 - couponDiscount / 100);
-      sumAmount += Math.max(0, Math.round(discounted));
-    });
-
+    if (razorpayTab === 'upi' && upiPin.length < 4) {
+      showAlert("Please enter a valid UPI ID", "Security Verification");
+      return;
+    }
+    if (razorpayTab === 'card' && (dummyCard.length < 16 || dummyExpiry.length < 4 || dummyCvv.length < 3)) {
+      showAlert("Please enter valid card details", "Security Verification");
+      return;
+    }
+    
     setIsProcessingPayment(true);
+    setTimeout(() => {
+      const promises = bookingVehicles.map(v => {
+        const basePrice = v.type === 'four-wheeler' 
+          ? selectedLocation.rates.hourly * bookingDuration
+          : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
+        const discounted = basePrice * (1 - couponDiscount / 100);
+        const totalAmount = Math.max(0, Math.round(discounted));
 
-    initiateRazorpayPayment({
-      amount: sumAmount,
-      email: user ? user.email : "guest@parkhub.in",
-      contact: "9999999999",
-      onVerified: (response) => {
-        const promises = bookingVehicles.map(v => {
-          const basePrice = v.type === 'four-wheeler' 
-            ? selectedLocation.rates.hourly * bookingDuration
-            : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
-          const discounted = basePrice * (1 - couponDiscount / 100);
-          const totalAmount = Math.max(0, Math.round(discounted));
+        const newBooking = {
+          userId: user ? user.uid : "guest-user",
+          locationId: selectedLocation.id,
+          vehicleNumber: v.number.toUpperCase(),
+          vehicleType: v.type,
+          startTime: new Date().toISOString(),
+          endTime: new Date(Date.now() + bookingDuration * 3600000).toISOString(),
+          status: "active",
+          totalAmount,
+          paymentMethod: 'online',
+          qrCodeData: `QR_PE_${selectedLocation.id}_${v.number.toUpperCase()}`
+        };
 
-          const newBooking = {
-            userId: user ? user.uid : "guest-user",
-            locationId: selectedLocation.id,
-            vehicleNumber: v.number.toUpperCase(),
-            vehicleType: v.type,
-            startTime: new Date().toISOString(),
-            endTime: new Date(Date.now() + bookingDuration * 3600000).toISOString(),
-            status: "active",
-            totalAmount,
-            paymentMethod: 'online',
-            paymentId: response.razorpay_payment_id,
-            qrCodeData: `QR_PE_${selectedLocation.id}_${v.number.toUpperCase()}`
-          };
+        return fetch(`${API_URL}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBooking)
+        }).then(res => res.json());
+      });
 
-          return fetch(`${API_URL}/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newBooking)
-          }).then(res => res.json());
-        });
-
-        Promise.all(promises)
-        .then(savedBookings => {
-          setBookings(prev => [...savedBookings, ...prev]);
-          fetch(`${API_URL}/locations`)
-            .then(r => r.json())
-            .then(data => setLocations(data))
-            .catch(() => {});
-          setIsProcessingPayment(false);
-          setShowUPIScreen(false);
-          setUpiPin('');
-          setDummyCard('');
-          setDummyExpiry('');
-          setDummyCvv('');
-          setSelectedLocation(null);
-          setCurrentTab('bookings');
-          showAlert("Payment verified successfully via Razorpay! Booking confirmed.", "Payment Success ✅");
-        })
-        .catch(err => {
-          console.error("Error creating bookings:", err);
-          setIsProcessingPayment(false);
-        });
-      },
-      onFailed: (errMessage) => {
+      Promise.all(promises)
+      .then(savedBookings => {
+        setBookings(prev => [...savedBookings, ...prev]);
+        // Refresh locations from server to get accurate slot counts
+        fetch(`${API_URL}/locations`)
+          .then(r => r.json())
+          .then(data => setLocations(data))
+          .catch(() => {});
         setIsProcessingPayment(false);
-        showAlert(errMessage, "Payment Failed ❌");
-      }
-    });
+        setShowUPIScreen(false);
+        setUpiPin('');
+        setDummyCard('');
+        setDummyExpiry('');
+        setDummyCvv('');
+        setSelectedLocation(null);
+        setCurrentTab('bookings');
+        showAlert("Payment processed via Razorpay simulation! Booking confirmed.", "Payment Success ✅");
+      })
+      .catch(err => {
+        console.error("Error creating bookings:", err);
+        setIsProcessingPayment(false);
+      });
+    }, 2000);
   };
 
   const handleCancelBooking = (bookingId) => {

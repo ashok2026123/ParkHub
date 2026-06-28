@@ -107,6 +107,9 @@ export default function App() {
   const [broadcastLogs, setBroadcastLogs] = useState([]);
   const [evStations, setEvStations] = useState([]);
   const [evReservations, setEvReservations] = useState([]);
+  const [settlements, setSettlements] = useState([]);
+  const [walletTransactions, setWalletTransactions] = useState([]);
+  const [isProcessingSettlement, setIsProcessingSettlement] = useState(false);
 
   const handleLoginWithCredentials = async (emailOrPhone, password) => {
     const cleanInput = emailOrPhone.trim().toLowerCase().replace(/\s+/g, '');
@@ -339,6 +342,16 @@ export default function App() {
         const evBookRes = await fetch(`${API_URL}/ev-reservations`);
         if (evBookRes.ok) setEvReservations(await evBookRes.json());
       } catch (err) { console.error("Error fetching EV reservations:", err); }
+
+      try {
+        const setRes = await fetch(`${API_URL}/settlements`);
+        if (setRes.ok) setSettlements(await setRes.json());
+      } catch (err) { console.error("Error fetching settlements:", err); }
+
+      try {
+        const txRes = await fetch(`${API_URL}/wallet-transactions`);
+        if (txRes.ok) setWalletTransactions(await txRes.json());
+      } catch (err) { console.error("Error fetching wallet transactions:", err); }
     };
 
     fetchData();
@@ -374,6 +387,16 @@ export default function App() {
         const custRes = await fetch(`${API_URL}/customers`);
         if (custRes.ok) setAdminUsers(await custRes.json());
       } catch (err) { console.error("Error polling customers:", err); }
+
+      try {
+        const setRes = await fetch(`${API_URL}/settlements`);
+        if (setRes.ok) setSettlements(await setRes.json());
+      } catch (err) { console.error("Error polling settlements:", err); }
+
+      try {
+        const txRes = await fetch(`${API_URL}/wallet-transactions`);
+        if (txRes.ok) setWalletTransactions(await txRes.json());
+      } catch (err) { console.error("Error polling wallet transactions:", err); }
     }, 3000);
 
     return () => clearInterval(interval);
@@ -728,6 +751,33 @@ export default function App() {
     }, "Confirm Payout");
   };
 
+  const handleProcessWeeklySettlements = async () => {
+    setIsProcessingSettlement(true);
+    try {
+      const res = await fetch(`${API_URL}/settlements/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showAlert(`Weekly settlements processed successfully! ${data.processedCount} owner wallets settled.`, "Settlements Processed ✅");
+        const ownerRes = await fetch(`${API_URL}/owners`);
+        if (ownerRes.ok) setAdminOwners(await ownerRes.json());
+        const setRes = await fetch(`${API_URL}/settlements`);
+        if (setRes.ok) setSettlements(await setRes.json());
+        const txRes = await fetch(`${API_URL}/wallet-transactions`);
+        if (txRes.ok) setWalletTransactions(await txRes.json());
+      } else {
+        showAlert("Failed to process settlements.", "Settlement Error");
+      }
+    } catch (e) {
+      console.error("Error processing settlements:", e);
+      showAlert("Error processing weekly settlements.", "Settlement Error");
+    } finally {
+      setIsProcessingSettlement(false);
+    }
+  };
+
   const handleResolveComplaint = (id) => {
     fetch(`${API_URL}/complaints/${id}`, {
       method: 'PUT',
@@ -967,6 +1017,97 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            {/* Real-time Settlements & Transactions Section */}
+            <div style={{ marginTop: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '800' }}>💸 Weekly Settlements & Transactions Ledger</h3>
+                <button 
+                  onClick={handleProcessWeeklySettlements}
+                  disabled={isProcessingSettlement}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'var(--primary)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    opacity: isProcessingSettlement ? 0.6 : 1,
+                    transition: 'all 0.2s',
+                    boxShadow: '0 2px 10px rgba(0, 212, 255, 0.2)'
+                  }}
+                >
+                  {isProcessingSettlement ? 'Processing Settlements...' : '⚡ Run Weekly Settlements Now'}
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px' }}>
+                {/* Settlement History Table */}
+                <div className="glass-panel" style={{ padding: '20px' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Settlement Payout History</h4>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                          <th style={{ padding: '8px' }}>Date</th>
+                          <th style={{ padding: '8px' }}>Owner ID</th>
+                          <th style={{ padding: '8px' }}>Amount</th>
+                          <th style={{ padding: '8px' }}>Destination</th>
+                          <th style={{ padding: '8px' }}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {settlements.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" style={{ padding: '16px', textCenter: 'center', color: 'var(--text-muted)' }}>No settlement history found.</td>
+                          </tr>
+                        ) : (
+                          settlements.map((set, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                              <td style={{ padding: '8px' }}>{new Date(set.createdAt).toLocaleString()}</td>
+                              <td style={{ padding: '8px' }}>{set.ownerId}</td>
+                              <td style={{ padding: '8px', color: 'var(--primary)', fontWeight: 'bold' }}>₹{set.amount}</td>
+                              <td style={{ padding: '8px' }}>{set.bankAccount}</td>
+                              <td style={{ padding: '8px' }}>
+                                <span style={{ background: 'rgba(0,230,118,0.12)', color: '#00E676', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>{set.status.toUpperCase()}</span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Wallet Transactions Ledger */}
+                <div className="glass-panel" style={{ padding: '20px' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Wallet Transactions Ledger</h4>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {walletTransactions.length === 0 ? (
+                      <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>No transactions recorded.</p>
+                    ) : (
+                      walletTransactions.map((tx, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '12px' }}>
+                          <div>
+                            <p style={{ fontWeight: 'bold', color: tx.type === 'credit' ? '#00E676' : '#FF1744' }}>
+                              {tx.type === 'credit' ? '🟢 Credit Share' : '🔴 Settlement Debit'}
+                            </p>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Owner: {tx.ownerId} | {new Date(tx.timestamp).toLocaleDateString()}</span>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <p style={{ fontWeight: 'bold', color: '#FFF' }}>₹{tx.netAmount}</p>
+                            {tx.commission > 0 && <span style={{ fontSize: '9px', color: '#FF9100' }}>Platform: ₹{tx.commission}</span>}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 

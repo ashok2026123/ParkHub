@@ -122,6 +122,8 @@ export default function App() {
   const [evChargers, setEvChargers] = useState([{ id: "charger-1", type: "CCS2", power: 60, status: "Available" }]);
   const [evStations, setEvStations] = useState([]);
   const [evReservations, setEvReservations] = useState([]);
+  const [settlements, setSettlements] = useState([]);
+  const [walletTransactions, setWalletTransactions] = useState([]);
 
   const [currentTab, setCurrentTab] = useState('overview');
   const [analyticsFilter, setAnalyticsFilter] = useState('daily');
@@ -195,6 +197,16 @@ export default function App() {
           }
         }
       } catch (err) { console.error("Error fetching owner profile:", err); }
+
+      try {
+        const setRes = await fetch(`${API_URL}/settlements`);
+        if (setRes.ok) setSettlements(await setRes.json());
+      } catch (err) { console.error("Error fetching settlements:", err); }
+
+      try {
+        const txRes = await fetch(`${API_URL}/wallet-transactions`);
+        if (txRes.ok) setWalletTransactions(await txRes.json());
+      } catch (err) { console.error("Error fetching wallet transactions:", err); }
     };
 
     fetchData();
@@ -252,6 +264,16 @@ export default function App() {
           }
         }
       } catch (err) { console.error("Error polling owner profile:", err); }
+
+      try {
+        const setRes = await fetch(`${API_URL}/settlements`);
+        if (setRes.ok) setSettlements(await setRes.json());
+      } catch (err) { console.error("Error polling settlements:", err); }
+
+      try {
+        const txRes = await fetch(`${API_URL}/wallet-transactions`);
+        if (txRes.ok) setWalletTransactions(await txRes.json());
+      } catch (err) { console.error("Error polling wallet transactions:", err); }
     }, 3000);
 
     return () => clearInterval(interval);
@@ -2757,44 +2779,75 @@ export default function App() {
               <span>Payout History</span>
             </h2>
 
-            <div className="glass-panel" style={{ padding: '28px' }}>
-              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#FFF', margin: 0 }}>📋 Settlement Payout History</h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Ledger detailing past transfers to your verified bank or UPI</p>
-              </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>
-                      <th style={{ padding: '12px' }}>Settlement ID</th>
-                      <th style={{ padding: '12px' }}>Payout Date</th>
-                      <th style={{ padding: '12px' }}>Method</th>
-                      <th style={{ padding: '12px' }}>Net Amount</th>
-                      <th style={{ padding: '12px' }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(user.settlementHistory || []).length === 0 ? (
-                      <tr>
-                        <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>No settlement payouts processed yet.</td>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '28px', alignItems: 'start' }}>
+              {/* Left Side: Settlement Payout History */}
+              <div className="glass-panel" style={{ padding: '28px' }}>
+                <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#FFF', margin: 0 }}>📋 Settlement Payout History</h3>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Ledger detailing weekly transfers to your verified payout bank/UPI</p>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>
+                        <th style={{ padding: '12px' }}>Settlement ID</th>
+                        <th style={{ padding: '12px' }}>Payout Date</th>
+                        <th style={{ padding: '12px' }}>Destination</th>
+                        <th style={{ padding: '12px' }}>Net Amount</th>
+                        <th style={{ padding: '12px' }}>Status</th>
                       </tr>
-                    ) : (
-                      (user.settlementHistory || []).map((s, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                          <td style={{ padding: '14px 12px', color: 'var(--primary)', fontWeight: 'bold' }}>#{s.id}</td>
-                          <td style={{ padding: '14px 12px', color: '#FFF' }}>{new Date(s.date).toLocaleDateString()}</td>
-                          <td style={{ padding: '14px 12px', color: 'var(--text-secondary)' }}>{s.method}</td>
-                          <td style={{ padding: '14px 12px', color: '#00E5A0', fontWeight: 'bold' }}>₹{s.amount}</td>
-                          <td style={{ padding: '14px 12px' }}>
-                            <span style={{ fontSize: '9px', fontWeight: '800', background: 'rgba(0, 229, 160, 0.12)', color: '#00E5A0', padding: '2px 6px', borderRadius: '4px' }}>
-                              {s.status.toUpperCase()}
-                            </span>
-                          </td>
+                    </thead>
+                    <tbody>
+                      {settlements.filter(s => s.ownerId === user.uid).length === 0 ? (
+                        <tr>
+                          <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>No settlement payouts processed yet.</td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        settlements.filter(s => s.ownerId === user.uid).map((s, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                            <td style={{ padding: '14px 12px', color: 'var(--primary)', fontWeight: 'bold' }}>#{s.id}</td>
+                            <td style={{ padding: '14px 12px', color: '#FFF' }}>{new Date(s.createdAt).toLocaleString()}</td>
+                            <td style={{ padding: '14px 12px', color: 'var(--text-secondary)' }}>{s.bankAccount}</td>
+                            <td style={{ padding: '14px 12px', color: '#00E5A0', fontWeight: 'bold' }}>₹{s.amount}</td>
+                            <td style={{ padding: '14px 12px' }}>
+                              <span style={{ fontSize: '9px', fontWeight: '800', background: 'rgba(0, 229, 160, 0.12)', color: '#00E5A0', padding: '2px 6px', borderRadius: '4px' }}>
+                                {s.status.toUpperCase()}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Side: Wallet Transactions Ledger */}
+              <div className="glass-panel" style={{ padding: '28px' }}>
+                <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#FFF', margin: 0 }}>🟢 Wallet Transactions</h3>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>Real-time credits from bookings & commission deductions</p>
+                </div>
+                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  {walletTransactions.filter(t => t.ownerId === user.uid).length === 0 ? (
+                    <p style={{ color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center', padding: '24px 0' }}>No wallet transactions found.</p>
+                  ) : (
+                    walletTransactions.filter(t => t.ownerId === user.uid).map((tx, idx) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '13px' }}>
+                        <div>
+                          <p style={{ fontWeight: 'bold', color: tx.type === 'credit' ? '#00E676' : '#FF1744', margin: 0 }}>
+                            {tx.type === 'credit' ? '🟢 Booking Share' : '🔴 Settlement Payout'}
+                          </p>
+                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Date: {new Date(tx.timestamp).toLocaleDateString()} | Booking: #{tx.bookingId}</span>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ fontWeight: 'bold', color: '#FFF', margin: 0 }}>₹{tx.netAmount}</p>
+                          {tx.commission > 0 && <span style={{ fontSize: '9px', color: '#FF9100' }}>Comm (10%): -₹{tx.commission}</span>}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>

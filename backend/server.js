@@ -1,5 +1,15 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import crypto from 'crypto';
+import Razorpay from 'razorpay';
+
+dotenv.config();
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_fakeKeyId1234',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'fakeSecretKey1234567890'
+});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,7 +30,9 @@ async function saveAllData() {
       fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(broadcastLogs) }),
       fetch(`${FIREBASE_DB_URL}/customers.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customers) }),
       fetch(`${FIREBASE_DB_URL}/evStations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evStations) }),
-      fetch(`${FIREBASE_DB_URL}/evReservations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evReservations) })
+      fetch(`${FIREBASE_DB_URL}/evReservations.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evReservations) }),
+      fetch(`${FIREBASE_DB_URL}/walletTransactions.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(walletTransactions) }),
+      fetch(`${FIREBASE_DB_URL}/settlements.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settlements) })
     ]);
   } catch (err) {
     console.error("Error saving data to Firebase:", err);
@@ -29,7 +41,7 @@ async function saveAllData() {
 
 async function loadAllData() {
   try {
-    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes, evLocRes, evBookRes] = await Promise.all([
+    const [locRes, bookRes, revRes, compRes, ownRes, coupRes, setRes, auditRes, broadRes, custRes, evLocRes, evBookRes, walletTxRes, settlementRes] = await Promise.all([
       fetch(`${FIREBASE_DB_URL}/locations.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/bookings.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/reviews.json`).then(r => r.json()),
@@ -41,7 +53,9 @@ async function loadAllData() {
       fetch(`${FIREBASE_DB_URL}/broadcastLogs.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/customers.json`).then(r => r.json()),
       fetch(`${FIREBASE_DB_URL}/evStations.json`).then(r => r.json()),
-      fetch(`${FIREBASE_DB_URL}/evReservations.json`).then(r => r.json())
+      fetch(`${FIREBASE_DB_URL}/evReservations.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/walletTransactions.json`).then(r => r.json()),
+      fetch(`${FIREBASE_DB_URL}/settlements.json`).then(r => r.json())
     ]);
     if (locRes) locations = locRes;
     if (bookRes) bookings = bookRes;
@@ -55,6 +69,8 @@ async function loadAllData() {
     if (custRes) customers = custRes;
     if (evLocRes) evStations = evLocRes;
     if (evBookRes) evReservations = evBookRes;
+    if (walletTxRes) walletTransactions = walletTxRes;
+    if (settlementRes) settlements = settlementRes;
 
     if (!locRes && !bookRes) {
       console.log("No data found in Firebase. Seeding default data...");
@@ -238,6 +254,31 @@ let complaints = [
     subject: "Charged twice for the same booking",
     description: "My UPI payment debited twice. Refer to Transaction IDs txn_9831 and txn_9832. Requesting refund.",
     status: "resolved",
+    createdAt: new Date(Date.now() - 172800000).toISOString()
+  }
+];
+
+let walletTransactions = [
+  {
+    id: "tx-1",
+    ownerId: "owner-456",
+    bookingId: "book-1",
+    amount: 180,
+    commission: 20,
+    netAmount: 160,
+    type: "credit",
+    status: "success",
+    timestamp: new Date(Date.now() - 86400000).toISOString()
+  }
+];
+
+let settlements = [
+  {
+    id: "set-1",
+    ownerId: "owner-456",
+    amount: 15600,
+    status: "completed",
+    bankAccount: "HDFC ****9812",
     createdAt: new Date(Date.now() - 172800000).toISOString()
   }
 ];
@@ -1146,6 +1187,153 @@ async function syncOpenChargeMapData() {
 // Sync OCM every hour
 setInterval(syncOpenChargeMapData, 3600000);
 setTimeout(syncOpenChargeMapData, 5000);
+
+// ==========================================
+// RAZORPAY & SETTLEMENT APIS
+// ==========================================
+
+// Create Razorpay Order
+app.post('/api/payments/order', async (req, res) => {
+  const { amount, bookingId } = req.body;
+  try {
+    const options = {
+      amount: Math.round(amount * 100), // amount in paisa
+      currency: "INR",
+      receipt: `receipt_${bookingId}_${Date.now()}`
+    };
+    const order = await razorpay.orders.create(options);
+    res.json({
+      orderId: order.id,
+      amount: order.amount / 100,
+      currency: order.currency
+    });
+  } catch (err) {
+    console.error("Error creating Razorpay Order:", err);
+    res.status(500).json({ error: "Failed to create order" });
+  }
+});
+
+// Verify Signature and Confirm Booking
+app.post('/api/payments/verify', async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = req.body;
+  
+  const hmac = crypto.createHmac('sha256', razorpay.key_secret);
+  hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+  const generatedSignature = hmac.digest('hex');
+
+  const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+  
+  if (generatedSignature === razorpay_signature) {
+    // Signature verified
+    if (bookingIndex !== -1) {
+      bookings[bookingIndex].paymentStatus = 'paid';
+      bookings[bookingIndex].status = 'active';
+      bookings[bookingIndex].paymentId = razorpay_payment_id;
+      bookings[bookingIndex].razorpayOrderId = razorpay_order_id;
+      bookings[bookingIndex].razorpayPaymentId = razorpay_payment_id;
+
+      // Credit Owner Wallet and deduct Platform Commission
+      const loc = locations.find(l => l.id === bookings[bookingIndex].locationId);
+      if (loc) {
+        const ownerIndex = owners.findIndex(o => o.uid === loc.ownerId);
+        if (ownerIndex !== -1) {
+          const total = bookings[bookingIndex].totalAmount;
+          const commRate = settings.commissionPercentage || 10;
+          const platformFee = total * (commRate / 100);
+          const ownerShare = total - platformFee;
+
+          owners[ownerIndex].walletBalance = (owners[ownerIndex].walletBalance || 0) + ownerShare;
+          owners[ownerIndex].onlineEarnings = (owners[ownerIndex].onlineEarnings || 0) + ownerShare;
+          owners[ownerIndex].earnings = (owners[ownerIndex].earnings || 0) + ownerShare;
+
+          // Record transaction log
+          const newTx = {
+            id: "tx-" + Math.floor(Math.random() * 100000),
+            ownerId: loc.ownerId,
+            bookingId: bookingId,
+            amount: total,
+            commission: platformFee,
+            netAmount: ownerShare,
+            type: "credit",
+            status: "success",
+            timestamp: new Date().toISOString()
+          };
+          walletTransactions.unshift(newTx);
+        }
+      }
+      recalcSlots(bookings[bookingIndex].locationId);
+      await saveAllData();
+      res.json({ success: true, booking: bookings[bookingIndex] });
+    } else {
+      res.status(404).json({ error: "Booking not found" });
+    }
+  } else {
+    // Verification failed
+    if (bookingIndex !== -1) {
+      bookings[bookingIndex].paymentStatus = 'failed';
+      bookings[bookingIndex].status = 'cancelled';
+      await saveAllData();
+    }
+    res.status(400).json({ error: "Signature verification failed" });
+  }
+});
+
+// Run Weekly Settlements
+app.post('/api/settlements/process', async (req, res) => {
+  try {
+    let processedCount = 0;
+    owners.forEach(owner => {
+      const balance = owner.walletBalance || 0;
+      if (balance > 0) {
+        // Record settlement history
+        const newSet = {
+          id: "set-" + Math.floor(Math.random() * 100000),
+          ownerId: owner.uid,
+          amount: balance,
+          status: "completed",
+          bankAccount: "BANK-X-XXXX-9812",
+          createdAt: new Date().toISOString()
+        };
+        settlements.unshift(newSet);
+
+        // Record debit transaction in wallet logs
+        const newTx = {
+          id: "tx-" + Math.floor(Math.random() * 100000),
+          ownerId: owner.uid,
+          bookingId: "settlement",
+          amount: balance,
+          commission: 0,
+          netAmount: balance,
+          type: "debit",
+          status: "success",
+          timestamp: new Date().toISOString()
+        };
+        walletTransactions.unshift(newTx);
+
+        // Reset owner balance
+        owner.walletBalance = 0;
+        processedCount++;
+      }
+    });
+    if (processedCount > 0) {
+      await saveAllData();
+    }
+    res.json({ success: true, processedCount });
+  } catch (err) {
+    console.error("Error processing weekly settlements:", err);
+    res.status(500).json({ error: "Failed to process settlements" });
+  }
+});
+
+// Get Settlements History
+app.get('/api/settlements', (req, res) => {
+  res.json(settlements);
+});
+
+// Get Wallet Transactions
+app.get('/api/wallet-transactions', (req, res) => {
+  res.json(walletTransactions);
+});
 
 // Start Server
 app.listen(PORT, () => {
