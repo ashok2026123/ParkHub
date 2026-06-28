@@ -1530,6 +1530,61 @@ export default function App() {
                 </div>
               </div>
             </div>
+            {/* Active Bookings on Overview */}
+            <div style={{ marginTop: '32px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '22px' }}>📋</span> Active Bookings
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {ownerBks.filter(bk => bk.status === 'active').length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>No active bookings currently.</p>
+                ) : (
+                  ownerBks.filter(bk => bk.status === 'active').map(bk => (
+                    <div key={bk.id} className="glass-panel" style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%)', borderRadius: '12px', borderLeft: '3px solid #00E5A0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '12px' }}>
+                        <div>
+                          <h4 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Booking ID: {bk.id}</h4>
+                          <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>Vehicle Plate: <span style={{ color: '#FFF' }}>{bk.vehicleNumber}</span> ({bk.vehicleType === 'four-wheeler' ? '4-wheeler' : '2-wheeler'})</p>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          <span style={{ fontSize: '11px', background: 'rgba(0,230,118,0.12)', color: '#00E676', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>ACTIVE</span>
+                          <span style={{ 
+                            fontSize: '10px', 
+                            background: bk.paymentStatus === 'paid' ? 'rgba(0, 212, 255, 0.12)' : bk.paymentMethod === 'online' ? 'rgba(255, 140, 66, 0.12)' : 'rgba(255,255,255,0.05)', 
+                            color: bk.paymentStatus === 'paid' ? '#00d4ff' : bk.paymentMethod === 'online' ? '#ff8c42' : 'var(--text-secondary)', 
+                            padding: '2px 6px', 
+                            borderRadius: '4px', 
+                            fontWeight: 'bold' 
+                          }}>
+                            {bk.paymentStatus === 'paid' ? '💳 ONLINE PAID' : bk.paymentMethod === 'online' ? '⏳ ONLINE PENDING' : '💵 CASH ON ARRIVAL'}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <p style={{ fontSize: '13px', margin: 0 }}>Gross paid: <span style={{ color: '#00E5A0', fontWeight: 'bold' }}>₹{bk.totalAmount}</span></p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {bk.paymentMethod === 'cash' && bk.paymentStatus === 'pending' && (
+                            <button 
+                              onClick={() => {
+                                setSelectedBookingForOtp(bk);
+                                setBookingOtpInput('');
+                                setBookingOtpError('');
+                                setShowBookingOtpModal(true);
+                              }} 
+                              className="glow-button"
+                              style={{ padding: '6px 14px', fontSize: '11px', borderRadius: '6px' }}
+                            >
+                              Verify OTP
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
           </div>
         )}
 
