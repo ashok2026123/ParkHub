@@ -565,16 +565,8 @@ export default function App() {
   const [appliedCoupon, setAppliedCoupon] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
-  const [showUPIScreen, setShowUPIScreen] = useState(false);
-  const [upiPin, setUpiPin] = useState('ashok@okaxis');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [activeMockOrder, setActiveMockOrder] = useState(null);
-  
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('online');
-  const [razorpayTab, setRazorpayTab] = useState('upi');
-  const [dummyCard, setDummyCard] = useState('');
-  const [dummyExpiry, setDummyExpiry] = useState('');
-  const [dummyCvv, setDummyCvv] = useState('');
 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
@@ -1196,19 +1188,8 @@ export default function App() {
             return;
           }
 
-          if (orderData.isMock) {
-            setActiveMockOrder({
-              orderId: orderData.orderId,
-              amount: totalAmt,
-              bookingId: savedBooking.id
-            });
-            setShowUPIScreen(true);
-            setIsProcessingPayment(false);
-            return;
-          }
-
           const options = {
-            key: "rzp_live_fakeKeyId1234",
+            key: orderData.key || "rzp_live_fakeKeyId1234",
             amount: orderData.amount * 100,
             currency: "INR",
             name: "ParkHub Parking",
@@ -1320,109 +1301,6 @@ export default function App() {
     }
   };
 
-  const handleConfirmUPIPayment = () => {
-    if (razorpayTab === 'upi' && upiPin.length < 4) {
-      showAlert("Please enter a valid UPI ID", "Security Verification");
-      return;
-    }
-    if (razorpayTab === 'card' && (dummyCard.length < 16 || dummyExpiry.length < 4 || dummyCvv.length < 3)) {
-      showAlert("Please enter valid card details", "Security Verification");
-      return;
-    }
-    
-    setIsProcessingPayment(true);
-
-    if (activeMockOrder) {
-      fetch(`${API_URL}/payments/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          razorpay_order_id: activeMockOrder.orderId,
-          razorpay_payment_id: `pay_mock_${Date.now()}`,
-          razorpay_signature: "sig_mock",
-          bookingId: activeMockOrder.bookingId
-        })
-      })
-      .then(res => res.json())
-      .then(verifyData => {
-        if (verifyData.success) {
-          setBookings(prev => [verifyData.booking, ...prev.filter(b => b.id !== activeMockOrder.bookingId)]);
-          showAlert("Simulated Razorpay transaction successful! Slot reservation confirmed.", "Payment Success ✅");
-          
-          fetch(`${API_URL}/locations`)
-            .then(r => r.json())
-            .then(data => setLocations(data))
-            .catch(() => {});
-
-          setShowUPIScreen(false);
-          setSelectedLocation(null);
-          setCurrentTab('bookings');
-          setActiveMockOrder(null);
-        } else {
-          showAlert("Payment signature verification failed.", "Payment Failed ❌");
-        }
-        setIsProcessingPayment(false);
-      })
-      .catch(err => {
-        console.error("Error verifying payment signature:", err);
-        showAlert("Error verifying payment signature.", "Payment Error");
-        setIsProcessingPayment(false);
-      });
-      return;
-    }
-
-    setTimeout(() => {
-      const promises = bookingVehicles.map(v => {
-        const basePrice = v.type === 'four-wheeler' 
-          ? selectedLocation.rates.hourly * bookingDuration
-          : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
-        const discounted = basePrice * (1 - couponDiscount / 100);
-        const totalAmount = Math.max(0, Math.round(discounted));
-
-        const newBooking = {
-          userId: user ? user.uid : "guest-user",
-          locationId: selectedLocation.id,
-          vehicleNumber: v.number.toUpperCase(),
-          vehicleType: v.type,
-          startTime: new Date().toISOString(),
-          endTime: new Date(Date.now() + bookingDuration * 3600000).toISOString(),
-          status: "active",
-          totalAmount,
-          paymentMethod: 'online',
-          qrCodeData: `QR_PE_${selectedLocation.id}_${v.number.toUpperCase()}`
-        };
-
-        return fetch(`${API_URL}/bookings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newBooking)
-        }).then(res => res.json());
-      });
-
-      Promise.all(promises)
-      .then(savedBookings => {
-        setBookings(prev => [...savedBookings, ...prev]);
-        // Refresh locations from server to get accurate slot counts
-        fetch(`${API_URL}/locations`)
-          .then(r => r.json())
-          .then(data => setLocations(data))
-          .catch(() => {});
-        setIsProcessingPayment(false);
-        setShowUPIScreen(false);
-        setUpiPin('');
-        setDummyCard('');
-        setDummyExpiry('');
-        setDummyCvv('');
-        setSelectedLocation(null);
-        setCurrentTab('bookings');
-        showAlert("Payment processed via Razorpay simulation! Booking confirmed.", "Payment Success ✅");
-      })
-      .catch(err => {
-        console.error("Error creating bookings:", err);
-        setIsProcessingPayment(false);
-      });
-    }, 2000);
-  };
 
   const handleCancelBooking = (bookingId) => {
     fetch(`${API_URL}/bookings/${bookingId}`, {
@@ -3543,161 +3421,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* UPI / RAZORPAY MODAL */}
-      {showUPIScreen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="glass-panel animate-fade-in" style={{ width: '380px', padding: '0px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #3399FF', background: '#0c1a30' }}>
-            {/* Razorpay Premium Header */}
-            <div style={{ background: '#3399FF', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.8)', fontWeight: 'bold' }}>SpotPark Secure Payment</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                  <Shield size={16} color="#FFF" />
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FFF' }}>Razorpay</span>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)' }}>Amount to Pay</span>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#FFF' }}>
-                  ₹{Math.max(0, Math.round(
-                    bookingVehicles.reduce((sum, v) => {
-                      const base = v.type === 'four-wheeler'
-                        ? selectedLocation.rates.hourly * bookingDuration
-                        : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
-                      return sum + base;
-                    }, 0) * (1 - couponDiscount/100)
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Content Body */}
-            <div style={{ padding: '24px' }}>
-              {isProcessingPayment ? (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                  <RefreshCw className="spinning" size={32} style={{ margin: '0 auto 16px', animation: 'spin 1s linear infinite', color: '#3399FF' }} />
-                  <p style={{ color: '#FFF', fontWeight: '600' }}>Processing Secure Transaction...</p>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Do not press back or refresh</span>
-                </div>
-              ) : (
-                <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '8px' }}>PAYMENT METHOD</label>
-                  
-                  {/* Tabs */}
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                    <button 
-                      onClick={() => setRazorpayTab('card')}
-                      style={{ 
-                        flex: 1, 
-                        padding: '8px', 
-                        fontSize: '12px', 
-                        fontWeight: 'bold', 
-                        borderRadius: '6px', 
-                        border: 'none',
-                        background: razorpayTab === 'card' ? '#3399FF' : 'rgba(255,255,255,0.05)',
-                        color: '#FFF',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Credit/Debit Card
-                    </button>
-                    <button 
-                      onClick={() => setRazorpayTab('upi')}
-                      style={{ 
-                        flex: 1, 
-                        padding: '8px', 
-                        fontSize: '12px', 
-                        fontWeight: 'bold', 
-                        borderRadius: '6px', 
-                        border: 'none',
-                        background: razorpayTab === 'upi' ? '#3399FF' : 'rgba(255,255,255,0.05)',
-                        color: '#FFF',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      UPI
-                    </button>
-                  </div>
-
-                  {razorpayTab === 'card' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>Card Number</label>
-                        <input 
-                          type="text" 
-                          placeholder="4111 2222 3333 4444" 
-                          value={dummyCard}
-                          onChange={(e) => setDummyCard(e.target.value.replace(/\D/g, '').substring(0, 16))}
-                          style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF' }} 
-                        />
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>Expiry (MM/YY)</label>
-                          <input 
-                            type="text" 
-                            placeholder="12/29" 
-                            value={dummyExpiry}
-                            onChange={(e) => setDummyExpiry(e.target.value.substring(0, 5))}
-                            style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF' }} 
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>CVV</label>
-                          <input 
-                            type="password" 
-                            placeholder="***" 
-                            maxLength="3"
-                            value={dummyCvv}
-                            onChange={(e) => setDummyCvv(e.target.value.replace(/\D/g, '').substring(0, 3))}
-                            style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF', letterSpacing: '4px' }} 
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '11px', color: '#a0aec0', marginBottom: '4px' }}>UPI ID</label>
-                        <input 
-                          type="text" 
-                          placeholder="username@okaxis" 
-                          value={upiPin}
-                          onChange={(e) => setUpiPin(e.target.value)}
-                          style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid #3399FF', borderRadius: '6px', color: '#FFF' }} 
-                        />
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px dashed rgba(51, 153, 255, 0.3)' }}>
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=parkhub@okaxis&pn=ParkHub&am=${Math.max(0, Math.round(
-                            bookingVehicles.reduce((sum, v) => {
-                              const base = v.type === 'four-wheeler'
-                                ? selectedLocation.rates.hourly * bookingDuration
-                                : (selectedLocation.rates.hourly * 0.6) * bookingDuration;
-                              return sum + base;
-                            }, 0) * (1 - couponDiscount/100)
-                          ))}&cu=INR`)}`} 
-                          alt="UPI QR Code" 
-                          style={{ width: '120px', height: '120px', borderRadius: '4px', background: '#FFF', padding: '4px' }}
-                        />
-                        <span style={{ fontSize: '9px', color: '#3399FF', fontWeight: 'bold' }}>Scan QR to Pay Instantly</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <button onClick={() => setShowUPIScreen(false)} style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
-                    <button onClick={handleConfirmUPIPayment} style={{ padding: '12px', background: '#3399FF', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Simulate Success</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ALERTS */}
       {customAlert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
