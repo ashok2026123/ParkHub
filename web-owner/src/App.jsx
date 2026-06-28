@@ -719,9 +719,11 @@ export default function App() {
   // Settlements Settings (Dynamic Commission Split)
   const pendingSettlementAmt = Math.max(0, user?.walletBalance ?? 0);
   const totalHostNetEarnings = Math.round(lifetimeEarningsGross * ((100 - commissionRate) / 100));
-  const lastSettlementAmt = 5200; // Mock historical cycle
-  const lastSettlementDate = "June 15, 2026";
-  const nextSettlementDate = "June 30, 2026";
+  const lastSettlementAmt = user?.lastPayoutAmount || 0;
+  const lastSettlementDate = user?.lastPayoutDate || "No payouts yet";
+  const nextPayout = new Date();
+  nextPayout.setDate(nextPayout.getDate() + ((7 - nextPayout.getDay()) % 7 || 7));
+  const nextSettlementDate = nextPayout.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const settlementStatus = "Scheduled";
 
   const handleAddLocation = (e) => {
