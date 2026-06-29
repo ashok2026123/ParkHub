@@ -716,7 +716,7 @@ export default function App() {
     });
   }, [filteredEvStations, userCoords, sortBy]);
 
-  const filteredFuelStations = React.useMemo(() => {
+  const sortedFuelStations = React.useMemo(() => {
     let filtered = fuelStations;
 
     if (searchQuery) {
