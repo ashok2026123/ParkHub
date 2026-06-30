@@ -2950,12 +2950,7 @@ export default function App() {
                     <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '16px', color: '#FFF' }}>
                       ₹{(user.walletBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </h1>
-                    <button 
-                      onClick={() => { setAdminWalletEditAmount(user.walletBalance || 0); setShowAdminEditWallet(true); }}
-                      style={{ marginTop: '16px', padding: '6px 12px', background: 'rgba(255, 51, 102, 0.15)', border: '1px solid rgba(255, 51, 102, 0.4)', color: '#FF3366', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
-                    >
-                      Admin Edit
-                    </button>
+
                   </div>
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
