@@ -514,6 +514,7 @@ app.put('/api/customers/:uid', (req, res) => {
       ...req.body,
       uid
     };
+    saveAllData();
     res.json(customers[index]);
   } else {
     const newCustomer = {
@@ -524,6 +525,7 @@ app.put('/api/customers/:uid', (req, res) => {
       bookingsCount: 0
     };
     customers.push(newCustomer);
+    saveAllData();
     res.json(newCustomer);
   }
 });
@@ -753,6 +755,7 @@ app.put('/api/owners/:uid', (req, res) => {
       ...req.body,
       uid
     };
+    saveAllData();
     res.json(owners[index]);
   } else {
     const newOwner = {
@@ -763,6 +766,7 @@ app.put('/api/owners/:uid', (req, res) => {
       earnings: 0
     };
     owners.push(newOwner);
+    saveAllData();
     res.json(newOwner);
   }
 });
