@@ -1731,6 +1731,10 @@ export default function App() {
     return <LoginScreen onLogin={(emailOrPhone, password) => loginWithCredentials(emailOrPhone, password)} onGoogleLogin={loginWithGoogle} onGuestLogin={loginAsGuest} roleHint="Customer" />;
   }
 
+  if (!user.location || !user.name) {
+    return <OnboardingScreen user={user} updateProfile={updateProfile} />;
+  }
+
   return (
     <div className="dashboard-grid" style={{ 
       display: 'grid', 
@@ -4156,6 +4160,86 @@ export default function App() {
         .card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
         .card-hover:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.18) !important; }
       `}</style>
+    </div>
+  );
+}
+
+function OnboardingScreen({ user, updateProfile }) {
+  const [name, setName] = useState(user?.name || '');
+  const [location, setLocation] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (name.trim() && location.trim()) {
+      updateProfile({ name: name.trim(), location: location.trim() });
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'radial-gradient(circle at top right, rgba(0, 230, 118, 0.15) 0%, transparent 40%), var(--bg-dark)',
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      <div className="glass-panel animate-fade-in" style={{
+        width: '100%',
+        maxWidth: '400px',
+        padding: '32px',
+        borderRadius: '24px',
+        border: '1px solid var(--border-color)',
+        textAlign: 'center'
+      }}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'rgba(0, 230, 118, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            color: 'var(--primary)'
+          }}>
+            <User size={32} />
+          </div>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFF', marginBottom: '8px' }}>Complete Your Profile</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Just a few more details to get you started.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Full Name</label>
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              placeholder="e.g. John Doe"
+              required
+              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+          
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>City / Location</label>
+            <input 
+              type="text" 
+              value={location} 
+              onChange={(e) => setLocation(e.target.value)} 
+              placeholder="e.g. Chennai"
+              required
+              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <button type="submit" className="glass-button" style={{ marginTop: '8px', width: '100%' }}>
+            Continue to Dashboard
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

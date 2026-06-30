@@ -1146,6 +1146,10 @@ export default function App() {
     return <LoginScreen onLogin={handleLoginWithCredentials} onGoogleLogin={async () => { await signInWithPopup(auth, googleProvider); }} roleHint="Parking Host" />;
   }
 
+  if (!user.location || !user.name) {
+    return <OwnerOnboardingScreen user={user} updateProfile={updateProfile} />;
+  }
+
   return (
     <div className="dashboard-grid" style={{ 
       display: 'grid', 
@@ -4435,6 +4439,86 @@ function LoginScreen({ onLogin, onGoogleLogin, roleHint }) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function OwnerOnboardingScreen({ user, updateProfile }) {
+  const [name, setName] = useState(user?.name || '');
+  const [location, setLocation] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (name.trim() && location.trim()) {
+      updateProfile({ name: name.trim(), location: location.trim() });
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'radial-gradient(circle at top right, rgba(230, 0, 118, 0.15) 0%, transparent 40%), var(--bg-dark)',
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      <div className="glass-panel animate-fade-in" style={{
+        width: '100%',
+        maxWidth: '400px',
+        padding: '32px',
+        borderRadius: '24px',
+        border: '1px solid var(--border-color)',
+        textAlign: 'center'
+      }}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'rgba(230, 0, 118, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            color: 'var(--primary)'
+          }}>
+            <User size={32} />
+          </div>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFF', marginBottom: '8px' }}>Owner Profile Setup</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Complete your details to access the host dashboard.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Owner / Business Name</label>
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              placeholder="e.g. Acme Parking Solutions"
+              required
+              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+          
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Primary City / Location</label>
+            <input 
+              type="text" 
+              value={location} 
+              onChange={(e) => setLocation(e.target.value)} 
+              placeholder="e.g. Chennai"
+              required
+              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <button type="submit" className="glass-button" style={{ marginTop: '8px', width: '100%' }}>
+            Go to Dashboard
+          </button>
+        </form>
       </div>
     </div>
   );
