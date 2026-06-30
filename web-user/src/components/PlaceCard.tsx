@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation2, Phone, Globe, Star, MapPin, Heart, Wifi, Wind, Car, Zap, Coffee, Bed, Tool } from 'lucide-react';
+import { Navigation2, Phone, Globe, Star, MapPin, Heart, Wifi, Wind, Car, Zap, Coffee, Bed, Wrench } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -64,7 +64,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, user, onNavigate, o
       case 'restaurants': return <Coffee size={20} />;
       case 'fuel': return <Zap size={20} />;
       case 'ev': return <Zap size={20} />;
-      case 'mechanic': return <Tool size={20} />;
+      case 'mechanic': return <Wrench size={20} />;
       case 'parking': return <Car size={20} />;
       default: return <MapPin size={20} />;
     }
