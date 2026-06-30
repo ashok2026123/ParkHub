@@ -1185,6 +1185,84 @@ app.post('/api/payments/verify', async (req, res) => {
   }
 });
 
+// Create Wallet Top-Up Order
+app.post('/api/wallet/create-order', async (req, res) => {
+  const { amount, userId } = req.body;
+  try {
+    const options = {
+      amount: Math.round(amount * 100), // amount in paisa
+      currency: "INR",
+      receipt: `wallet_${userId}_${Date.now()}`
+    };
+    const order = await razorpay.orders.create(options);
+    res.json({
+      orderId: order.id,
+      amount: order.amount / 100,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID || 'rzp_live_T71PJdC3zXI1H8'
+    });
+  } catch (err) {
+    console.error("Error creating Wallet Top-Up Order:", err);
+    res.status(500).json({ error: "Failed to create order" });
+  }
+});
+
+// Verify Wallet Top-Up Signature
+app.post('/api/wallet/verify', async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, amount } = req.body;
+  
+  let isVerified = false;
+  try {
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'i4AoBu4S0Vt6vNStcOV3bqq6');
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    const generatedSignature = hmac.digest('hex');
+    isVerified = (generatedSignature === razorpay_signature);
+  } catch (e) {
+    console.error("Wallet Signature calculation error:", e);
+  }
+
+  if (isVerified) {
+    const userIndex = customers.findIndex(c => c.uid === userId);
+    if (userIndex !== -1) {
+      customers[userIndex].walletBalance = (customers[userIndex].walletBalance || 0) + Number(amount);
+      
+      const newTx = {
+        id: "tx-wallet-" + Math.floor(Math.random() * 1000000),
+        userId,
+        amount: Number(amount),
+        type: 'credit',
+        status: 'success',
+        remarks: 'Wallet Top-Up via Razorpay',
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        timestamp: new Date().toISOString()
+      };
+      walletTransactions.unshift(newTx);
+      
+      await saveAllData();
+      res.json({ success: true, newBalance: customers[userIndex].walletBalance, transaction: newTx });
+    } else {
+      res.status(404).json({ error: "Customer not found" });
+    }
+  } else {
+    // Failed verification
+    const newTx = {
+        id: "tx-wallet-" + Math.floor(Math.random() * 1000000),
+        userId,
+        amount: Number(amount),
+        type: 'credit',
+        status: 'failed',
+        remarks: 'Wallet Top-Up Failed Verification',
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        timestamp: new Date().toISOString()
+    };
+    walletTransactions.unshift(newTx);
+    await saveAllData();
+    res.status(400).json({ error: "Invalid payment signature" });
+  }
+});
+
 // Run Weekly Settlements
 app.post('/api/settlements/process', async (req, res) => {
   try {

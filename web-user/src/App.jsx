@@ -315,11 +315,104 @@ export default function App() {
   const [showAdminEditWallet, setShowAdminEditWallet] = useState(false);
   const [adminWalletEditAmount, setAdminWalletEditAmount] = useState('');
 
-  const handleTopUpWallet = () => {
+  const [isToppingUp, setIsToppingUp] = useState(false);
+
+  const handleTopUpWallet = async () => {
     const amt = parseFloat(topUpAmount);
     if (isNaN(amt) || amt <= 0) return;
-    setQrAmount(amt);
-    setShowTopUpQRModal(true);
+    
+    setIsToppingUp(true);
+
+    const loadRazorpayScript = () => {
+      return new Promise((resolve) => {
+        if (window.Razorpay) { resolve(true); return; }
+        const s = document.createElement("script");
+        s.src = "https://checkout.razorpay.com/v1/checkout.js";
+        s.onload = () => resolve(true);
+        s.onerror = () => resolve(false);
+        document.body.appendChild(s);
+      });
+    };
+
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
+      showAlert("Failed to load payment gateway. Check your connection.", "Error");
+      setIsToppingUp(false);
+      return;
+    }
+
+    try {
+      const orderRes = await fetch(`${API_URL}/wallet/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amt, userId: user.uid })
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.error);
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount * 100,
+        currency: orderData.currency,
+        name: "ParkHub Wallet Top-Up",
+        description: `Top up ₹${orderData.amount}`,
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${API_URL}/wallet/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                userId: user.uid,
+                amount: amt
+              })
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok) {
+              showAlert(`Successfully added ₹${amt} to your wallet!`, "Top-Up Successful ✅");
+              // Immediately reflect in UI locally
+              updateProfile({ 
+                walletBalance: verifyData.newBalance,
+                transactions: [verifyData.transaction, ...(user.transactions || [])]
+              });
+              setTopUpAmount('');
+            } else {
+              showAlert(verifyData.error || "Payment verification failed", "Error");
+            }
+          } catch (e) {
+            showAlert("Error verifying payment", "Error");
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone
+        },
+        theme: {
+          color: "#00E676"
+        },
+        modal: {
+          ondismiss: function () {
+            showAlert("Payment cancelled", "Info");
+            setIsToppingUp(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        showAlert(response.error.description, "Payment Failed");
+        setIsToppingUp(false);
+      });
+      rzp.open();
+    } catch (e) {
+      console.error(e);
+      showAlert("Failed to initialize payment.", "Error");
+      setIsToppingUp(false);
+    }
   };
 
   const handleAdminOverrideWallet = () => {
@@ -2988,10 +3081,10 @@ export default function App() {
                 </div>
                 <button 
                   onClick={handleTopUpWallet} 
-                  disabled={!topUpAmount || parseFloat(topUpAmount) <= 0} 
-                  style={{ width: '100%', padding: '10px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', transition: 'opacity 0.2s', opacity: (!topUpAmount || parseFloat(topUpAmount) <= 0) ? 0.5 : 1 }}
+                  disabled={isToppingUp || !topUpAmount || parseFloat(topUpAmount) <= 0} 
+                  style={{ width: '100%', padding: '10px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', transition: 'opacity 0.2s', opacity: (isToppingUp || !topUpAmount || parseFloat(topUpAmount) <= 0) ? 0.5 : 1 }}
                 >
-                  Proceed to Top-Up
+                  {isToppingUp ? 'Processing...' : 'Proceed to Top-Up'}
                 </button>
               </div>
             </div>
