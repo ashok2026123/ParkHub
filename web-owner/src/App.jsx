@@ -91,6 +91,12 @@ export default function App() {
         }
         
         try {
+          const res = await fetch(`${API_URL}/owners/${loggedUser.uid}`);
+          if (res.ok) {
+             const existingProfile = await res.json();
+             Object.assign(loggedUser, existingProfile);
+          }
+
           await fetch(`${API_URL}/owners/${loggedUser.uid}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

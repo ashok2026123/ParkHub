@@ -506,20 +506,32 @@ app.get('/api/customers', (req, res) => {
 app.put('/api/customers/:uid', (req, res) => {
   const { uid } = req.params;
   const index = customers.findIndex(c => c.uid === uid);
-  const updatedCustomer = {
-    ...req.body,
-    uid,
-    registeredAt: index !== -1 && customers[index].registeredAt ? customers[index].registeredAt : new Date().toISOString(),
-    status: index !== -1 && customers[index].status ? customers[index].status : 'active',
-    bookingsCount: index !== -1 && customers[index].bookingsCount ? customers[index].bookingsCount : 0
-  };
   
   if (index !== -1) {
-    customers[index] = updatedCustomer;
+    // Merge existing customer data to prevent overwriting fields like location/name
+    customers[index] = {
+      ...customers[index],
+      ...req.body,
+      uid
+    };
+    res.json(customers[index]);
   } else {
-    customers.push(updatedCustomer);
+    const newCustomer = {
+      ...req.body,
+      uid,
+      registeredAt: new Date().toISOString(),
+      status: 'active',
+      bookingsCount: 0
+    };
+    customers.push(newCustomer);
+    res.json(newCustomer);
   }
-  res.json(updatedCustomer);
+});
+
+app.get('/api/customers/:uid', (req, res) => {
+  const customer = customers.find(c => c.uid === req.params.uid);
+  if (customer) res.json(customer);
+  else res.status(404).json({ error: "Customer not found" });
 });
 
 // EV Stations API
@@ -734,11 +746,24 @@ app.post('/api/owners/:uid/adjust-wallet', async (req, res) => {
 app.put('/api/owners/:uid', (req, res) => {
   const { uid } = req.params;
   const index = owners.findIndex(o => o.uid === uid);
+  
   if (index !== -1) {
-    owners[index] = { ...owners[index], ...req.body };
+    owners[index] = {
+      ...owners[index],
+      ...req.body,
+      uid
+    };
     res.json(owners[index]);
   } else {
-    res.status(404).json({ error: 'Owner profile not found' });
+    const newOwner = {
+      ...req.body,
+      uid,
+      registeredAt: new Date().toISOString(),
+      status: 'active',
+      earnings: 0
+    };
+    owners.push(newOwner);
+    res.json(newOwner);
   }
 });
 

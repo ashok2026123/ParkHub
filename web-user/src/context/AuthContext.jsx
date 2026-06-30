@@ -38,6 +38,12 @@ export const AuthProvider = ({ children }) => {
         };
 
         try {
+          const res = await fetch(`${API_URL}/customers/${u.uid}`);
+          if (res.ok) {
+             const existingProfile = await res.json();
+             Object.assign(u, existingProfile);
+          }
+          
           await fetch(`${API_URL}/customers/${u.uid}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
