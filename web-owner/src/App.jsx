@@ -4461,15 +4461,19 @@ function OwnerOnboardingScreen({ user, updateProfile }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(circle at top right, rgba(230, 0, 118, 0.15) 0%, transparent 40%), var(--bg-dark)',
-      fontFamily: "'Inter', sans-serif"
+      background: '#0a0810',
+      backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(230, 0, 118, 0.15), transparent 60%)',
+      fontFamily: "'Space Grotesk', 'Inter', sans-serif"
     }}>
       <div className="glass-panel animate-fade-in" style={{
         width: '100%',
         maxWidth: '400px',
         padding: '32px',
         borderRadius: '24px',
-        border: '1px solid var(--border-color)',
+        background: 'rgba(255, 255, 255, 0.02)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(230, 0, 118, 0.1) inset',
         textAlign: 'center'
       }}>
         <div style={{ marginBottom: '24px' }}>
@@ -4499,7 +4503,7 @@ function OwnerOnboardingScreen({ user, updateProfile }) {
               onChange={(e) => setName(e.target.value)} 
               placeholder="e.g. Acme Parking Solutions"
               required
-              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
           
@@ -4511,11 +4515,11 @@ function OwnerOnboardingScreen({ user, updateProfile }) {
               onChange={(e) => setLocation(e.target.value)} 
               placeholder="e.g. Chennai"
               required
-              style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
 
-          <button type="submit" className="glass-button" style={{ marginTop: '8px', width: '100%' }}>
+          <button type="submit" className="glow-button" style={{ marginTop: '16px', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '700' }}>
             Go to Dashboard
           </button>
         </form>
