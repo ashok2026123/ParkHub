@@ -3,6 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import Razorpay from 'razorpay';
+import helmet from 'helmet';
+import compression from 'compression';
+import axios from 'axios';
+import admin from 'firebase-admin';
 
 dotenv.config();
 
@@ -13,6 +17,40 @@ const razorpay = new Razorpay({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Security and Compression
+app.use(helmet());
+app.use(compression());
+app.use(cors({ origin: 'http://localhost:3000' })); // Enable CORS only for frontend
+app.use(express.json());
+
+// Initialize Firebase Admin (Firestore)
+let db: any;
+try {
+  if (!admin.apps || admin.apps.length === 0) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault()
+    });
+  }
+  db = admin.firestore();
+} catch (e) {
+  console.warn("Firebase Admin Initialization Failed. Using Mock Firestore...", e);
+  // Basic mock for Firestore to prevent crashes without credentials
+  const mockStorage: Record<string, any> = {};
+  db = {
+    collection: (col: string) => ({
+      doc: (id: string) => ({
+        set: async (data: any) => { mockStorage[`${col}/${id}`] = data; },
+        get: async () => ({
+          exists: !!mockStorage[`${col}/${id}`],
+          data: () => mockStorage[`${col}/${id}`]
+        })
+      }),
+      where: () => ({ get: async () => ({ empty: true, forEach: () => {} }) }),
+      add: async (data: any) => { mockStorage[`${col}/${Date.now()}`] = data; }
+    })
+  };
+}
 
 const FIREBASE_DB_URL = 'https://parkhub-2343e-default-rtdb.firebaseio.com';
 
@@ -1324,9 +1362,135 @@ app.post('/api/trip/preferences', (req, res) => {
   res.json(newPref);
 });
 
+// --- Dynamic Nationwide API with Firestore Caching ---
+
+function getCacheKey(s: number, w: number, n: number, e: number) {
+  return `${s.toFixed(2)}_${w.toFixed(2)}_${n.toFixed(2)}_${e.toFixed(2)}`;
+}
+
+async function fetchWithRetry(url: string, options: any, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await axios({ url, timeout: 10000, ...options });
+      return res.data;
+    } catch (err: any) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, 1000 * (i + 1))); // exponential backoff
+    }
+  }
+}
+
+app.get('/api/fuel', async (req, res) => {
+  try {
+    const { south, west, north, east } = req.query;
+    if (!south || !west || !north || !east) return res.status(400).json({ error: "Missing bounds" });
+
+    const s = parseFloat(south as string); const w = parseFloat(west as string);
+    const n = parseFloat(north as string); const e = parseFloat(east as string);
+    const cacheKey = getCacheKey(s, w, n, e);
+    const cacheRef = db.collection('fuel_cache').doc(cacheKey);
+
+    const doc = await cacheRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+        return res.json(data.stations); // return cached
+      }
+    }
+
+    const overpassQuery = `[out:json][timeout:10];(node["amenity"="fuel"](${s},${w},${n},${e});way["amenity"="fuel"](${s},${w},${n},${e});relation["amenity"="fuel"](${s},${w},${n},${e}););out body;>;out skel qt;`;
+    const opData = await fetchWithRetry('https://overpass-api.de/api/interpreter', { method: 'POST', data: overpassQuery });
+    
+    const stations: any[] = [];
+    const seen = new Set();
+    
+    opData.elements?.forEach((el: any) => {
+      if (el.tags && el.tags.amenity === 'fuel') {
+        const lat = el.lat || (el.center && el.center.lat);
+        const lon = el.lon || (el.center && el.center.lon);
+        if (!lat || !lon) return;
+
+        let brand = el.tags.brand || el.tags.operator || 'Unknown';
+        const bLower = brand.toLowerCase();
+        if (bLower.includes('indianoil') || bLower.includes('ioc')) brand = 'IndianOil';
+        else if (bLower.includes('hpcl') || bLower.includes('hindustan')) brand = 'HPCL';
+        else if (bLower.includes('bpcl') || bLower.includes('bharat')) brand = 'BPCL';
+        else if (bLower.includes('shell')) brand = 'Shell';
+        else if (bLower.includes('reliance') || bLower.includes('jio')) brand = 'Reliance';
+        else if (bLower.includes('nayara') || bLower.includes('essar')) brand = 'Nayara';
+
+        const id = `osm-${el.id}`;
+        if (!seen.has(id)) {
+          seen.add(id);
+          stations.push({
+            id, name: el.tags.name || `${brand} Fuel Station`, brand,
+            latitude: lat, longitude: lon, address: el.tags['addr:full'] || el.tags['addr:street'] || 'Address unavailable',
+            opening_hours: el.tags.opening_hours || '24/7', phone: el.tags.phone || el.tags['contact:phone'] || 'N/A'
+          });
+        }
+      }
+    });
+
+    await cacheRef.set({ timestamp: Date.now(), stations });
+    res.json(stations);
+  } catch (error) {
+    console.error("Fuel API Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get('/api/ev', async (req, res) => {
+  try {
+    const { south, west, north, east } = req.query;
+    if (!south || !west || !north || !east) return res.status(400).json({ error: "Missing bounds" });
+
+    const s = parseFloat(south as string); const w = parseFloat(west as string);
+    const n = parseFloat(north as string); const e = parseFloat(east as string);
+    const cacheKey = getCacheKey(s, w, n, e);
+    const cacheRef = db.collection('ev_cache').doc(cacheKey);
+
+    const doc = await cacheRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+        return res.json(data.stations);
+      }
+    }
+
+    const ocmData = await fetchWithRetry(`https://api.openchargemap.io/v3/poi/?output=json&boundingbox=(${s},${w}),(${n},${e})&maxresults=100`, { 
+      method: 'GET', headers: { 'User-Agent': 'ParkHub-Bot' } 
+    });
+    
+    const stations: any[] = [];
+    const seen = new Set();
+
+    if (Array.isArray(ocmData)) {
+      ocmData.forEach(poi => {
+        const id = `ocm-${poi.ID}`;
+        if (!seen.has(id)) {
+          seen.add(id);
+          stations.push({
+            id, stationName: poi.AddressInfo.Title || 'EV Charging Station',
+            operator: poi.OperatorInfo?.Title || 'Unknown', latitude: poi.AddressInfo.Latitude, longitude: poi.AddressInfo.Longitude,
+            address: `${poi.AddressInfo.AddressLine1 || ''} ${poi.AddressInfo.Town || ''}`.trim() || 'Address unavailable',
+            connectorTypes: (poi.Connections || []).map((c: any) => c.ConnectionType?.Title || 'Unknown'),
+            powerKW: (poi.Connections || []).map((c: any) => c.PowerKW || 50),
+            phone: poi.AddressInfo.ContactTelephone1 || 'N/A', website: poi.AddressInfo.RelatedURL || 'N/A'
+          });
+        }
+      });
+    }
+
+    await cacheRef.set({ timestamp: Date.now(), stations });
+    res.json(stations);
+  } catch (error) {
+    console.error("EV API Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
-  // Initial calculation of slots on startup
   locations.forEach(loc => recalcSlots(loc.id));
   console.log(`🚀 ParkHub Backend running at http://localhost:${PORT}`);
 });

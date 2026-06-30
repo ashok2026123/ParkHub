@@ -12,8 +12,10 @@ import {
   MapPin, Search, Navigation, Filter, Clock, DollarSign, Bike, Car, Star, 
   Share2, Compass, Shield, AlertCircle, LogOut, Globe, Calendar, Users, 
   Percent, Activity, RefreshCw, QrCode, Smartphone, HelpCircle,
-  User, Plus, Trash2, Edit2, Bell, Settings, CreditCard, ChevronRight, Lock, Eye, Camera, Check, Wallet, Route
+  User, Plus, Trash2, Edit2, Bell, Settings, CreditCard, ChevronRight, Lock, Eye, Camera, Check, Wallet, Route, Map as MapIcon, Menu, X, Battery, Zap, Target, MessageSquare, Briefcase, Phone, Save, CheckCircle
 } from 'lucide-react';
+import { MapManager } from './services/MapManager';
+import ParkHubMap from './components/ParkHubMap';
 
 function BookingTimer({ endTime, status, onZero }) {
   const [timeLeft, setTimeLeft] = useState('');
@@ -121,11 +123,43 @@ export default function App() {
   const [evStatusFilter, setEvStatusFilter] = useState('all'); // all | available
   
   const [fuelStations, setFuelStations] = useState([]);
+  const mapManagerRef = useRef(null);
+  
+  const loadDynamicStations = async (bounds) => {
+    try {
+      const { south, west, north, east } = bounds;
+      const res = await fetch(`${API_URL}/stations/bounds?south=${south}&west=${west}&north=${north}&east=${east}`);
+      const data = await res.json();
+      if (data && data.fuelStations) {
+        setFuelStations(prev => {
+          const map = new Map(prev.map(s => [s.id, s]));
+          data.fuelStations.forEach(s => map.set(s.id, s));
+          return Array.from(map.values());
+        });
+      }
+      if (data && data.evStations) {
+        setEvStations(prev => {
+          const map = new Map(prev.map(s => [s.id, s]));
+          data.evStations.forEach(s => {
+            if (s.source === 'ocm') {
+               s.chargers = s.connectors.map((c, i) => ({ id: `c-${i}`, type: c.type, power: c.power || 50, status: 'Available' }));
+               s.rates = { perKwh: 20 };
+            }
+            map.set(s.id, s);
+          });
+          return Array.from(map.values());
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load dynamic stations", err);
+    }
+  };
   const [fuelBrandFilter, setFuelBrandFilter] = useState('all');
   const [isFuelLoading, setIsFuelLoading] = useState(false);
   
   const [showEvReserveModal, setShowEvReserveModal] = useState(false);
   const [selectedEvStation, setSelectedEvStation] = useState(null);
+  const [selectedFuelStation, setSelectedFuelStation] = useState(null);
   const [selectedCharger, setSelectedCharger] = useState(null);
   const [reserveHours, setReserveHours] = useState(1);
   const [isProcessingEvPay, setIsProcessingEvPay] = useState(false);
@@ -252,6 +286,8 @@ export default function App() {
 
   const [currentTab, setCurrentTab] = useState('home'); // home | bookings | profile | tripPlanner
   const [searchQuery, setSearchQuery] = useState('');
+  const [mapCenter, setMapCenter] = useState([13.0827, 80.2707]);
+  const [mapZoom, setMapZoom] = useState(13);
   const [vehicleFilter, setVehicleFilter] = useState('all'); 
   const [sortBy, setSortBy] = useState('nearest');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -599,7 +635,7 @@ export default function App() {
   useEffect(() => {
     if (selectedLocation) {
       const defaultVeh = userVehicles.find(v => v.isDefault) || userVehicles[0];
-      const initialNum = defaultVeh ? defaultVeh.number : '';
+      const initialNum = '';
       const initialType = defaultVeh && (defaultVeh.type?.toLowerCase().includes('bike') || defaultVeh.type?.toLowerCase().includes('two')) ? 'two-wheeler' : 'four-wheeler';
       
       setBookingVehicles([{ id: Date.now(), type: initialType, number: initialNum }]);
@@ -608,7 +644,7 @@ export default function App() {
       setCouponDiscount(0);
       setCouponError('');
     }
-  }, [selectedLocation, userVehicles]);
+  }, [selectedLocation]);
 
   const [bookingDuration, setBookingDuration] = useState(2);
   const [selectedPastBookings, setSelectedPastBookings] = useState([]);
@@ -620,8 +656,6 @@ export default function App() {
 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
-
-  const mapCenter = { lat: 13.0827, lng: 80.2707 };
 
   const filteredLocations = locations.filter(loc => {
     const matchesSearch = searchQuery === '' || 
@@ -813,7 +847,17 @@ export default function App() {
     markersGroupRef.current = L.markerClusterGroup ? L.markerClusterGroup() : L.layerGroup();
     markersGroupRef.current.addTo(map);
 
+    mapManagerRef.current = new MapManager(map, (bounds) => {
+      if (searchMode === 'ev' || searchMode === 'fuel') {
+        loadDynamicStations(bounds);
+      }
+    });
+
     return () => {
+      if (mapManagerRef.current) {
+        mapManagerRef.current.destroy();
+        mapManagerRef.current = null;
+      }
       map.remove();
       leafletMapInstance.current = null;
       markersGroupRef.current = null;
@@ -897,7 +941,12 @@ export default function App() {
         });
 
         const marker = L.marker([station.latitude, station.longitude], { icon: customIcon });
+        marker.on('click', () => setSelectedFuelStation(station));
         marker.addTo(markersGroupRef.current);
+
+        if (selectedFuelStation && selectedFuelStation.id === station.id) {
+          leafletMapInstance.current.panTo([station.latitude, station.longitude]);
+        }
       });
     } else {
       sortedLocations.forEach(loc => {
@@ -1041,6 +1090,23 @@ export default function App() {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = async (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+          setMapZoom(14);
+        } else {
+          setCustomAlert("Location not found.");
+        }
+      } catch (err) {
+        console.error("Nominatim search error", err);
+      }
+    }
   };
 
   useEffect(() => {
@@ -1907,7 +1973,7 @@ export default function App() {
             <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
               <div style={{ display: 'flex', flex: 1, minWidth: '240px', position: 'relative' }}>
                 <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input type="text" value={searchQuery} onChange={handleSearch} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#FFF', fontSize: '14px', outline: 'none' }} />
+                <input type="text" value={searchQuery} onChange={handleSearch} onKeyDown={handleSearchSubmit} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#FFF', fontSize: '14px', outline: 'none' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
@@ -1994,18 +2060,35 @@ export default function App() {
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '32px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ position: 'relative', width: '100%' }}>
-                  <div 
-                    ref={mapRef} 
-                    className="glass-panel" 
-                    style={{ 
-                      width: '100%', 
-                      height: isMobile ? 'calc(100vw - 32px)' : '600px', 
-                      minWidth: '100%', 
-                      minHeight: isMobile ? 'calc(100vw - 32px)' : '600px', 
-                      zIndex: 1, 
-                      borderRadius: '8px',
-                    }} 
-                  />
+                  { (searchMode === 'ev' || searchMode === 'fuel') ? (
+                    <div className="glass-panel" style={{ width: '100%', height: isMobile ? 'calc(100vw - 32px)' : '600px', borderRadius: '8px', overflow: 'hidden' }}>
+                      <ParkHubMap 
+                        center={mapCenter} 
+                        zoom={mapZoom} 
+                        searchMode={searchMode}
+                        fuelStations={fuelStations}
+                        evStations={evStations}
+                        onEvClick={setSelectedEvStation}
+                        onFuelClick={setSelectedFuelStation}
+                        onBoundsChange={loadDynamicStations}
+                        selectedEvStationId={selectedEvStation?.id}
+                        selectedFuelStationId={selectedFuelStation?.id}
+                      />
+                    </div>
+                  ) : (
+                    <div 
+                      ref={mapRef} 
+                      className="glass-panel" 
+                      style={{ 
+                        width: '100%', 
+                        height: isMobile ? 'calc(100vw - 32px)' : '600px', 
+                        minWidth: '100%', 
+                        minHeight: isMobile ? 'calc(100vw - 32px)' : '600px', 
+                        zIndex: 1, 
+                        borderRadius: '8px',
+                      }} 
+                    />
+                  )}
                   {locationLoading && (
                     <div style={{
                       position: 'absolute',
@@ -2081,14 +2164,40 @@ export default function App() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '560px', overflowY: 'auto' }}>
                 {searchMode === 'fuel' ? (
-                  <>
-                    <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Available Fuel Stations ({sortedFuelStations.length})</h3>
-                    {isFuelLoading && (
-                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--primary)' }}>
-                        <RefreshCw className="spinning" size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
-                        <p style={{ marginTop: '10px', fontSize: '12px' }}>Locating Fuel Stations...</p>
+                  selectedFuelStation ? (
+                    <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
+                      <button onClick={() => setSelectedFuelStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+                      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <span style={{ fontSize: '11px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', width: 'fit-content' }}>⛽ Fuel Station</span>
+                        </div>
                       </div>
-                    )}
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>{selectedFuelStation.name}</h3>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedFuelStation.brand}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{selectedFuelStation.address}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Phone: {selectedFuelStation.phone}</p>
+                      
+                      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', marginTop: '16px' }}>
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedFuelStation.latitude},${selectedFuelStation.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '10px', background: '#2196F3', color: '#FFF', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)' }}
+                        >
+                          <Navigation size={16} style={{ fill: '#FFF' }} />
+                          <span>Navigate to Station</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Available Fuel Stations ({sortedFuelStations.length})</h3>
+                      {isFuelLoading && (
+                        <div style={{ padding: '20px', textAlign: 'center', color: 'var(--primary)' }}>
+                          <RefreshCw className="spinning" size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
+                          <p style={{ marginTop: '10px', fontSize: '12px' }}>Locating Fuel Stations...</p>
+                        </div>
+                      )}
                     {sortedFuelStations.map(station => (
                       <div 
                         key={station.id}
@@ -2155,6 +2264,7 @@ export default function App() {
                       </div>
                     ))}
                   </>
+                  )
                 ) : searchMode === 'ev' ? (
                   selectedEvStation ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
