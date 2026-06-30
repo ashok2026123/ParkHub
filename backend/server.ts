@@ -1219,9 +1219,18 @@ app.get('/api/wallet-transactions', (req, res) => {
 
 app.post('/api/trip/plan', async (req, res) => {
   try {
-    const { start, destination, userId } = req.body;
-    if (!start || !destination) return res.status(400).json({ error: "Missing start or destination" });
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`;
+    const { waypoints, avoidTolls, avoidHighways, userId } = req.body;
+    // waypoints should be an array of {lat, lng}, at least 2 (start and destination)
+    if (!waypoints || waypoints.length < 2) return res.status(400).json({ error: "Missing or insufficient waypoints" });
+    
+    const coordString = waypoints.map(wp => `${wp.lng},${wp.lat}`).join(';');
+    
+    let exclude = [];
+    if (avoidTolls) exclude.push('toll');
+    if (avoidHighways) exclude.push('motorway');
+    const excludeParam = exclude.length > 0 ? `&exclude=${exclude.join(',')}` : '';
+
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson${excludeParam}`;
     const response = await fetch(osrmUrl);
     const data = await response.json();
     
@@ -1229,14 +1238,12 @@ app.post('/api/trip/plan', async (req, res) => {
        const historyEntry = {
          id: "hist-" + Date.now(),
          userId,
-         start,
-         destination,
+         waypoints,
          distance: data.routes[0].distance,
          duration: data.routes[0].duration,
          timestamp: new Date().toISOString()
        };
        trip_history.unshift(historyEntry);
-       // Keep only last 20 per user roughly by cleaning up
     }
     
     res.json(data);
@@ -1266,9 +1273,9 @@ app.get('/api/trip/nearby', async (req, res) => {
     }
     
     const overpassCats = [];
-    if (cats.includes('restaurants')) overpassCats.push('node["amenity"="restaurant"]');
-    if (cats.includes('hotels')) overpassCats.push('node["tourism"="hotel"]');
-    if (cats.includes('hospitals')) overpassCats.push('node["amenity"="hospital"]');
+    if (cats.includes('restaurants')) overpassCats.push('node["amenity"~"restaurant|cafe|fast_food"]');
+    if (cats.includes('hotels')) overpassCats.push('node["tourism"~"hotel|motel|guest_house|hostel|resort|apartment"]');
+    if (cats.includes('hospitals')) overpassCats.push('node["amenity"~"hospital|clinic"]');
     if (cats.includes('atms')) overpassCats.push('node["amenity"="atm"]');
     if (cats.includes('restrooms')) overpassCats.push('node["amenity"="toilets"]');
     if (cats.includes('mechanic')) overpassCats.push('node["shop"="car_repair"]');
@@ -1276,9 +1283,13 @@ app.get('/api/trip/nearby', async (req, res) => {
     if (cats.includes('fuel')) overpassCats.push('node["amenity"="fuel"]');
 
     if (overpassCats.length > 0) {
-      // Build a union of around clauses for all waypoints
-      const aroundClauses = pts.map(pt => `(around:${radius},${pt.lat},${pt.lng})`).join('');
-      const combinedQueries = overpassCats.map(c => `  ${c}${aroundClauses};`).join('\n');
+      // Build a union of around clauses for all waypoints (OR logic)
+      let combinedQueries = '';
+      overpassCats.forEach(cat => {
+        pts.forEach(pt => {
+          combinedQueries += `  ${cat}(around:${radius},${pt.lat},${pt.lng});\n`;
+        });
+      });
       
       const overpassQuery = `
         [out:json][timeout:25];
@@ -1299,14 +1310,15 @@ ${combinedQueries}
         overpassData.elements.forEach(el => {
           if (el.type === 'node' && el.tags) {
             let type = 'unknown';
-            if (el.tags.amenity === 'restaurant') type = 'restaurants';
-            else if (el.tags.tourism === 'hotel') type = 'hotels';
-            else if (el.tags.amenity === 'hospital') type = 'hospitals';
-            else if (el.tags.amenity === 'atm') type = 'atms';
-            else if (el.tags.amenity === 'toilets') type = 'restrooms';
-            else if (el.tags.shop === 'car_repair') type = 'mechanic';
-            else if (el.tags.amenity === 'car_wash') type = 'carwash';
-            else if (el.tags.amenity === 'fuel') type = 'fuel';
+            const tags = el.tags;
+            if (tags.tourism && tags.tourism.match(/hotel|motel|guest_house|hostel|resort|apartment/)) type = 'hotels';
+            else if (tags.amenity && tags.amenity.match(/restaurant|cafe|fast_food/)) type = 'restaurants';
+            else if (tags.amenity && tags.amenity.match(/hospital|clinic/)) type = 'hospitals';
+            else if (tags.amenity === 'atm') type = 'atms';
+            else if (tags.amenity === 'toilets') type = 'restrooms';
+            else if (tags.shop === 'car_repair') type = 'mechanic';
+            else if (tags.amenity === 'car_wash') type = 'carwash';
+            else if (tags.amenity === 'fuel') type = 'fuel';
             
             externalPois.push({
               id: el.id,
