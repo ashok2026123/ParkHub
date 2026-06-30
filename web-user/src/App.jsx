@@ -5019,44 +5019,6 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
             </button>
           </form>
 
-          {/* Quick Demo Connections */}
-          <div style={{ marginTop: '32px' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              marginBottom: '16px'
-            }}>
-              <div style={{ height: '1px', background: 'var(--border-color, rgba(255, 255, 255, 0.08))', flex: 1 }} />
-              <span style={{ fontSize: '10px', color: 'var(--text-muted, #78909C)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Quick Connect Demo</span>
-              <div style={{ height: '1px', background: 'var(--border-color, rgba(255, 255, 255, 0.08))', flex: 1 }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button
-                onClick={() => handleQuickLogin("karthik@mymail.com", "user123")}
-                style={{
-                  padding: '10px 14px',
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
-                  borderRadius: '10px',
-                  color: 'var(--text-secondary, #B0BEC5)',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  textAlign: 'left',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <span>👤 Customer Portal</span>
-                <span style={{ color: 'var(--primary, #00E676)', fontSize: '10px', fontWeight: 'bold' }}>Karthik Raja</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
