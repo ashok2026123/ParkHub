@@ -421,9 +421,7 @@ export default function App() {
     { device: 'Chrome on macOS Sonoma', location: 'Bengaluru, India', time: 'June 20, 2026', ip: '10.0.0.4' }
   ];
 
-  const userVehicles = user?.vehicles || [
-    { id: 1, number: "TN-01-AB-1234", type: "Car", brand: "Honda", model: "Civic", isDefault: true }
-  ];
+  const userVehicles = user?.vehicles || [];
 
   const handleSetDefaultVehicle = (id) => {
     const updated = userVehicles.map(v => ({ ...v, isDefault: v.id === id }));
@@ -635,7 +633,7 @@ export default function App() {
   useEffect(() => {
     if (selectedLocation) {
       const defaultVeh = userVehicles.find(v => v.isDefault) || userVehicles[0];
-      const initialNum = '';
+      const initialNum = defaultVeh ? defaultVeh.number : '';
       const initialType = defaultVeh && (defaultVeh.type?.toLowerCase().includes('bike') || defaultVeh.type?.toLowerCase().includes('two')) ? 'two-wheeler' : 'four-wheeler';
       
       setBookingVehicles([{ id: Date.now(), type: initialType, number: initialNum }]);
