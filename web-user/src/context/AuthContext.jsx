@@ -126,13 +126,27 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const updateProfile = (newData) => {
+  const updateProfile = async (newData) => {
+    let updatedUser = null;
     setUser(prev => {
       if (!prev) return null;
       const updated = { ...prev, ...newData };
       localStorage.setItem('parkeasy_customer', JSON.stringify(updated));
+      updatedUser = updated;
       return updated;
     });
+
+    if (updatedUser && updatedUser.uid) {
+      try {
+        await fetch(`${API_URL}/customers/${updatedUser.uid}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedUser)
+        });
+      } catch (e) {
+        console.error("Failed to sync profile update to backend", e);
+      }
+    }
   };
 
   return (
