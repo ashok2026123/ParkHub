@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc",
+    "postinstall": "npm run build",
     "dev": "nodemon --watch src --watch server.ts --exec ts-node server.ts"
   },
   "dependencies": {
