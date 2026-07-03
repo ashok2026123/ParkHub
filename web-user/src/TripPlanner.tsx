@@ -37,7 +37,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
   const leafletMapInstance = useRef<any>(null);
   const markersGroupRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
-
+  const searchTimeouts = useRef<{ [key: number]: any }>({});
   const [activeTab, setActiveTab] = useState('plan'); // plan, history, preferences, hotels
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
@@ -402,11 +402,11 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                       type="text" 
                       value={wp.query}
                       onChange={(e) => {
-                        updateWaypoint(idx, { query: e.target.value, loc: null });
+                        const val = e.target.value;
+                        updateWaypoint(idx, { query: val, loc: null });
                         if (!isOffline) {
-                           // Debounced Nominatim call
-                           const handler = setTimeout(() => searchNominatim(e.target.value, idx), 500);
-                           return () => clearTimeout(handler);
+                           if (searchTimeouts.current[idx]) clearTimeout(searchTimeouts.current[idx]);
+                           searchTimeouts.current[idx] = setTimeout(() => searchNominatim(val, idx), 600);
                         }
                       }}
                       placeholder="Enter city or area..."
