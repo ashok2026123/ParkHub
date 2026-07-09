@@ -1005,15 +1005,15 @@ async function syncFuelStationsData() {
             const eLon = el.lon || el.center?.lon;
             
             if (eLat && eLon) {
-              const operator = (tags.operator || tags.brand || "Independent").toLowerCase();
+              const operator = (tags.operator || tags.brand || tags.name || "Independent").toLowerCase();
               let brand = "Independent";
               if (operator.includes("indianoil") || operator.includes("ioc")) brand = "IndianOil";
-              else if (operator.includes("bharat") || operator.includes("bpcl")) brand = "BPCL";
-              else if (operator.includes("hindustan") || operator.includes("hpcl")) brand = "HPCL";
+              else if (operator.includes("bharat") || operator.includes("bpcl") || operator.includes("bharath")) brand = "BPCL";
+              else if (operator.includes("hindustan") || operator.includes("hpcl") || operator.includes("hp ")) brand = "HPCL";
               else if (operator.includes("shell")) brand = "Shell";
               else if (operator.includes("reliance") || operator.includes("jio")) brand = "Reliance";
               else if (operator.includes("nayara") || operator.includes("essar")) brand = "Nayara";
-              else brand = tags.brand || tags.operator || "Independent";
+              else brand = tags.brand || "Independent";
 
               const newStation = {
                 id,
