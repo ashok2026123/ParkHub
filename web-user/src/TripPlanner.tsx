@@ -106,9 +106,9 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     } catch (err) { console.error(err); }
   };
 
-  const detectLocation = async (index: number) => {
+  const detectLocation = async (index: number, silent = false) => {
     if (!navigator.geolocation) {
-      showAlert("Geolocation is not supported by your browser", "Error");
+      if (!silent) showAlert("Geolocation is not supported by your browser", "Error");
       return;
     }
     
@@ -121,21 +121,34 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
         const data = await res.json();
-        if (data && data.display_name) {
-          updateWaypoint(index, { 
-            query: data.display_name, 
-            loc: { lat: lat.toString(), lng: lon.toString(), display_name: data.display_name },
-            results: []
-          });
-        }
+        
+        setWaypoints(prev => {
+          if (prev[index].query !== "Detecting location...") return prev; // User typed something else
+          const nw = [...prev];
+          if (data && data.display_name) {
+            nw[index] = { ...nw[index], query: data.display_name, loc: { lat: lat.toString(), lng: lon.toString(), display_name: data.display_name }, results: [] };
+          } else {
+            nw[index] = { ...nw[index], query: `${lat}, ${lon}`, loc: { lat: lat.toString(), lng: lon.toString(), display_name: "Current Location" }, results: [] };
+          }
+          return nw;
+        });
       } catch (err) {
-        console.error("Reverse geocoding failed", err);
-        updateWaypoint(index, { query: `${lat}, ${lon}`, loc: { lat: lat.toString(), lng: lon.toString(), display_name: "Current Location" }});
+        setWaypoints(prev => {
+          if (prev[index].query !== "Detecting location...") return prev;
+          const nw = [...prev];
+          nw[index] = { ...nw[index], query: `${lat}, ${lon}`, loc: { lat: lat.toString(), lng: lon.toString(), display_name: "Current Location" }, results: [] };
+          return nw;
+        });
       }
     }, (err) => {
-      showAlert("Failed to detect location. Please check your browser permissions.", "Error");
-      updateWaypoint(index, { query: "" });
-    });
+      setWaypoints(prev => {
+        if (prev[index].query !== "Detecting location...") return prev;
+        const nw = [...prev];
+        nw[index] = { ...nw[index], query: "" };
+        return nw;
+      });
+      if (!silent) showAlert("Failed to detect location automatically. Please type it in manually.", "Location Error");
+    }, { timeout: 10000, enableHighAccuracy: true });
   };
 
   const updateWaypoint = (idx: number, data: any) => {
@@ -157,6 +170,11 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
   const removeWaypoint = (idx: number) => {
     setWaypoints(prev => prev.filter((_, i) => i !== idx));
   };
+
+  useEffect(() => {
+    // Attempt auto-location on mount silently so it doesn't bother the user with alerts if it fails
+    detectLocation(0, true);
+  }, []);
 
   useEffect(() => {
     loadPreferences();
