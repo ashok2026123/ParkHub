@@ -286,6 +286,7 @@ export default function App() {
         body: JSON.stringify({ walletBalance: newBal })
       });
       const updatedUser = await res.json();
+      if (!res.ok) throw new Error(updatedUser.error || 'Failed to update');
       setAdminUsers(prev => prev.map(u => u.uid === editingUserWallet.uid ? updatedUser : u));
       setEditingUserWallet(null);
       setWalletEditAmount('');
@@ -1993,7 +1994,7 @@ export default function App() {
 
       {/* ALERTS */}
       {customAlert && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
             <AlertCircle size={32} color="var(--primary)" style={{ margin: '0 auto 12px' }} />
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px' }}>{customAlert.title}</h3>
@@ -2572,7 +2573,7 @@ export default function App() {
       })()}
       {/* Edit Customer Wallet Modal */}
       {editingUserWallet && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="glass-panel animate-fade-in" style={{ width: '380px', padding: '24px', borderRadius: '16px', border: '1px solid rgba(0, 212, 255, 0.4)' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#FFF' }}>Edit Wallet Balance</h3>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.4' }}>
@@ -2591,7 +2592,21 @@ export default function App() {
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button onClick={() => { setEditingUserWallet(null); setWalletEditAmount(''); }} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#FFF', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
-              <button onClick={handleSaveUserWallet} className="glow-button" style={{ flex: 2, padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px', background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', border: '1px solid rgba(0, 212, 255, 0.3)' }}>Update Balance</button>
+              <button 
+                onClick={async (e) => {
+                  e.target.disabled = true;
+                  e.target.innerText = 'Updating...';
+                  await handleSaveUserWallet();
+                  if (e.target) {
+                    e.target.disabled = false;
+                    e.target.innerText = 'Update Balance';
+                  }
+                }} 
+                className="glow-button" 
+                style={{ flex: 2, padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px', background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', border: '1px solid rgba(0, 212, 255, 0.3)' }}
+              >
+                Update Balance
+              </button>
             </div>
           </div>
         </div>
