@@ -509,6 +509,22 @@ app.put('/api/customers/:uid', (req, res) => {
   const index = customers.findIndex(c => c.uid === uid);
   
   if (index !== -1) {
+    const oldBal = customers[index].walletBalance || 0;
+    const newBal = req.body.walletBalance;
+
+    if (newBal !== undefined && newBal !== oldBal) {
+      const newTx = {
+        id: 'tx-' + Date.now(),
+        userId: uid,
+        type: newBal > oldBal ? 'credit' : 'debit',
+        amount: Math.abs(newBal - oldBal),
+        description: 'Admin Adjustment',
+        status: 'success',
+        timestamp: new Date().toISOString()
+      };
+      walletTransactions.unshift(newTx);
+    }
+
     // Merge existing customer data to prevent overwriting fields like location/name
     customers[index] = {
       ...customers[index],
