@@ -219,12 +219,22 @@ export default function App() {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [selectedOwnerIds, setSelectedOwnerIds] = useState([]);
 
-  const handleDeleteUser = (userId) => {
-    showConfirm("Are you sure you want to delete this customer permanently? This action cannot be undone.", () => {
-      setAdminUsers(prev => prev.filter(u => u.uid !== userId));
-      setSelectedUserIds(prev => prev.filter(id => id !== userId));
-      addAuditLog(`Deleted customer ID: ${userId}`, 'security');
-      showAlert("Customer deleted successfully!", "Customers");
+  const handleDeleteUser = async (userId) => {
+    showConfirm("Are you sure you want to delete this customer permanently? This action cannot be undone.", async () => {
+      try {
+        const res = await fetch(`${API_URL}/customers/${userId}`, { method: 'DELETE' });
+        if (res.ok) {
+          setAdminUsers(prev => prev.filter(u => u.uid !== userId));
+          setSelectedUserIds(prev => prev.filter(id => id !== userId));
+          addAuditLog(`Deleted customer ID: ${userId}`, 'security');
+          showAlert("Customer deleted successfully!", "Customers");
+        } else {
+          showAlert("Failed to delete customer from server.", "Error");
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert("Failed to connect to server.", "Error");
+      }
     });
   };
 
@@ -237,13 +247,19 @@ export default function App() {
     });
   };
 
-  const handleBulkDeleteUsers = () => {
+  const handleBulkDeleteUsers = async () => {
     if (selectedUserIds.length === 0) return;
-    showConfirm(`Are you sure you want to delete ${selectedUserIds.length} selected customers permanently?`, () => {
-      setAdminUsers(prev => prev.filter(u => !selectedUserIds.includes(u.uid)));
-      addAuditLog(`Bulk deleted customers: ${selectedUserIds.join(', ')}`, 'security');
-      setSelectedUserIds([]);
-      showAlert("Selected customers deleted successfully!", "Bulk Action");
+    showConfirm(`Are you sure you want to delete ${selectedUserIds.length} selected customers permanently?`, async () => {
+      try {
+        await Promise.all(selectedUserIds.map(id => fetch(`${API_URL}/customers/${id}`, { method: 'DELETE' })));
+        setAdminUsers(prev => prev.filter(u => !selectedUserIds.includes(u.uid)));
+        addAuditLog(`Bulk deleted customers: ${selectedUserIds.join(', ')}`, 'security');
+        setSelectedUserIds([]);
+        showAlert("Selected customers deleted successfully!", "Bulk Action");
+      } catch (err) {
+        console.error(err);
+        showAlert("Failed to delete some customers from server.", "Error");
+      }
     });
   };
 

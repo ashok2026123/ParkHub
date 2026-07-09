@@ -547,6 +547,18 @@ app.put('/api/customers/:uid', (req, res) => {
   }
 });
 
+app.delete('/api/customers/:uid', (req, res) => {
+  const { uid } = req.params;
+  const initialLength = customers.length;
+  customers = customers.filter(c => c.uid !== uid);
+  
+  if (customers.length < initialLength) {
+    res.json({ message: 'Customer deleted successfully' });
+  } else {
+    res.status(404).json({ error: 'Customer not found' });
+  }
+});
+
 app.get('/api/customers/:uid', (req, res) => {
   const customer = customers.find(c => c.uid === req.params.uid);
   if (customer) res.json(customer);
