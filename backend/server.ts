@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 // Security and Compression
 app.use(helmet());
 app.use(compression());
-app.use(cors({ origin: 'http://localhost:3000' })); // Enable CORS only for frontend
+app.use(cors()); // Enable CORS for all origins
 app.use(express.json());
 
 // Initialize Firebase Admin (Firestore)
