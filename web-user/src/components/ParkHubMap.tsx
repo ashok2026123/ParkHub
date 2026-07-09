@@ -68,13 +68,20 @@ export default function ParkHubMap({
   
   const [localBounds, setLocalBounds] = React.useState<any>(null);
 
-  const createEvIcon = (station: any, isSelected: boolean) => {
+  const evIconCache = React.useRef<{ [key: string]: L.DivIcon }>({});
+  const fuelIconCache = React.useRef<{ [key: string]: L.DivIcon }>({});
+
+  const createEvIcon = React.useCallback((station: any, isSelected: boolean) => {
+    const cacheKey = `${station.id}-${isSelected}-${station.rates?.perKwh}`;
+    if (evIconCache.current[cacheKey]) {
+      return evIconCache.current[cacheKey];
+    }
     const available = station.connectorTypes && station.connectorTypes.length > 0;
     const pinColor = available ? '#00E676' : '#FF1744';
     const borderCol = isSelected ? '#FFFFFF' : '#000000';
     const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
-    return L.divIcon({
+    const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
           <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
@@ -90,14 +97,20 @@ export default function ParkHubMap({
       iconSize: [100, 60],
       iconAnchor: [50, 60]
     });
-  };
+    evIconCache.current[cacheKey] = icon;
+    return icon;
+  }, []);
 
-  const createFuelIcon = (station: any, isSelected: boolean) => {
+  const createFuelIcon = React.useCallback((station: any, isSelected: boolean) => {
+    const cacheKey = `${station.id}-${isSelected}-${station.brand}`;
+    if (fuelIconCache.current[cacheKey]) {
+      return fuelIconCache.current[cacheKey];
+    }
     const pinColor = '#2196F3';
     const borderCol = isSelected ? '#FFFFFF' : '#000000';
     const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
-    return L.divIcon({
+    const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
           <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
@@ -113,7 +126,9 @@ export default function ParkHubMap({
       iconSize: [100, 60],
       iconAnchor: [50, 60]
     });
-  };
+    fuelIconCache.current[cacheKey] = icon;
+    return icon;
+  }, []);
 
   const visibleFuelStations = React.useMemo(() => {
     if (!localBounds) return fuelStations.slice(0, 100);
@@ -133,6 +148,28 @@ export default function ParkHubMap({
       s.longitude >= (localBounds.west - margin) && s.longitude <= (localBounds.east + margin)
     ).slice(0, 300);
   }, [evStations, localBounds]);
+
+  const fuelMarkers = React.useMemo(() => {
+    return visibleFuelStations.map(station => (
+      <Marker 
+        key={station.id} 
+        position={[station.latitude, station.longitude]}
+        icon={createFuelIcon(station, selectedFuelStationId === station.id)}
+        eventHandlers={{ click: () => onFuelClick(station) }}
+      />
+    ));
+  }, [visibleFuelStations, selectedFuelStationId, onFuelClick, createFuelIcon]);
+
+  const evMarkers = React.useMemo(() => {
+    return visibleEvStations.map(station => (
+      <Marker 
+        key={station.id} 
+        position={[station.latitude, station.longitude]}
+        icon={createEvIcon(station, selectedEvStationId === station.id)}
+        eventHandlers={{ click: () => onEvClick(station) }}
+      />
+    ));
+  }, [visibleEvStations, selectedEvStationId, onEvClick, createEvIcon]);
 
   return (
     <MapContainer 
@@ -162,23 +199,8 @@ export default function ParkHubMap({
         maxClusterRadius={50}
         spiderfyOnMaxZoom={true}
       >
-        {searchMode === 'ev' && visibleEvStations.map(station => (
-          <Marker 
-            key={station.id} 
-            position={[station.latitude, station.longitude]}
-            icon={createEvIcon(station, selectedEvStationId === station.id)}
-            eventHandlers={{ click: () => onEvClick(station) }}
-          />
-        ))}
-
-        {searchMode === 'fuel' && visibleFuelStations.map(station => (
-          <Marker 
-            key={station.id} 
-            position={[station.latitude, station.longitude]}
-            icon={createFuelIcon(station, selectedFuelStationId === station.id)}
-            eventHandlers={{ click: () => onFuelClick(station) }}
-          />
-        ))}
+        {searchMode === 'ev' && evMarkers}
+        {searchMode === 'fuel' && fuelMarkers}
       </MarkerClusterGroup>
     </MapContainer>
   );
