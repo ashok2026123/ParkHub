@@ -106,6 +106,38 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     } catch (err) { console.error(err); }
   };
 
+  const detectLocation = async (index: number) => {
+    if (!navigator.geolocation) {
+      showAlert("Geolocation is not supported by your browser", "Error");
+      return;
+    }
+    
+    updateWaypoint(index, { query: "Detecting location...", results: [] });
+    
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        const data = await res.json();
+        if (data && data.display_name) {
+          updateWaypoint(index, { 
+            query: data.display_name, 
+            loc: { lat: lat.toString(), lng: lon.toString(), display_name: data.display_name },
+            results: []
+          });
+        }
+      } catch (err) {
+        console.error("Reverse geocoding failed", err);
+        updateWaypoint(index, { query: `${lat}, ${lon}`, loc: { lat: lat.toString(), lng: lon.toString(), display_name: "Current Location" }});
+      }
+    }, (err) => {
+      showAlert("Failed to detect location. Please check your browser permissions.", "Error");
+      updateWaypoint(index, { query: "" });
+    });
+  };
+
   const updateWaypoint = (idx: number, data: any) => {
     setWaypoints(prev => {
       const nw = [...prev];
@@ -397,22 +429,34 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                     )}
                   </div>
                   
-                  <div style={{ position: 'relative' }}>
-                    <input 
-                      type="text" 
-                      value={wp.query}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        updateWaypoint(idx, { query: val, loc: null });
-                        if (!isOffline) {
-                           if (searchTimeouts.current[idx]) clearTimeout(searchTimeouts.current[idx]);
-                           searchTimeouts.current[idx] = setTimeout(() => searchNominatim(val, idx), 600);
-                        }
-                      }}
-                      placeholder="Enter city or area..."
-                      style={{ width: '100%', padding: '12px 16px 12px 36px', background: '#121016', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#FFF', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                    />
-                    <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <input 
+                        type="text" 
+                        value={wp.query}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          updateWaypoint(idx, { query: val, loc: null });
+                          if (!isOffline) {
+                             if (searchTimeouts.current[idx]) clearTimeout(searchTimeouts.current[idx]);
+                             searchTimeouts.current[idx] = setTimeout(() => searchNominatim(val, idx), 600);
+                          }
+                        }}
+                        placeholder="Enter city or area..."
+                        style={{ width: '100%', padding: '12px 16px 12px 36px', background: '#121016', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#FFF', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                      <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                    </div>
+                    {idx === 0 && (
+                      <button 
+                        onClick={() => detectLocation(idx)}
+                        style={{ marginLeft: '8px', background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.2)', color: '#34D399', borderRadius: '12px', padding: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                        title="Detect My Location"
+                        className="hover-scale"
+                      >
+                        <Navigation size={18} />
+                      </button>
+                    )}
                   </div>
 
                   {wp.results && wp.results.length > 0 && (

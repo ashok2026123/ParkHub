@@ -1824,7 +1824,7 @@ export default function App() {
     return <LoginScreen onLogin={(emailOrPhone, password) => loginWithCredentials(emailOrPhone, password)} onGoogleLogin={loginWithGoogle} onGuestLogin={loginAsGuest} roleHint="Customer" />;
   }
 
-  if (!user.location || !user.name) {
+  if (!user.location || !user.name || !user.phone) {
     return <OnboardingScreen user={user} updateProfile={updateProfile} />;
   }
 
@@ -4255,11 +4255,12 @@ export default function App() {
 function OnboardingScreen({ user, updateProfile }) {
   const [name, setName] = useState(user?.name || '');
   const [location, setLocation] = useState('');
+  const [phone, setPhone] = useState(user?.phone || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (name.trim() && location.trim()) {
-      updateProfile({ name: name.trim(), location: location.trim() });
+    if (name.trim() && location.trim() && phone.trim()) {
+      updateProfile({ name: name.trim(), location: location.trim(), phone: phone.trim() });
     }
   };
 
@@ -4322,6 +4323,18 @@ function OnboardingScreen({ user, updateProfile }) {
               value={location} 
               onChange={(e) => setLocation(e.target.value)} 
               placeholder="e.g. Chennai"
+              required
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+            />
+          </div>
+
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Mobile Number</label>
+            <input 
+              type="tel" 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)} 
+              placeholder="e.g. +91 9876543210"
               required
               style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: '#FFF', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
