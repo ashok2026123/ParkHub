@@ -17,7 +17,7 @@ import {
 import { MapManager } from './services/MapManager';
 import ParkHubMap from './components/ParkHubMap';
 
-function BookingTimer({ endTime, status, onZero }) {
+function BookingTimer({ endTime, status, onZero, renderActions }) {
   const [timeLeft, setTimeLeft] = useState('');
   const [isOverdue, setIsOverdue] = useState(false);
 
@@ -51,36 +51,39 @@ function BookingTimer({ endTime, status, onZero }) {
     calculateTime();
     const interval = setInterval(calculateTime, 1000);
     return () => clearInterval(interval);
-  }, [endTime, status]);
+  }, [endTime, status, onZero]);
 
   if (status !== 'active') return null;
 
   return (
-    <div style={{
-      marginTop: '12px',
-      padding: '12px 16px',
-      background: isOverdue ? 'rgba(255,23,68,0.1)' : 'rgba(0, 229, 160, 0.1)',
-      border: isOverdue ? '1px solid #FF1744' : '1px solid var(--primary)',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Clock size={16} color={isOverdue ? '#FF1744' : 'var(--primary)'} />
-        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>
-          {isOverdue ? 'Parking Time Over:' : 'Time Remaining:'}
+    <>
+      <div style={{
+        marginTop: '12px',
+        padding: '12px 16px',
+        background: isOverdue ? 'rgba(255,23,68,0.1)' : 'rgba(0, 229, 160, 0.1)',
+        border: isOverdue ? '1px solid #FF1744' : '1px solid var(--primary)',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Clock size={16} color={isOverdue ? '#FF1744' : 'var(--primary)'} />
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>
+            {isOverdue ? 'Parking Time Over:' : 'Time Remaining:'}
+          </span>
+        </div>
+        <span style={{
+          fontSize: '14px',
+          fontWeight: '800',
+          color: isOverdue ? '#FF1744' : 'var(--primary)',
+          fontFamily: 'monospace'
+        }}>
+          {timeLeft}
         </span>
       </div>
-      <span style={{
-        fontSize: '14px',
-        fontWeight: '800',
-        color: isOverdue ? '#FF1744' : 'var(--primary)',
-        fontFamily: 'monospace'
-      }}>
-        {timeLeft}
-      </span>
-    </div>
+      {renderActions && renderActions(isOverdue)}
+    </>
   );
 }
 
@@ -3258,7 +3261,25 @@ export default function App() {
                       })()}
 
                       <div style={{ marginBottom: '24px' }}>
-                        <BookingTimer endTime={activeBooking.endTime} status={activeBooking.status} />
+                        <BookingTimer 
+                          endTime={activeBooking.endTime} 
+                          status={activeBooking.status} 
+                          renderActions={(isOverdue) => (
+                            isOverdue ? (
+                              <div style={{ marginTop: '16px', background: 'rgba(0, 229, 160, 0.1)', border: '1px solid var(--primary)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
+                                <p style={{ color: 'var(--primary)', fontWeight: 'bold', margin: 0, fontSize: '13px' }}>✅ Booking Completed!</p>
+                                <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0 0', fontSize: '11px' }}>Please proceed to checkout.</p>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleCancelBooking(activeBooking.id)}
+                                style={{ width: '100%', padding: '9px', background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)', color: '#FF1744', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', marginTop: '16px' }}
+                              >
+                                ✕ Cancel Booking
+                              </button>
+                            )
+                          )}
+                        />
                       </div>
 
                       {/* Action buttons for cash booking */}
@@ -3290,14 +3311,6 @@ export default function App() {
                           </div>
                         </div>
                       )}
-                      
-                      {/* Cancel */}
-                      <button
-                        onClick={() => handleCancelBooking(activeBooking.id)}
-                        style={{ width: '100%', padding: '9px', background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)', color: '#FF1744', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}
-                      >
-                        ✕ Cancel Booking
-                      </button>
                     </div>
                   ))}
                 </div>
