@@ -2286,14 +2286,14 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Available Fuel Stations ({sortedFuelStations.length})</h3>
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Available Fuel Stations {sortedFuelStations.length > 100 ? `(Showing 100 of ${sortedFuelStations.length})` : `(${sortedFuelStations.length})`}</h3>
                       {isFuelLoading && (
                         <div style={{ padding: '20px', textAlign: 'center', color: 'var(--primary)' }}>
                           <RefreshCw className="spinning" size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
                           <p style={{ marginTop: '10px', fontSize: '12px' }}>Locating Fuel Stations...</p>
                         </div>
                       )}
-                    {sortedFuelStations.map(station => (
+                    {sortedFuelStations.slice(0, 100).map(station => (
                       <div 
                         key={station.id}
                         className="glass-panel"
@@ -2458,8 +2458,8 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Nearby EV Charging Spots ({sortedEvStations.length})</h3>
-                      {sortedEvStations.map(station => {
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Nearby EV Charging Spots {sortedEvStations.length > 100 ? `(Showing 100 of ${sortedEvStations.length})` : `(${sortedEvStations.length})`}</h3>
+                      {sortedEvStations.slice(0, 100).map(station => {
                         const isSelected = selectedEvStation && selectedEvStation.id === station.id;
                         const availableChargers = station.chargers?.filter(c => c.status === 'Available').length || 0;
                         return (

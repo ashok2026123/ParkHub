@@ -25,38 +25,29 @@ interface ParkHubMapProps {
   selectedFuelStationId?: string | null;
 }
 
-function MapEvents({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }) {
+function MapEvents({ onBoundsChange, setLocalBounds }: { onBoundsChange: (bounds: any) => void, setLocalBounds: (bounds: any) => void }) {
   const map = useMapEvents({
     moveend: () => {
       const bounds = map.getBounds();
-      onBoundsChange({
-        south: bounds.getSouth(),
-        west: bounds.getWest(),
-        north: bounds.getNorth(),
-        east: bounds.getEast()
-      });
+      const b = { south: bounds.getSouth(), west: bounds.getWest(), north: bounds.getNorth(), east: bounds.getEast() };
+      setLocalBounds(b);
+      onBoundsChange(b);
     },
     zoomend: () => {
       const bounds = map.getBounds();
-      onBoundsChange({
-        south: bounds.getSouth(),
-        west: bounds.getWest(),
-        north: bounds.getNorth(),
-        east: bounds.getEast()
-      });
+      const b = { south: bounds.getSouth(), west: bounds.getWest(), north: bounds.getNorth(), east: bounds.getEast() };
+      setLocalBounds(b);
+      onBoundsChange(b);
     }
   });
 
   // Initial bounds fetch
   useEffect(() => {
     const bounds = map.getBounds();
-    onBoundsChange({
-      south: bounds.getSouth(),
-      west: bounds.getWest(),
-      north: bounds.getNorth(),
-      east: bounds.getEast()
-    });
-  }, [map, onBoundsChange]);
+    const b = { south: bounds.getSouth(), west: bounds.getWest(), north: bounds.getNorth(), east: bounds.getEast() };
+    setLocalBounds(b);
+    onBoundsChange(b);
+  }, [map, onBoundsChange, setLocalBounds]);
 
   return null;
 }
@@ -74,6 +65,8 @@ export default function ParkHubMap({
   selectedEvStationId, selectedFuelStationId
 }: ParkHubMapProps) {
   
+  const [localBounds, setLocalBounds] = React.useState<any>(null);
+
   const createEvIcon = (station: any, isSelected: boolean) => {
     const available = station.connectorTypes && station.connectorTypes.length > 0;
     const pinColor = available ? '#00E676' : '#FF1744';
@@ -121,6 +114,25 @@ export default function ParkHubMap({
     });
   };
 
+  const visibleFuelStations = React.useMemo(() => {
+    if (!localBounds) return fuelStations.slice(0, 100);
+    // Expand bounds slightly to prevent popping
+    const margin = 0.5;
+    return fuelStations.filter(s => 
+      s.latitude >= (localBounds.south - margin) && s.latitude <= (localBounds.north + margin) &&
+      s.longitude >= (localBounds.west - margin) && s.longitude <= (localBounds.east + margin)
+    ).slice(0, 300); // hard limit to 300 React nodes per render to guarantee 60fps
+  }, [fuelStations, localBounds]);
+
+  const visibleEvStations = React.useMemo(() => {
+    if (!localBounds) return evStations.slice(0, 100);
+    const margin = 0.5;
+    return evStations.filter(s => 
+      s.latitude >= (localBounds.south - margin) && s.latitude <= (localBounds.north + margin) &&
+      s.longitude >= (localBounds.west - margin) && s.longitude <= (localBounds.east + margin)
+    ).slice(0, 300);
+  }, [evStations, localBounds]);
+
   return (
     <MapContainer 
       center={center} 
@@ -133,7 +145,7 @@ export default function ParkHubMap({
         attribution='&copy; OpenStreetMap contributors'
       />
       
-      <MapEvents onBoundsChange={onBoundsChange} />
+      <MapEvents onBoundsChange={onBoundsChange} setLocalBounds={setLocalBounds} />
       <MapFlyTo center={center} zoom={zoom} />
 
       <MarkerClusterGroup 
@@ -141,7 +153,7 @@ export default function ParkHubMap({
         maxClusterRadius={50}
         spiderfyOnMaxZoom={true}
       >
-        {searchMode === 'ev' && evStations.map(station => (
+        {searchMode === 'ev' && visibleEvStations.map(station => (
           <Marker 
             key={station.id} 
             position={[station.latitude, station.longitude]}
@@ -150,7 +162,7 @@ export default function ParkHubMap({
           />
         ))}
 
-        {searchMode === 'fuel' && fuelStations.map(station => (
+        {searchMode === 'fuel' && visibleFuelStations.map(station => (
           <Marker 
             key={station.id} 
             position={[station.latitude, station.longitude]}
