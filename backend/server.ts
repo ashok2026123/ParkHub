@@ -1209,7 +1209,7 @@ app.post('/api/wallet/create-order', async (req, res) => {
     const options = {
       amount: Math.round(amount * 100), // amount in paisa
       currency: "INR",
-      receipt: `wallet_${userId}_${Date.now()}`
+      receipt: `w_${userId.substring(0, 10)}_${Date.now()}`
     };
     const order = await razorpay.orders.create(options);
     res.json({
