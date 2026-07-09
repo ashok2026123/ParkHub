@@ -139,27 +139,38 @@ export default function ParkHubMap({
     return icon;
   }, []);
 
+  const onFuelClickRef = React.useRef(onFuelClick);
+  const onEvClickRef = React.useRef(onEvClick);
+  
+  React.useEffect(() => {
+    onFuelClickRef.current = onFuelClick;
+    onEvClickRef.current = onEvClick;
+  }, [onFuelClick, onEvClick]);
+
   const fuelMarkers = React.useMemo(() => {
     return fuelStations.map(station => (
       <Marker 
         key={station.id} 
         position={[station.latitude, station.longitude]}
-        icon={createFuelIcon(station, selectedFuelStationId === station.id)}
-        eventHandlers={{ click: () => onFuelClick(station) }}
+        icon={createFuelIcon(station, false)} // Always unselected in cluster
+        eventHandlers={{ click: () => onFuelClickRef.current(station) }}
       />
     ));
-  }, [fuelStations, selectedFuelStationId, onFuelClick, createFuelIcon]);
+  }, [fuelStations, createFuelIcon]);
 
   const evMarkers = React.useMemo(() => {
     return evStations.map(station => (
       <Marker 
         key={station.id} 
         position={[station.latitude, station.longitude]}
-        icon={createEvIcon(station, selectedEvStationId === station.id)}
-        eventHandlers={{ click: () => onEvClick(station) }}
+        icon={createEvIcon(station, false)} // Always unselected in cluster
+        eventHandlers={{ click: () => onEvClickRef.current(station) }}
       />
     ));
-  }, [evStations, selectedEvStationId, onEvClick, createEvIcon]);
+  }, [evStations, createEvIcon]);
+
+  const selectedFuelStation = fuelStations.find(s => s.id === selectedFuelStationId);
+  const selectedEvStation = evStations.find(s => s.id === selectedEvStationId);
 
   return (
     <MapContainer 
@@ -188,10 +199,31 @@ export default function ParkHubMap({
         chunkedLoading 
         maxClusterRadius={50}
         spiderfyOnMaxZoom={true}
+        disableClusteringAtZoom={14}
       >
-        {searchMode === 'ev' && evMarkers}
-        {searchMode === 'fuel' && fuelMarkers}
+        {searchMode === 'ev' ? evMarkers : fuelMarkers}
       </MarkerClusterGroup>
+      
+      {/* Render the selected marker separately so we can update it without rebuilding the whole cluster */}
+      {searchMode === 'ev' && selectedEvStation && (
+        <Marker 
+          key={`selected-ev-${selectedEvStation.id}`}
+          position={[selectedEvStation.latitude, selectedEvStation.longitude]}
+          icon={createEvIcon(selectedEvStation, true)}
+          zIndexOffset={1000}
+          eventHandlers={{ click: () => onEvClickRef.current(selectedEvStation) }}
+        />
+      )}
+      
+      {searchMode === 'fuel' && selectedFuelStation && (
+        <Marker 
+          key={`selected-fuel-${selectedFuelStation.id}`}
+          position={[selectedFuelStation.latitude, selectedFuelStation.longitude]}
+          icon={createFuelIcon(selectedFuelStation, true)}
+          zIndexOffset={1000}
+          eventHandlers={{ click: () => onFuelClickRef.current(selectedFuelStation) }}
+        />
+      )}
     </MapContainer>
   );
 }
