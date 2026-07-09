@@ -136,21 +136,31 @@ export default function App() {
       if (data && data.fuelStations) {
         setFuelStations(prev => {
           const map = new Map(prev.map(s => [s.id, s]));
-          data.fuelStations.forEach(s => map.set(s.id, s));
-          return Array.from(map.values());
+          let changed = false;
+          data.fuelStations.forEach(s => {
+            if (!map.has(s.id)) {
+              map.set(s.id, s);
+              changed = true;
+            }
+          });
+          return changed ? Array.from(map.values()) : prev;
         });
       }
       if (data && data.evStations) {
         setEvStations(prev => {
           const map = new Map(prev.map(s => [s.id, s]));
+          let changed = false;
           data.evStations.forEach(s => {
-            if (s.source === 'ocm') {
-               s.chargers = s.connectors.map((c, i) => ({ id: `c-${i}`, type: c.type, power: c.power || 50, status: 'Available' }));
-               s.rates = { perKwh: 20 };
+            if (!map.has(s.id)) {
+              if (s.source === 'ocm') {
+                 s.chargers = s.connectors.map((c, i) => ({ id: `c-${i}`, type: c.type, power: c.power || 50, status: 'Available' }));
+                 s.rates = { perKwh: 20 };
+              }
+              map.set(s.id, s);
+              changed = true;
             }
-            map.set(s.id, s);
           });
-          return Array.from(map.values());
+          return changed ? Array.from(map.values()) : prev;
         });
       }
     } catch (err) {
@@ -2200,8 +2210,14 @@ export default function App() {
                         searchMode={searchMode}
                         fuelStations={fuelStations}
                         evStations={evStations}
-                        onEvClick={setSelectedEvStation}
-                        onFuelClick={setSelectedFuelStation}
+                        onEvClick={(station) => {
+                          setSelectedEvStation(station);
+                          fetchRoute(station.latitude, station.longitude);
+                        }}
+                        onFuelClick={(station) => {
+                          setSelectedFuelStation(station);
+                          fetchRoute(station.latitude, station.longitude);
+                        }}
                         onBoundsChange={loadDynamicStations}
                         selectedEvStationId={selectedEvStation?.id}
                         selectedFuelStationId={selectedFuelStation?.id}

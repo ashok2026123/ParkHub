@@ -130,27 +130,8 @@ export default function ParkHubMap({
     return icon;
   }, []);
 
-  const visibleFuelStations = React.useMemo(() => {
-    if (!localBounds) return fuelStations.slice(0, 100);
-    // Expand bounds slightly to prevent popping
-    const margin = 0.5;
-    return fuelStations.filter(s => 
-      s.latitude >= (localBounds.south - margin) && s.latitude <= (localBounds.north + margin) &&
-      s.longitude >= (localBounds.west - margin) && s.longitude <= (localBounds.east + margin)
-    ).slice(0, 300); // hard limit to 300 React nodes per render to guarantee 60fps
-  }, [fuelStations, localBounds]);
-
-  const visibleEvStations = React.useMemo(() => {
-    if (!localBounds) return evStations.slice(0, 100);
-    const margin = 0.5;
-    return evStations.filter(s => 
-      s.latitude >= (localBounds.south - margin) && s.latitude <= (localBounds.north + margin) &&
-      s.longitude >= (localBounds.west - margin) && s.longitude <= (localBounds.east + margin)
-    ).slice(0, 300);
-  }, [evStations, localBounds]);
-
   const fuelMarkers = React.useMemo(() => {
-    return visibleFuelStations.map(station => (
+    return fuelStations.map(station => (
       <Marker 
         key={station.id} 
         position={[station.latitude, station.longitude]}
@@ -158,10 +139,10 @@ export default function ParkHubMap({
         eventHandlers={{ click: () => onFuelClick(station) }}
       />
     ));
-  }, [visibleFuelStations, selectedFuelStationId, onFuelClick, createFuelIcon]);
+  }, [fuelStations, selectedFuelStationId, onFuelClick, createFuelIcon]);
 
   const evMarkers = React.useMemo(() => {
-    return visibleEvStations.map(station => (
+    return evStations.map(station => (
       <Marker 
         key={station.id} 
         position={[station.latitude, station.longitude]}
@@ -169,7 +150,7 @@ export default function ParkHubMap({
         eventHandlers={{ click: () => onEvClick(station) }}
       />
     ));
-  }, [visibleEvStations, selectedEvStationId, onEvClick, createEvIcon]);
+  }, [evStations, selectedEvStationId, onEvClick, createEvIcon]);
 
   return (
     <MapContainer 
