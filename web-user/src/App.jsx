@@ -127,9 +127,13 @@ export default function App() {
   
   const [fuelStations, setFuelStations] = useState([]);
   const mapManagerRef = useRef(null);
+  const dynamicFetchTimeout = useRef(null);
   
   const loadDynamicStations = async (bounds) => {
-    try {
+    if (dynamicFetchTimeout.current) clearTimeout(dynamicFetchTimeout.current);
+    
+    dynamicFetchTimeout.current = setTimeout(async () => {
+      try {
       const { south, west, north, east } = bounds;
       
       const [fuelRes, evRes] = await Promise.all([
@@ -173,6 +177,7 @@ export default function App() {
     } catch (err) {
       console.error("Failed to load dynamic stations", err);
     }
+    }, 800); // Debounce for 800ms
   };
   const [fuelBrandFilter, setFuelBrandFilter] = useState('all');
   const [isFuelLoading, setIsFuelLoading] = useState(false);
