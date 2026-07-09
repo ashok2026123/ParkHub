@@ -53,11 +53,20 @@ function MapEvents({ onBoundsChange, setLocalBounds }: { onBoundsChange: (bounds
   return null;
 }
 
-function MapFlyTo({ center, zoom }: { center: [number, number], zoom: number }) {
+function MapFlyTo({ center, zoom, routeGeoJson, userCoords }: { center: [number, number], zoom: number, routeGeoJson?: any, userCoords?: any }) {
   const map = useMapEvents({});
+  
   useEffect(() => {
-    map.flyTo(center, zoom);
-  }, [center, zoom, map]);
+    if (routeGeoJson && routeGeoJson.coordinates && routeGeoJson.coordinates.length > 0) {
+      // routeGeoJson coordinates are [lng, lat]
+      const latlngs = routeGeoJson.coordinates.map((c: any) => [c[1], c[0]]);
+      const bounds = L.latLngBounds(latlngs);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      map.flyTo(center, zoom);
+    }
+  }, [center, zoom, map, routeGeoJson]);
+
   return null;
 }
 
@@ -173,7 +182,7 @@ export default function ParkHubMap({
       )}
 
       <MapEvents onBoundsChange={onBoundsChange} setLocalBounds={setLocalBounds} />
-      <MapFlyTo center={center} zoom={zoom} />
+      <MapFlyTo center={center} zoom={zoom} routeGeoJson={routeGeoJson} />
 
       <MarkerClusterGroup 
         chunkedLoading 
