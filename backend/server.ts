@@ -970,38 +970,29 @@ app.post('/api/fuel-stations/sync', async (req, res) => {
 });
 
 async function syncFuelStationsData() {
-  console.log("Starting background OSM fuel stations sync for major Indian cities...");
+  console.log("Starting background OSM fuel stations sync for Tamil Nadu...");
   
-  // Bounding boxes for top Indian cities
-  const cities = [
-    { name: "Chennai", minLat: 12.8, minLon: 80.0, maxLat: 13.2, maxLon: 80.3 },
-    { name: "Bangalore", minLat: 12.7, minLon: 77.4, maxLat: 13.1, maxLon: 77.8 },
-    { name: "Mumbai", minLat: 18.9, minLon: 72.8, maxLat: 19.3, maxLon: 73.1 },
-    { name: "Delhi", minLat: 28.4, minLon: 76.8, maxLat: 28.9, maxLon: 77.4 },
-    { name: "Hyderabad", minLat: 17.2, minLon: 78.3, maxLat: 17.6, maxLon: 78.6 },
-    { name: "Kolkata", minLat: 22.4, minLon: 88.2, maxLat: 22.7, maxLon: 88.5 },
-    { name: "Pune", minLat: 18.4, minLon: 73.7, maxLat: 18.7, maxLon: 74.0 },
-    { name: "Ahmedabad", minLat: 22.9, minLon: 72.5, maxLat: 23.1, maxLon: 72.7 }
-  ];
-
   let updated = false;
 
-  for (let city of cities) {
-    try {
-      const overpassQuery = `
-        [out:json][timeout:25];
-        (
-          node["amenity"="fuel"](${city.minLat},${city.minLon},${city.maxLat},${city.maxLon});
-          way["amenity"="fuel"](${city.minLat},${city.minLon},${city.maxLat},${city.maxLon});
-        );
-        out center;
-      `;
+  try {
+    const overpassQuery = `
+      [out:json][timeout:25];
+      area["name"="Tamil Nadu"]["admin_level"="4"]->.searchArea;
+      (
+        node["amenity"="fuel"](area.searchArea);
+        way["amenity"="fuel"](area.searchArea);
+      );
+      out center;
+    `;
 
-      const response = await fetch("https://overpass-api.de/api/interpreter", {
-        method: "POST",
-        body: overpassQuery,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      });
+    const response = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: overpassQuery,
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "ParkHub/1.0 (contact@parkhub.com)"
+      }
+    });
       
       if (response.ok) {
         const data = await response.json();
@@ -1029,7 +1020,7 @@ async function syncFuelStationsData() {
                 osm_id: el.id,
                 name: tags.name || `${brand} Fuel Station`,
                 brand: brand,
-                address: `${tags["addr:street"] || ""} ${tags["addr:city"] || city.name} India`.trim(),
+                address: `${tags["addr:street"] || ""} ${tags["addr:city"] || "Tamil Nadu"} India`.trim(),
                 latitude: eLat,
                 longitude: eLon,
                 diesel: tags.fuel_diesel === "yes" || true,
@@ -1048,9 +1039,8 @@ async function syncFuelStationsData() {
           }
         });
       }
-    } catch (err) {
-      console.error(`Error syncing fuel stations for ${city.name}:`, err);
-    }
+  } catch (err) {
+    console.error(`Error syncing fuel stations for Tamil Nadu:`, err);
   }
 
   if (updated) {
