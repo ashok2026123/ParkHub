@@ -55,13 +55,41 @@ export const AuthProvider = ({ children }) => {
 
         setUser(u);
         localStorage.setItem('parkeasy_customer', JSON.stringify(u));
+
+        // Start polling the backend for updates
+        const intervalId = setInterval(async () => {
+          try {
+            const pollRes = await fetch(`${API_URL}/customers/${firebaseUser.uid}`);
+            if (pollRes.ok) {
+              const freshData = await pollRes.json();
+              setUser(prev => {
+                if (!prev) return prev;
+                if (prev.walletBalance !== freshData.walletBalance) {
+                   const updated = { ...prev, ...freshData };
+                   localStorage.setItem('parkeasy_customer', JSON.stringify(updated));
+                   return updated;
+                }
+                return prev;
+              });
+            }
+          } catch (err) {
+             console.error("Error polling profile:", err);
+          }
+        }, 3000);
+        
+        window.parkhubProfilePoll = intervalId;
+
       } else {
+        if (window.parkhubProfilePoll) clearInterval(window.parkhubProfilePoll);
         setUser(null);
         localStorage.removeItem('parkeasy_customer');
       }
       setLoading(false);
     });
-    return unsubscribe;
+    return () => {
+      if (window.parkhubProfilePoll) clearInterval(window.parkhubProfilePoll);
+      unsubscribe();
+    };
   }, [API_URL]);
 
   const logout = () => {
