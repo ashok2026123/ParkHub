@@ -100,7 +100,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     }
     if (isOffline) return;
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(queryStr)}&format=json&limit=5`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(queryStr)}&format=json&limit=5&email=parkhub.demo@example.com&accept-language=en`);
       const data = await res.json();
       updateWaypoint(index, { results: data });
     } catch (err) { console.error(err); }
@@ -119,7 +119,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
       const lon = pos.coords.longitude;
       
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&email=parkhub.demo@example.com&accept-language=en`);
         const data = await res.json();
         
         setWaypoints(prev => {
@@ -457,7 +457,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                           updateWaypoint(idx, { query: val, loc: null });
                           if (!isOffline) {
                              if (searchTimeouts.current[idx]) clearTimeout(searchTimeouts.current[idx]);
-                             searchTimeouts.current[idx] = setTimeout(() => searchNominatim(val, idx), 600);
+                             searchTimeouts.current[idx] = setTimeout(() => searchNominatim(val, idx), 1200);
                           }
                         }}
                         placeholder="Enter city or area..."
