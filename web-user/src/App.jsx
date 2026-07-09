@@ -907,8 +907,8 @@ export default function App() {
       );
     }
 
-    if (fuelNetworkFilter !== 'all') {
-      filtered = filtered.filter(s => s.brand && s.brand.toLowerCase() === fuelNetworkFilter.toLowerCase());
+    if (fuelBrandFilter !== 'all') {
+      filtered = filtered.filter(s => s.brand && s.brand.toLowerCase() === fuelBrandFilter.toLowerCase());
     }
 
     if (fuelDistanceFilter !== 'all' && userCoords) {
@@ -2215,8 +2215,8 @@ export default function App() {
                         center={mapCenter} 
                         zoom={mapZoom} 
                         searchMode={searchMode}
-                        fuelStations={fuelStations}
-                        evStations={evStations}
+                        fuelStations={sortedFuelStations}
+                        evStations={sortedEvStations}
                         onEvClick={(station) => {
                           setSelectedEvStation(station);
                           fetchRoute(station.latitude, station.longitude);
