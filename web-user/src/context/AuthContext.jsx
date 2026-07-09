@@ -44,13 +44,19 @@ export const AuthProvider = ({ children }) => {
              Object.assign(u, existingProfile);
           }
           
+          // Fetch transactions
+          const txRes = await fetch(`${API_URL}/wallet/transactions/${u.uid}`);
+          if (txRes.ok) {
+             u.transactions = await txRes.json();
+          }
+          
           await fetch(`${API_URL}/customers/${u.uid}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(u)
           });
-        } catch (e) {
-          console.error("Error syncing customer profile:", e);
+        } catch (error) {
+          console.error("Error connecting to backend during auth:", error);
         }
 
         setUser(u);
@@ -65,6 +71,16 @@ export const AuthProvider = ({ children }) => {
               setUser(prev => {
                 if (!prev) return prev;
                 if (prev.walletBalance !== freshData.walletBalance) {
+                   // If balance changed, also fetch the new transactions in the background
+                   fetch(`${API_URL}/wallet/transactions/${firebaseUser.uid}`)
+                     .then(res => res.json())
+                     .then(txs => {
+                       setUser(current => {
+                         const updatedWithTxs = { ...current, transactions: txs };
+                         localStorage.setItem('parkeasy_customer', JSON.stringify(updatedWithTxs));
+                         return updatedWithTxs;
+                       });
+                     });
                    const updated = { ...prev, ...freshData };
                    localStorage.setItem('parkeasy_customer', JSON.stringify(updated));
                    return updated;
