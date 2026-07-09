@@ -2322,24 +2322,53 @@ export default function App() {
                 {searchMode === 'fuel' ? (
                   selectedFuelStation ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
-                      <button onClick={() => setSelectedFuelStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
-                      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                      <button onClick={() => setSelectedFuelStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', zIndex: 10 }}>✕</button>
+                      <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                        <img 
+                          src="https://images.unsplash.com/photo-1599553754605-653a9f0e1371?auto=format&fit=crop&q=80&w=400" 
+                          alt="Fuel Station" 
+                          style={{ width: '120px', height: '90px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                        />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <span style={{ fontSize: '11px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', width: 'fit-content' }}>⛽ Fuel Station</span>
+                          <span style={{ fontSize: '11px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', width: 'fit-content' }}>⛽ FUEL STATION</span>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>📍 {selectedFuelStation.distance ? formatDistance(selectedFuelStation.distance) : 'Nearby'}</span>
+                          <span style={{ fontSize: '11px', color: '#00E676', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#00E676' }}></span>
+                            Open 24/7
+                          </span>
                         </div>
                       </div>
-                      <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>{selectedFuelStation.name}</h3>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedFuelStation.brand}</p>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{selectedFuelStation.address}</p>
+                      
+                      <h3 style={{ fontSize: '20px', fontWeight: '800', marginTop: '6px' }}>{selectedFuelStation.name}</h3>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '4px' }}>{selectedFuelStation.brand}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', lineHeight: '1.5' }}>{selectedFuelStation.address}</p>
                       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Phone: {selectedFuelStation.phone}</p>
                       
-                      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', marginTop: '16px' }}>
+                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '20px 0', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '16px 0' }}>
+                        <div style={{ flex: 1, minWidth: '100px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Fuel Types</span>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Petrol</span>
+                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Diesel</span>
+                            {selectedFuelStation.brand !== 'Independent' && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Premium</span>}
+                          </div>
+                        </div>
+                        <div style={{ flex: 1, minWidth: '100px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Amenities</span>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Air Pressure</span>
+                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Restroom</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                         <button 
                           onClick={() => fetchRoute(selectedFuelStation.latitude, selectedFuelStation.longitude)}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '10px', background: '#2196F3', color: '#FFF', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)' }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '14px', background: '#2196F3', color: '#FFF', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '14px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 16px rgba(33, 150, 243, 0.4)', transition: 'all 0.2s' }}
                         >
-                          <Navigation size={16} style={{ fill: '#FFF' }} />
-                          <span>Navigate to Station</span>
+                          <Navigation size={18} style={{ fill: '#FFF' }} />
+                          <span>Start Navigation</span>
                         </button>
                       </div>
                     </div>
@@ -2482,38 +2511,107 @@ export default function App() {
                         </button>
                       </div>
 
-                      <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Select Charger & Reserve</h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {selectedEvStation.chargers?.map(charger => {
-                          const isAvailable = charger.status === 'Available';
-                          return (
-                            <div key={charger.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px' }}>
-                              <div>
-                                <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{charger.type} Connector</span>
-                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>({charger.power} kW)</span>
+                      {showEvReserveModal && selectedCharger ? (
+                        <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginTop: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Reserve Slot</h4>
+                            <button onClick={() => { setShowEvReserveModal(false); setSelectedCharger(null); setEvPaySuccess(false); }} style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
+                          </div>
+                          
+                          {evPaySuccess ? (
+                            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0, 230, 118, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', border: '2px solid #00E676' }}>
+                                <span style={{ fontSize: '24px', color: '#00E676' }}>✓</span>
                               </div>
-                              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                <span style={{ 
-                                  fontSize: '11px', 
-                                  fontWeight: '700', 
-                                  color: charger.status === 'Available' ? '#00E676' : charger.status === 'Reserved' ? '#FF9100' : charger.status === 'Occupied' ? '#FF1744' : '#90A4AE' 
-                                }}>
-                                  {charger.status}
-                                </span>
-                                {isAvailable && (
-                                  <button 
-                                    onClick={() => { setSelectedCharger(charger); setShowEvReserveModal(true); }}
-                                    className="glow-button" 
-                                    style={{ padding: '6px 12px', fontSize: '11px' }}
-                                  >
-                                    Book
-                                  </button>
-                                )}
-                              </div>
+                              <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#FFF' }}>Booking Confirmed!</h4>
+                              <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>Your {selectedCharger.type} charger is reserved.</p>
+                              
+                              <button 
+                                onClick={() => { setShowEvReserveModal(false); setEvPaySuccess(false); setSelectedEvStation(null); }}
+                                className="glow-button"
+                                style={{ width: '100%', padding: '10px 0', marginTop: '16px', borderRadius: '8px' }}
+                              >
+                                Done
+                              </button>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ) : (
+                            <>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>Connector:</span>
+                                <span style={{ fontWeight: 'bold' }}>{selectedCharger.type} ({selectedCharger.power} kW)</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '16px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>Rate:</span>
+                                <span style={{ fontWeight: 'bold' }}>₹{selectedEvStation.rates?.perKwh}/kWh</span>
+                              </div>
+
+                              <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Duration (Hours)</label>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  {[1, 2, 4, 8].map(h => (
+                                    <button 
+                                      key={h}
+                                      onClick={() => setReserveHours(h)}
+                                      style={{ flex: 1, padding: '8px 0', background: reserveHours === h ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: reserveHours === h ? '#000' : '#FFF', border: reserveHours === h ? 'none' : '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                                    >
+                                      {h}h
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                                <div>
+                                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Estimated Cost</span>
+                                  <div style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>₹{reserveHours * selectedCharger.power * selectedEvStation.rates?.perKwh}</div>
+                                </div>
+                                <button 
+                                  onClick={handleEvPayment}
+                                  className="glow-button"
+                                  style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '13px' }}
+                                >
+                                  Pay & Reserve
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Select Charger & Reserve</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {selectedEvStation.chargers?.map(charger => {
+                              const isAvailable = charger.status === 'Available';
+                              return (
+                                <div key={charger.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px' }}>
+                                  <div>
+                                    <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{charger.type} Connector</span>
+                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>({charger.power} kW)</span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                    <span style={{ 
+                                      fontSize: '11px', 
+                                      fontWeight: '700', 
+                                      color: charger.status === 'Available' ? '#00E676' : charger.status === 'Reserved' ? '#FF9100' : charger.status === 'Occupied' ? '#FF1744' : '#90A4AE' 
+                                    }}>
+                                      {charger.status}
+                                    </span>
+                                    {isAvailable && (
+                                      <button 
+                                        onClick={() => { setSelectedCharger(charger); setShowEvReserveModal(true); setEvPaySuccess(false); }}
+                                        className="glow-button" 
+                                        style={{ padding: '6px 12px', fontSize: '11px' }}
+                                      >
+                                        Book
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -4067,74 +4165,6 @@ export default function App() {
         )}
       </main>
 
-      {/* EV RESERVATION MODAL */}
-      {showEvReserveModal && selectedEvStation && selectedCharger && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div className="glass-panel animate-fade-in" style={{ width: '420px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => { setShowEvReserveModal(false); setEvPaySuccess(false); }} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '16px' }}>✕</button>
-            
-            {evPaySuccess ? (
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0, 230, 118, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '2px solid #00E676' }}>
-                  <span style={{ fontSize: '32px', color: '#00E676' }}>✓</span>
-                </div>
-                <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#FFF' }}>Booking Confirmed!</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px' }}>Your charger slot at {selectedEvStation.name} has been successfully reserved.</p>
-                
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', margin: '20px 0', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Station:</span>
-                    <span style={{ fontWeight: 'bold' }}>{selectedEvStation.name}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Connector Type:</span>
-                    <span style={{ fontWeight: 'bold' }}>{selectedCharger.type} ({selectedCharger.power} kW)</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Duration:</span>
-                    <span style={{ fontWeight: 'bold' }}>{reserveHours} hours</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Estimated Cost:</span>
-                    <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>₹{reserveHours * selectedCharger.power * selectedEvStation.rates?.perKwh}</span>
-                  </div>
-                </div>
-
-                <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedEvStation.latitude},${selectedEvStation.longitude}`}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="glow-button"
-                  style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '12px 0', textDecoration: 'none', color: '#000', fontWeight: 'bold', borderRadius: '8px' }}
-                >
-                  Start Google Maps Navigation
-                </a>
-              </div>
-            ) : (
-              <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Reserve EV Charging Slot</h3>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Station:</span>
-                    <span style={{ fontWeight: 'bold' }}>{selectedEvStation.name}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Connector type:</span>
-                    <span style={{ fontWeight: 'bold' }}>{selectedCharger.type} ({selectedCharger.power} kW)</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Rate:</span>
-                    <span style={{ fontWeight: 'bold' }}>₹{selectedEvStation.rates?.perKwh} / kWh</span>
-                  </div>
-                </div>
-
-                <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Select Duration:</span>
-                    <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>{reserveHours} Hours</span>
-                  </div>
-                  <input 
                     type="range" 
                     min="1" 
                     max="8" 
