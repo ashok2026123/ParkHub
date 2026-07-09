@@ -158,6 +158,26 @@ export default function App() {
   const [isFuelLoading, setIsFuelLoading] = useState(false);
   
   const [showEvReserveModal, setShowEvReserveModal] = useState(false);
+  const [routeGeoJson, setRouteGeoJson] = useState(null);
+
+  const fetchRoute = async (destLat, destLng) => {
+    if (!userCoords) {
+      alert("Please allow location access to get routing.");
+      return;
+    }
+    try {
+      const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${destLng},${destLat}?overview=full&geometries=geojson`);
+      const data = await res.json();
+      if (data && data.routes && data.routes.length > 0) {
+        setRouteGeoJson(data.routes[0].geometry);
+      } else {
+        alert("Could not find a route.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch route.");
+    }
+  };
   const [selectedEvStation, setSelectedEvStation] = useState(null);
   const [selectedFuelStation, setSelectedFuelStation] = useState(null);
   const [selectedCharger, setSelectedCharger] = useState(null);
@@ -2168,6 +2188,7 @@ export default function App() {
                         onBoundsChange={loadDynamicStations}
                         selectedEvStationId={selectedEvStation?.id}
                         selectedFuelStationId={selectedFuelStation?.id}
+                        routeGeoJson={routeGeoJson}
                       />
                     </div>
                   ) : (
@@ -2273,15 +2294,13 @@ export default function App() {
                       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Phone: {selectedFuelStation.phone}</p>
                       
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', marginTop: '16px' }}>
-                        <a 
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedFuelStation.latitude},${selectedFuelStation.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '10px', background: '#2196F3', color: '#FFF', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)' }}
+                        <button 
+                          onClick={() => fetchRoute(selectedFuelStation.latitude, selectedFuelStation.longitude)}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '10px', background: '#2196F3', color: '#FFF', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)' }}
                         >
                           <Navigation size={16} style={{ fill: '#FFF' }} />
                           <span>Navigate to Station</span>
-                        </a>
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -2397,21 +2416,21 @@ export default function App() {
                       </div>
 
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-                        <a 
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedEvStation.latitude},${selectedEvStation.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button 
+                          onClick={() => fetchRoute(selectedEvStation.latitude, selectedEvStation.longitude)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '8px',
                             flex: 1,
-                            padding: '10px',
+                            padding: '12px',
                             background: '#2196F3',
                             color: '#FFF',
                             borderRadius: '8px',
-                            fontSize: '13px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '14px',
                             fontWeight: '700',
                             textDecoration: 'none',
                             transition: 'all 0.2s',
@@ -2420,7 +2439,7 @@ export default function App() {
                         >
                           <Navigation size={16} style={{ fill: '#FFF' }} />
                           <span>Navigate to Station</span>
-                        </a>
+                        </button>
                       </div>
 
                       <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Select Charger & Reserve</h4>

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, GeoJSON } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -23,6 +23,7 @@ interface ParkHubMapProps {
   onBoundsChange: (bounds: { south: number, west: number, north: number, east: number }) => void;
   selectedEvStationId?: string | null;
   selectedFuelStationId?: string | null;
+  routeGeoJson?: any;
 }
 
 function MapEvents({ onBoundsChange, setLocalBounds }: { onBoundsChange: (bounds: any) => void, setLocalBounds: (bounds: any) => void }) {
@@ -62,7 +63,7 @@ function MapFlyTo({ center, zoom }: { center: [number, number], zoom: number }) 
 
 export default function ParkHubMap({ 
   center, zoom, searchMode, fuelStations, evStations, onEvClick, onFuelClick, onBoundsChange,
-  selectedEvStationId, selectedFuelStationId
+  selectedEvStationId, selectedFuelStationId, routeGeoJson
 }: ParkHubMapProps) {
   
   const [localBounds, setLocalBounds] = React.useState<any>(null);
@@ -145,6 +146,14 @@ export default function ParkHubMap({
         attribution='&copy; OpenStreetMap contributors'
       />
       
+      {routeGeoJson && (
+        <GeoJSON 
+          key={JSON.stringify(routeGeoJson.coordinates)} 
+          data={routeGeoJson} 
+          style={{ color: '#2196F3', weight: 6, opacity: 0.8 }} 
+        />
+      )}
+
       <MapEvents onBoundsChange={onBoundsChange} setLocalBounds={setLocalBounds} />
       <MapFlyTo center={center} zoom={zoom} />
 
