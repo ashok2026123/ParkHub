@@ -164,21 +164,35 @@ export default function App() {
   const [routeGeoJson, setRouteGeoJson] = useState(null);
 
   const fetchRoute = async (destLat, destLng) => {
-    if (!userCoords) {
-      alert("Please allow location access to get routing.");
-      return;
+    let currentCoords = userCoords;
+    if (!currentCoords) {
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000 });
+        });
+        currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserCoords(currentCoords);
+      } catch (err) {
+        showAlert("Please allow location access to calculate the route.", "Location Required");
+        return;
+      }
     }
+    
     try {
-      const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${userCoords.lng},${userCoords.lat};${destLng},${destLat}?overview=full&geometries=geojson`);
+      const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${currentCoords.lng},${currentCoords.lat};${destLng},${destLat}?overview=full&geometries=geojson`);
       const data = await res.json();
       if (data && data.routes && data.routes.length > 0) {
         setRouteGeoJson(data.routes[0].geometry);
+        const centerLat = (currentCoords.lat + destLat) / 2;
+        const centerLng = (currentCoords.lng + destLng) / 2;
+        setMapCenter([centerLat, centerLng]);
+        setMapZoom(12);
       } else {
-        alert("Could not find a route.");
+        showAlert("Could not find a route.", "Error");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch route.");
+      showAlert("Failed to fetch route.", "Error");
     }
   };
   const [selectedEvStation, setSelectedEvStation] = useState(null);
