@@ -131,13 +131,20 @@ export default function App() {
   const loadDynamicStations = async (bounds) => {
     try {
       const { south, west, north, east } = bounds;
-      const res = await fetch(`${API_URL}/stations/bounds?south=${south}&west=${west}&north=${north}&east=${east}`);
-      const data = await res.json();
-      if (data && data.fuelStations) {
+      
+      const [fuelRes, evRes] = await Promise.all([
+        fetch(`${API_URL}/fuel?south=${south}&west=${west}&north=${north}&east=${east}`),
+        fetch(`${API_URL}/ev?south=${south}&west=${west}&north=${north}&east=${east}`)
+      ]);
+      
+      const fuelData = await fuelRes.json();
+      const evData = await evRes.json();
+
+      if (fuelData && Array.isArray(fuelData)) {
         setFuelStations(prev => {
           const map = new Map(prev.map(s => [s.id, s]));
           let changed = false;
-          data.fuelStations.forEach(s => {
+          fuelData.forEach(s => {
             if (!map.has(s.id)) {
               map.set(s.id, s);
               changed = true;
@@ -146,14 +153,14 @@ export default function App() {
           return changed ? Array.from(map.values()) : prev;
         });
       }
-      if (data && data.evStations) {
+      if (evData && Array.isArray(evData)) {
         setEvStations(prev => {
           const map = new Map(prev.map(s => [s.id, s]));
           let changed = false;
-          data.evStations.forEach(s => {
+          evData.forEach(s => {
             if (!map.has(s.id)) {
-              if (s.source === 'ocm') {
-                 s.chargers = s.connectors.map((c, i) => ({ id: `c-${i}`, type: c.type, power: c.power || 50, status: 'Available' }));
+              if (s.source === 'ocm' || s.id.startsWith('ocm-')) {
+                 s.chargers = (s.connectors || []).map((c, i) => ({ id: `c-${i}`, type: c.type || c, power: c.power || 50, status: 'Available' }));
                  s.rates = { perKwh: 20 };
               }
               map.set(s.id, s);

@@ -1595,29 +1595,48 @@ app.get('/api/ev', async (req, res) => {
       }
     }
 
-    const ocmData = await fetchWithRetry(`https://api.openchargemap.io/v3/poi/?output=json&boundingbox=(${s},${w}),(${n},${e})&maxresults=100`, { 
-      method: 'GET', headers: { 'User-Agent': 'ParkHub-Bot' } 
-    });
+    const overpassQuery = `[out:json][timeout:10];(node["amenity"="charging_station"](${s},${w},${n},${e});way["amenity"="charging_station"](${s},${w},${n},${e});relation["amenity"="charging_station"](${s},${w},${n},${e}););out body;>;out skel qt;`;
+    const opData = await fetchWithRetry('https://overpass-api.de/api/interpreter', { method: 'POST', data: overpassQuery });
     
     const stations: any[] = [];
     const seen = new Set();
 
-    if (Array.isArray(ocmData)) {
-      ocmData.forEach(poi => {
-        const id = `ocm-${poi.ID}`;
+    opData.elements?.forEach((el: any) => {
+      if (el.tags && el.tags.amenity === 'charging_station') {
+        const lat = el.lat || (el.center && el.center.lat);
+        const lon = el.lon || (el.center && el.center.lon);
+        if (!lat || !lon) return;
+
+        const id = `osm-${el.id}`;
         if (!seen.has(id)) {
           seen.add(id);
+          
+          const connectors = [];
+          if (el.tags['socket:type2'] || el.tags['socket:type2_combo']) connectors.push('Type 2');
+          if (el.tags['socket:ccs']) connectors.push('CCS');
+          if (el.tags['socket:chademo']) connectors.push('CHAdeMO');
+          if (connectors.length === 0) connectors.push('Unknown');
+          
+          let power = 50;
+          if (el.tags['capacity']) power = parseInt(el.tags['capacity']) * 10;
+          
           stations.push({
-            id, stationName: poi.AddressInfo.Title || 'EV Charging Station',
-            operator: poi.OperatorInfo?.Title || 'Unknown', latitude: poi.AddressInfo.Latitude, longitude: poi.AddressInfo.Longitude,
-            address: `${poi.AddressInfo.AddressLine1 || ''} ${poi.AddressInfo.Town || ''}`.trim() || 'Address unavailable',
-            connectorTypes: (poi.Connections || []).map((c: any) => c.ConnectionType?.Title || 'Unknown'),
-            powerKW: (poi.Connections || []).map((c: any) => c.PowerKW || 50),
-            phone: poi.AddressInfo.ContactTelephone1 || 'N/A', website: poi.AddressInfo.RelatedURL || 'N/A'
+            id,
+            source: 'ocm',
+            stationName: el.tags.name || 'EV Charging Station',
+            operator: el.tags.operator || el.tags.network || el.tags.brand || 'Unknown',
+            latitude: lat,
+            longitude: lon,
+            address: el.tags['addr:street'] ? `${el.tags['addr:street']} ${el.tags['addr:city'] || ''}`.trim() : 'Address unavailable',
+            connectorTypes: connectors,
+            powerKW: [power],
+            phone: el.tags['phone'] || el.tags['contact:phone'] || 'N/A',
+            website: el.tags['website'] || 'N/A',
+            connectors: connectors.map((c, i) => ({ id: `c-${i}`, type: c, power: power, status: 'Available' }))
           });
         }
-      });
-    }
+      }
+    });
 
     await cacheRef.set({ timestamp: Date.now(), stations });
     res.json(stations);
