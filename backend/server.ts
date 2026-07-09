@@ -1503,13 +1503,13 @@ app.post('/api/trip/preferences', (req, res) => {
 // --- Dynamic Nationwide API with Firestore Caching ---
 
 function getCacheKey(s: number, w: number, n: number, e: number) {
-  return `${s.toFixed(2)}_${w.toFixed(2)}_${n.toFixed(2)}_${e.toFixed(2)}`;
+  return `v2_${s.toFixed(2)}_${w.toFixed(2)}_${n.toFixed(2)}_${e.toFixed(2)}`;
 }
 
 async function fetchWithRetry(url: string, options: any, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await axios({ url, timeout: 10000, ...options });
+      const res = await axios({ url, timeout: 30000, ...options });
       return res.data;
     } catch (err: any) {
       if (i === retries - 1) throw err;
@@ -1536,7 +1536,7 @@ app.get('/api/fuel', async (req, res) => {
       }
     }
 
-    const overpassQuery = `[out:json][timeout:10];(node["amenity"="fuel"](${s},${w},${n},${e});way["amenity"="fuel"](${s},${w},${n},${e});relation["amenity"="fuel"](${s},${w},${n},${e}););out body;>;out skel qt;`;
+    const overpassQuery = `[out:json][timeout:25];(node["amenity"="fuel"](${s},${w},${n},${e});way["amenity"="fuel"](${s},${w},${n},${e});relation["amenity"="fuel"](${s},${w},${n},${e}););out center;`;
     const opData = await fetchWithRetry('https://overpass-api.de/api/interpreter', { method: 'POST', data: overpassQuery });
     
     const stations: any[] = [];
@@ -1595,7 +1595,7 @@ app.get('/api/ev', async (req, res) => {
       }
     }
 
-    const overpassQuery = `[out:json][timeout:10];(node["amenity"="charging_station"](${s},${w},${n},${e});way["amenity"="charging_station"](${s},${w},${n},${e});relation["amenity"="charging_station"](${s},${w},${n},${e}););out body;>;out skel qt;`;
+    const overpassQuery = `[out:json][timeout:25];(node["amenity"="charging_station"](${s},${w},${n},${e});way["amenity"="charging_station"](${s},${w},${n},${e});relation["amenity"="charging_station"](${s},${w},${n},${e}););out center;`;
     const opData = await fetchWithRetry('https://overpass-api.de/api/interpreter', { method: 'POST', data: overpassQuery });
     
     const stations: any[] = [];
