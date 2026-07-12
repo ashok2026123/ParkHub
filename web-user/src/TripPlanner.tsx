@@ -482,7 +482,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                 onClick={() => setActiveTab(t)}
                 style={{ 
                   flex: 1, padding: '8px', border: 'none', background: activeTab === t ? 'rgba(0,0,0,0.1)' : 'transparent',
-                  color: activeTab === t ? '#FFF' : 'var(--text-muted)', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', textTransform: 'capitalize'
+                  color: activeTab === t ? 'var(--text-primary)' : 'var(--text-muted)', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', textTransform: 'capitalize'
                 }}>
                 {t}
               </button>

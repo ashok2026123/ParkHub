@@ -1034,17 +1034,17 @@ export default function App() {
           pinColor = '#FF1744'; // Red = Full
         }
         
-        const borderCol = isSelected ? '#FFFFFF' : '#000000';
+        const borderCol = isSelected ? 'var(--text-primary)' : '#000000';
         const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
         const iconHtml = `
           <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-            <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+            <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
               <span>⚡ ₹${station.rates?.perKwh}/kwh</span>
             </div>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : 'var(--text-primary)'}"></circle>
             </svg>
           </div>
         `;
@@ -1110,18 +1110,18 @@ export default function App() {
           pinColor = '#FF9100'; // Orange = Limited
         }
         
-        const borderCol = isSelected ? '#FFFFFF' : '#000000';
+        const borderCol = isSelected ? 'var(--text-primary)' : '#000000';
         const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
         const iconHtml = `
           <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-            <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+            <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
               <span>&#8377;${loc.rates.hourly}/hr</span>
               ${loc.distance !== undefined ? `<span style="opacity: 0.75; font-size: 9.5px; border-left: 1px solid ${isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)'}; padding-left: 5px;">${formatDistance(loc.distance)}</span>` : ''}
             </div>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+              <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : 'var(--text-primary)'}"></circle>
             </svg>
           </div>
         `;
@@ -2055,7 +2055,7 @@ export default function App() {
           <div className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <h2 style={{ fontSize: '26px', fontWeight: '800', background: 'linear-gradient(135deg, #F0F4FF 0%, #8B9AC4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{t('tagline')}</h2>
+                <h2 style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text-primary)' }}>{t('tagline')}</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '5px' }}>Find and reserve secure vehicle spots instantly.</p>
               </div>
             </div>
@@ -2072,7 +2072,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'parking' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'parking' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'parking' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'parking' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
@@ -2092,7 +2092,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'ev' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'ev' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'ev' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'ev' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
@@ -2112,7 +2112,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'fuel' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'fuel' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'fuel' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'fuel' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
@@ -2372,7 +2372,7 @@ export default function App() {
                           onClick={() => fetchRoute(selectedFuelStation.latitude, selectedFuelStation.longitude)}
                           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '14px', background: '#2196F3', color: 'var(--text-primary)', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '14px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 16px rgba(33, 150, 243, 0.4)', transition: 'all 0.2s' }}
                         >
-                          <Navigation size={18} style={{ fill: '#FFF' }} />
+                          <Navigation size={18} style={{ fill: 'var(--text-primary)' }} />
                           <span>Start Navigation</span>
                         </button>
                       </div>
@@ -2444,7 +2444,7 @@ export default function App() {
                                 boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
                               }}
                             >
-                              <Navigation size={14} style={{ fill: '#FFF' }} />
+                              <Navigation size={14} style={{ fill: 'var(--text-primary)' }} />
                               <span>Navigate</span>
                             </a>
                           </div>
@@ -2511,7 +2511,7 @@ export default function App() {
                             boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
                           }}
                         >
-                          <Navigation size={16} style={{ fill: '#FFF' }} />
+                          <Navigation size={16} style={{ fill: 'var(--text-primary)' }} />
                           <span>Navigate to Station</span>
                         </button>
                       </div>
@@ -2557,7 +2557,7 @@ export default function App() {
                                     <button 
                                       key={h}
                                       onClick={() => setReserveHours(h)}
-                                      style={{ flex: 1, padding: '8px 0', background: reserveHours === h ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: reserveHours === h ? '#000' : '#FFF', border: reserveHours === h ? 'none' : '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                                      style={{ flex: 1, padding: '8px 0', background: reserveHours === h ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: reserveHours === h ? '#000' : 'var(--text-primary)', border: reserveHours === h ? 'none' : '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
                                     >
                                       {h}h
                                     </button>
@@ -2860,7 +2860,7 @@ export default function App() {
                                      borderRadius: '8px',
                                      border: veh.type === 'four-wheeler' ? '1px solid var(--primary)' : '1px solid var(--border-color)',
                                      background: veh.type === 'four-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                                     color: veh.type === 'four-wheeler' ? 'var(--primary)' : '#FFF',
+                                     color: veh.type === 'four-wheeler' ? 'var(--primary)' : 'var(--text-primary)',
                                      cursor: 'pointer',
                                      fontWeight: 'bold',
                                      fontSize: '12px',
@@ -2886,7 +2886,7 @@ export default function App() {
                                      borderRadius: '8px',
                                      border: veh.type === 'two-wheeler' ? '1px solid var(--primary)' : '1px solid var(--border-color)',
                                      background: veh.type === 'two-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                                     color: veh.type === 'two-wheeler' ? 'var(--primary)' : '#FFF',
+                                     color: veh.type === 'two-wheeler' ? 'var(--primary)' : 'var(--text-primary)',
                                      cursor: 'pointer',
                                      fontWeight: 'bold',
                                      fontSize: '12px',
@@ -3281,7 +3281,7 @@ export default function App() {
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Scan using any UPI app (GPay, PhonePe, Paytm, etc.) to deposit <strong>₹{qrAmount}</strong></p>
                   
                   {/* Styled Mock QR Code */}
-                  <div style={{ background: '#FFF', padding: '16px', borderRadius: '12px', width: '200px', height: '200px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: '0 4px 20px rgba(0,212,255,0.2)' }}>
+                  <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', width: '200px', height: '200px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: '0 4px 20px rgba(0,212,255,0.2)' }}>
                     {/* SVG QR Code graphic */}
                     <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <rect width="180" height="180" fill="white"/>
@@ -4178,7 +4178,7 @@ export default function App() {
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-primary)' }}>Scan to Top-Up</h3>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>Adding <strong>₹{qrAmount}</strong> to wallet</p>
             
-            <div style={{ background: '#FFF', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '24px' }}>
+            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '24px' }}>
               <QrCode size={180} color="#000" />
             </div>
 
@@ -5219,7 +5219,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                 transition: 'all 0.2s',
                 boxSizing: 'border-box'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary, #00E676)'; e.currentTarget.style.color = '#FFF'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary, #00E676)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'; e.currentTarget.style.color = '#B0BEC5'; }}
             >
               🌐 Continue as Guest

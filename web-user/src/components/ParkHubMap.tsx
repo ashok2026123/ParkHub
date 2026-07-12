@@ -87,18 +87,18 @@ export default function ParkHubMap({
     }
     const available = station.connectorTypes && station.connectorTypes.length > 0;
     const pinColor = available ? '#00E676' : '#FF1744';
-    const borderCol = isSelected ? '#FFFFFF' : '#000000';
+    const borderCol = isSelected ? 'var(--text-primary)' : '#000000';
     const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
     const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-          <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+          <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
             <span>⚡ ₹${station.rates?.perKwh || 20}/kwh</span>
           </div>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+            <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : 'var(--text-primary)'}"></circle>
           </svg>
         </div>
       `,
@@ -116,18 +116,18 @@ export default function ParkHubMap({
       return fuelIconCache.current[cacheKey];
     }
     const pinColor = '#2196F3';
-    const borderCol = isSelected ? '#FFFFFF' : '#000000';
+    const borderCol = isSelected ? 'var(--text-primary)' : '#000000';
     const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
 
     const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-          <div style="background: ${isSelected ? '#FFF' : '#1e1e1e'}; color: ${isSelected ? '#000' : '#FFF'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
+          <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
             <span>⛽ ${station.brand}</span>
           </div>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : '#FFF'}"></circle>
+            <circle cx="12" cy="10" r="3" fill="${isSelected ? '#000' : 'var(--text-primary)'}"></circle>
           </svg>
         </div>
       `,
