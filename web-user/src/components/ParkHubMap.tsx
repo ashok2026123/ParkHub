@@ -199,7 +199,6 @@ export default function ParkHubMap({
         chunkedLoading 
         maxClusterRadius={50}
         spiderfyOnMaxZoom={true}
-        disableClusteringAtZoom={14}
       >
         {searchMode === 'ev' ? evMarkers : fuelMarkers}
       </MarkerClusterGroup>
