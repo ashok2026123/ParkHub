@@ -1188,7 +1188,7 @@ export default function App() {
             
             if (leafletMapInstance.current) {
               routeLineRef.current = L.polyline(latlngs, {
-                color: '#00D4FF',
+                color: 'var(--text-primary)',
                 weight: 5,
                 opacity: 0.85,
                 lineJoin: 'round'
@@ -1584,7 +1584,7 @@ export default function App() {
               email: user ? user.email : "guest@spotuser.com",
               contact: user ? user.phone : "+919999999999"
             },
-            theme: { color: "#00d4ff" },
+            theme: { color: 'var(--text-primary)' },
             modal: {
               ondismiss: function () {
                 setIsProcessingPayment(false);
@@ -1776,7 +1776,7 @@ export default function App() {
           email: user?.email || 'guest@spotuser.com',
           contact: user?.phone || '+919999999999'
         },
-        theme: { color: '#00d4ff' },
+        theme: { color: 'var(--text-primary)' },
         modal: { ondismiss: function () {} }
       };
 
@@ -1916,21 +1916,21 @@ export default function App() {
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,212,255,0.3)' }}>
               <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '21px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '21px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
           </div>
         </header>
       )}
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(6,11,24,0.95)' }}>
+        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'var(--bg-secondary)' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,212,255,0.35)' }}>
                 <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div>
-                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
                 <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
               </div>
             </div>
@@ -1990,7 +1990,7 @@ export default function App() {
           left: 0,
           right: 0,
           height: '65px',
-          background: 'rgba(6, 11, 24, 0.95)',
+          background: 'var(--bg-secondary)',
           backdropFilter: 'blur(10px)',
           borderTop: '1px solid rgba(0, 212, 255, 0.15)',
           display: 'flex',
@@ -3437,7 +3437,7 @@ export default function App() {
                             {/* Pay Online */}
                             <button
                               onClick={() => handleSwitchCashToOnline(activeBooking)}
-                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#00d4ff', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                             >
                               💳 Pay Online (UPI/Card)
                             </button>
