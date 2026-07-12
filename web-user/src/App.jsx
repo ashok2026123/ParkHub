@@ -1923,40 +1923,40 @@ export default function App() {
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
+        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(6,11,24,0.95)' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px var(--primary-glow)' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,212,255,0.35)' }}>
                 <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div>
-                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
-                <p style={{ fontSize: '9px', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
+                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #00D4FF, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+                <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
               </div>
             </div>
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <button onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'home' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'home' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'home' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'home' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'home' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'home' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'home' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'home' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <MapPin size={17} />
                 <span>{t('home')}</span>
               </button>
-              <button onClick={() => setCurrentTab('tripPlanner')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'tripPlanner' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'tripPlanner' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'tripPlanner' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'tripPlanner' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('tripPlanner')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'tripPlanner' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'tripPlanner' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'tripPlanner' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'tripPlanner' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <Route size={17} />
                 <span>Trip Planner</span>
               </button>
-              <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'bookings' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'bookings' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'bookings' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('bookings')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'bookings' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'bookings' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'bookings' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'bookings' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <Calendar size={17} />
                 <span>{t('bookings')}</span>
               </button>
-              <button onClick={() => setCurrentTab('wallet')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'wallet' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'wallet' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'wallet' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'wallet' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('wallet')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'wallet' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'wallet' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'wallet' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'wallet' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <Wallet size={17} />
                 <span>Wallet Balance</span>
               </button>
-              <button onClick={() => setCurrentTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'profile' ? '3px solid var(--secondary)' : '3px solid transparent', background: currentTab === 'profile' ? 'var(--secondary-glow)' : 'transparent', color: currentTab === 'profile' ? 'var(--secondary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'profile' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'profile' ? '3px solid var(--secondary)' : '3px solid transparent', background: currentTab === 'profile' ? 'rgba(123,97,255,0.1)' : 'transparent', color: currentTab === 'profile' ? 'var(--secondary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'profile' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <Users size={17} />
                 <span>{t('profile')}</span>
               </button>
-              <button onClick={() => setCurrentTab('support')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'support' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'support' ? 'var(--primary-glow)' : 'transparent', color: currentTab === 'support' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'support' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
+              <button onClick={() => setCurrentTab('support')} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 14px', borderRadius: '10px', border: 'none', borderLeft: currentTab === 'support' ? '3px solid var(--primary)' : '3px solid transparent', background: currentTab === 'support' ? 'rgba(0,212,255,0.1)' : 'transparent', color: currentTab === 'support' ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: currentTab === 'support' ? '700' : '500', transition: 'all 0.2s ease', fontSize: '14px' }}>
                 <HelpCircle size={17} />
                 <span>{t('support')}</span>
               </button>
@@ -2072,7 +2072,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'parking' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'parking' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'parking' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'parking' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
@@ -2092,7 +2092,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'ev' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'ev' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'ev' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'ev' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
@@ -2112,7 +2112,7 @@ export default function App() {
                   borderRadius: '30px', 
                   border: searchMode === 'fuel' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
                   background: searchMode === 'fuel' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
-                  color: searchMode === 'fuel' ? 'var(--primary)' : '#FFF', 
+                  color: searchMode === 'fuel' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
                   cursor: 'pointer',
