@@ -248,7 +248,25 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     map.on('moveend', loadDynamicPlaces);
     map.on('zoomend', loadDynamicPlaces);
 
-    return () => { map.remove(); leafletMapInstance.current = null; };
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 100);
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 500); // Failsafe for slower layout renders
+
+    const handleResize = () => {
+      if (leafletMapInstance.current) {
+        leafletMapInstance.current.invalidateSize();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => { 
+      window.removeEventListener('resize', handleResize);
+      map.remove(); 
+      leafletMapInstance.current = null; 
+    };
   }, []);
 
   const handlePlanTrip = async () => {
