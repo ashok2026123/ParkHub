@@ -1009,7 +1009,7 @@ export default function App() {
       if (b.distance !== undefined) return 1;
       return 0;
     });
-  }, [fuelStations, searchQuery, fuelNetworkFilter, fuelDistanceFilter, userCoords]);
+  }, [fuelStations, searchQuery, fuelBrandFilter, fuelDistanceFilter, userCoords]);
 
   // Compute top 3 nearest parking location IDs (always based on distance)
   const nearestThreeIds = React.useMemo(() => {
