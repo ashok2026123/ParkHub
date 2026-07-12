@@ -2,39 +2,39 @@
 
 :root {
   /* ── Backgrounds ── */
-  --bg-primary:    #000000;
-  --bg-secondary:  #111111;
-  --bg-tertiary:   #1A1A1A;
-  --bg-card:       #0A0A0A;
+  --bg-primary:    #FFFFFF;
+  --bg-secondary:  #F8F9FA;
+  --bg-tertiary:   #F1F3F5;
+  --bg-card:       #FFFFFF;
 
-  /* ── Brand Colors (Monochrome) ── */
-  --primary:         #FFFFFF;
-  --primary-hover:   #E0E0E0;
-  --primary-glow:    rgba(255, 255, 255, 0.15);
-  --primary-border:  rgba(255, 255, 255, 0.35);
+  /* ── Brand Colors (Monochrome Light) ── */
+  --primary:         #000000;
+  --primary-hover:   #333333;
+  --primary-glow:    rgba(0, 0, 0, 0.05);
+  --primary-border:  rgba(0, 0, 0, 0.15);
 
-  --secondary:       #CCCCCC;
-  --secondary-hover: #AAAAAA;
-  --secondary-glow:  rgba(204, 204, 204, 0.15);
+  --secondary:       #555555;
+  --secondary-hover: #333333;
+  --secondary-glow:  rgba(0, 0, 0, 0.05);
 
-  --accent-green:    #FFFFFF; /* Keep everything B&W */
-  --accent-orange:   #EEEEEE;
-  --accent-occupied: #555555;
+  --accent-green:    #000000; /* Keep everything B&W */
+  --accent-orange:   #333333;
+  --accent-occupied: #AAAAAA;
 
   /* ── Text ── */
-  --text-primary:   #FFFFFF;
-  --text-secondary: #AAAAAA;
-  --text-muted:     #777777;
+  --text-primary:   #000000;
+  --text-secondary: #495057;
+  --text-muted:     #868E96;
 
   /* ── Glass / Borders ── */
-  --border-color:   rgba(255, 255, 255, 0.15);
-  --glass-bg:       rgba(10, 10, 10, 0.85);
-  --glass-border:   rgba(255, 255, 255, 0.15);
-  --glass-shadow:   0 8px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --border-color:   rgba(0, 0, 0, 0.1);
+  --glass-bg:       rgba(255, 255, 255, 0.85);
+  --glass-border:   rgba(0, 0, 0, 0.08);
+  --glass-shadow:   0 8px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
 
   /* ── Gradients ── */
-  --gradient-brand: linear-gradient(135deg, #FFFFFF 0%, #CCCCCC 100%);
-  --gradient-card:  linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(200,200,200,0.02) 100%);
+  --gradient-brand: linear-gradient(135deg, #000000 0%, #333333 100%);
+  --gradient-card:  linear-gradient(145deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.01) 100%);
 
   /* ── Fonts ── */
   --font-main:  'Inter', 'Space Grotesk', sans-serif;
