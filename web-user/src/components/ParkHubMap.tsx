@@ -93,7 +93,7 @@ export default function ParkHubMap({
     const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-          <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
+          <div style="background: ${isSelected ? '#E0F2FE' : '#FFFFFF'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
             <span>⚡ ₹${station.rates?.perKwh || 20}/kwh</span>
           </div>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -122,7 +122,7 @@ export default function ParkHubMap({
     const icon = L.divIcon({
       html: `
         <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
-          <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
+          <div style="background: ${isSelected ? '#E0F2FE' : '#FFFFFF'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 90px;">
             <span>⛽ ${station.brand}</span>
           </div>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
