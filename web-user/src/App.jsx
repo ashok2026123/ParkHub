@@ -2200,13 +2200,13 @@ export default function App() {
               <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
                 {searchMode === 'fuel' ? (
                   <>
-                    <button onClick={() => setFuelBrandFilter('all')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>All Brands</button>
-                    <button onClick={() => setFuelBrandFilter('IndianOil')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'IndianOil' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>IndianOil</button>
-                    <button onClick={() => setFuelBrandFilter('BPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'BPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>BPCL</button>
-                    <button onClick={() => setFuelBrandFilter('HPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'HPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>HPCL</button>
-                    <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
-                    <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
-                    <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
+                    <button onClick={() => setFuelBrandFilter('all')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'all' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>All Brands</button>
+                    <button onClick={() => setFuelBrandFilter('IndianOil')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'IndianOil' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>IndianOil</button>
+                    <button onClick={() => setFuelBrandFilter('BPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'BPCL' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>BPCL</button>
+                    <button onClick={() => setFuelBrandFilter('HPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'HPCL' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>HPCL</button>
+                    <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
+                    <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
+                    <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
                   </>
                 ) : searchMode === 'fuel' ? (
                   <>
@@ -2264,9 +2264,9 @@ export default function App() {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
-                    <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
-                    <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
+                    <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
+                    <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
+                    <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--primary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
                   </>
                 )}
               </div>
@@ -3072,7 +3072,7 @@ export default function App() {
                             <button 
                               type="button" 
                               onClick={() => setBookingDuration(Math.max(1, bookingDuration - 1))}
-                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--primary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                               -
                             </button>
@@ -3080,7 +3080,7 @@ export default function App() {
                             <button 
                               type="button" 
                               onClick={() => setBookingDuration(Math.min(24, bookingDuration + 1))}
-                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--primary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                               +
                             </button>
@@ -3090,7 +3090,7 @@ export default function App() {
                           <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '4px' }}>{t('couponCode')}</label>
                           <div style={{ display: 'flex', gap: '4px' }}>
                             <input type="text" value={appliedCoupon} onChange={(e) => setAppliedCoupon(e.target.value)} placeholder="CHENNAI50" style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000', fontSize: '12px' }} />
-                            <button onClick={handleApplyCoupon} style={{ padding: '8px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}>{t('apply')}</button>
+                            <button onClick={handleApplyCoupon} style={{ padding: '8px 12px', background: 'var(--primary)', border: '1px solid var(--border-color)', color: '#000000', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}>{t('apply')}</button>
                           </div>
                           {couponDiscount > 0 && <span style={{ color: 'var(--primary)', fontSize: '10px' }}>Coupon Applied! {couponDiscount}% Off</span>}
                         </div>
