@@ -4253,12 +4253,6 @@ export default function App() {
         p, span, div, h1, h2, h3, h4, h5, h6, button, a, input, select {
           color: #000000 !important;
         }
-        svg path {
-          fill: #000000 !important;
-        }
-        svg {
-          stroke: #000000 !important;
-        }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spinning { animation: spin 0.8s linear infinite; }
         @keyframes pulse {
