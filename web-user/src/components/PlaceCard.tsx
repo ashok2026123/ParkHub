@@ -88,7 +88,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, user, onNavigate, o
             {renderIcon()}
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#FFF' }}>{place.name || `Unnamed ${getTypeLabel()}`}</h3>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{place.name || `Unnamed ${getTypeLabel()}`}</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
               <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600', padding: '2px 6px', background: 'rgba(0, 230, 118, 0.1)', borderRadius: '4px' }}>
                 {getTypeLabel()}
@@ -124,13 +124,13 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, user, onNavigate, o
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
         {(place.internet_access === 'yes' || place.internet_access === 'wlan') && (
-          <span style={{ fontSize: '11px', color: '#FFF', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Wifi size={12} /> Wi-Fi</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Wifi size={12} /> Wi-Fi</span>
         )}
         {place.air_conditioning === 'yes' && (
-          <span style={{ fontSize: '11px', color: '#FFF', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Wind size={12} /> A/C</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Wind size={12} /> A/C</span>
         )}
         {place.parking && (
-          <span style={{ fontSize: '11px', color: '#FFF', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Car size={12} /> Parking</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-primary)', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Car size={12} /> Parking</span>
         )}
       </div>
 
@@ -145,13 +145,13 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place, user, onNavigate, o
         
         {place.website ? (
           <a href={place.website} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-            <button style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}>
+            <button style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}>
               <Globe size={16} /> Book / View
             </button>
           </a>
         ) : place.phone ? (
           <a href={`tel:${place.phone}`} style={{ textDecoration: 'none' }}>
-            <button style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}>
+            <button style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer' }}>
               <Phone size={16} /> Call
             </button>
           </a>
