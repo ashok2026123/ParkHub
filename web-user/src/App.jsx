@@ -858,14 +858,14 @@ export default function App() {
       const initialType = defaultVeh && (defaultVeh.type?.toLowerCase().includes('bike') || defaultVeh.type?.toLowerCase().includes('two')) ? 'two-wheeler' : 'four-wheeler';
       
       setBookingVehicles([{ id: Date.now(), type: initialType, number: initialNum }]);
-      setBookingDuration(2);
+      setBookingDuration(1);
       setAppliedCoupon('');
       setCouponDiscount(0);
       setCouponError('');
     }
   }, [selectedLocation]);
 
-  const [bookingDuration, setBookingDuration] = useState(2);
+  const [bookingDuration, setBookingDuration] = useState(1);
   const [selectedPastBookings, setSelectedPastBookings] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
