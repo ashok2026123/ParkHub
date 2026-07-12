@@ -697,8 +697,8 @@ export default function App() {
         <head>
           <title>Invoice - ${booking.id}</title>
           <style>
-            body { font-family: 'Inter', sans-serif; background: #060B18; color: #FFF; padding: 40px; margin: 0; }
-            .invoice-card { background: #0D1526; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+            body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: #FFF; padding: 40px; margin: 0; }
+            .invoice-card { background: var(--bg-secondary); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
             .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 24px; margin-bottom: 24px; }
             .brand { font-size: 24px; font-weight: 800; color: #00D4FF; letter-spacing: -0.5px; }
             .details { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; font-size: 13px; color: #8B9AC4; }
@@ -1923,7 +1923,7 @@ export default function App() {
 
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(6,11,24,0.95)' }}>
+        <aside className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '0', borderRight: '1px solid rgba(0,212,255,0.1)', background: 'rgba(0,0,0,0.95)' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
               <div style={{ width: '42px', height: '42px', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,212,255,0.35)' }}>
@@ -1990,7 +1990,7 @@ export default function App() {
           left: 0,
           right: 0,
           height: '65px',
-          background: 'rgba(6, 11, 24, 0.95)',
+          background: 'rgba(0,0,0,0.95)',
           backdropFilter: 'blur(10px)',
           borderTop: '1px solid rgba(0, 212, 255, 0.15)',
           display: 'flex',
@@ -4288,7 +4288,7 @@ function OnboardingScreen({ user, updateProfile }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#0a0810',
+      background: 'var(--bg-primary)',
       backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(0, 230, 118, 0.15), transparent 60%)',
       fontFamily: "'Space Grotesk', 'Inter', sans-serif"
     }}>
