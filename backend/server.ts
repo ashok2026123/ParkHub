@@ -1646,6 +1646,88 @@ app.get('/api/ev', async (req, res) => {
   }
 });
 
+app.get('/api/places', async (req, res) => {
+  try {
+    const { south, west, north, east, categories } = req.query;
+    if (!south || !west || !north || !east || !categories) return res.status(400).json({ error: "Missing bounds or categories" });
+
+    const s = parseFloat(south as string); const w = parseFloat(west as string);
+    const n = parseFloat(north as string); const e = parseFloat(east as string);
+    const cats = (categories as string).split(',');
+    
+    // Quick cache implementation based on bounds and categories (similar to EV)
+    const cacheKey = `places_${cats.sort().join('_')}_${s.toFixed(2)}_${w.toFixed(2)}_${n.toFixed(2)}_${e.toFixed(2)}`;
+    const cacheRef = db.collection('places_cache').doc(cacheKey);
+
+    const doc = await cacheRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+        return res.json(data.places);
+      }
+    }
+
+    const overpassCats = [];
+    if (cats.includes('restaurants')) overpassCats.push(`node["amenity"~"restaurant|cafe|fast_food"](${s},${w},${n},${e});`);
+    if (cats.includes('hotels')) overpassCats.push(`node["tourism"~"hotel|motel|guest_house|hostel|resort|apartment"](${s},${w},${n},${e});`);
+    if (cats.includes('rooms')) overpassCats.push(`node["tourism"~"hotel|motel|guest_house|hostel|resort|apartment"](${s},${w},${n},${e});`);
+    if (cats.includes('hospitals')) overpassCats.push(`node["amenity"~"hospital|clinic"](${s},${w},${n},${e});`);
+    if (cats.includes('atms')) overpassCats.push(`node["amenity"="atm"](${s},${w},${n},${e});`);
+    if (cats.includes('restrooms')) overpassCats.push(`node["amenity"="toilets"](${s},${w},${n},${e});`);
+    if (cats.includes('mechanic')) overpassCats.push(`node["shop"="car_repair"](${s},${w},${n},${e});`);
+    if (cats.includes('carwash')) overpassCats.push(`node["amenity"="car_wash"](${s},${w},${n},${e});`);
+    
+    if (overpassCats.length === 0) return res.json([]);
+
+    const overpassQuery = `[out:json][timeout:25];(${overpassCats.join('')});out center;`;
+    const opData = await fetchWithRetry('https://overpass-api.de/api/interpreter', { method: 'POST', data: overpassQuery });
+    
+    const places: any[] = [];
+    const seen = new Set();
+
+    opData.elements?.forEach((el: any) => {
+      if (el.tags) {
+        const lat = el.lat || (el.center && el.center.lat);
+        const lon = el.lon || (el.center && el.center.lon);
+        if (!lat || !lon) return;
+
+        const id = `osm-place-${el.id}`;
+        if (!seen.has(id)) {
+          seen.add(id);
+          
+          let type = 'unknown';
+          const tags = el.tags;
+          if (tags.tourism && tags.tourism.match(/hotel|motel|guest_house|hostel|resort|apartment/)) type = 'rooms'; // Group all under rooms/hotels
+          else if (tags.amenity && tags.amenity.match(/restaurant|cafe|fast_food/)) type = 'restaurants';
+          else if (tags.amenity && tags.amenity.match(/hospital|clinic/)) type = 'hospitals';
+          else if (tags.amenity === 'atm') type = 'atms';
+          else if (tags.amenity === 'toilets') type = 'restrooms';
+          else if (tags.shop === 'car_repair') type = 'mechanic';
+          else if (tags.amenity === 'car_wash') type = 'carwash';
+
+          places.push({
+            id,
+            source: 'ocm',
+            name: tags.name || `Unnamed ${type}`,
+            poiType: type,
+            latitude: lat,
+            longitude: lon,
+            address: tags['addr:street'] ? `${tags['addr:street']} ${tags['addr:city'] || ''}`.trim() : 'Address unavailable',
+            phone: tags['phone'] || tags['contact:phone'] || 'N/A',
+            website: tags['website'] || 'N/A'
+          });
+        }
+      }
+    });
+
+    await cacheRef.set({ timestamp: Date.now(), places });
+    res.json(places);
+  } catch (error) {
+    console.error("Places API Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
   locations.forEach(loc => recalcSlots(loc.id));

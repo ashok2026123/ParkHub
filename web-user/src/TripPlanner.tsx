@@ -60,7 +60,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
 
   const [filters, setFilters] = useState<Record<string, boolean>>({
     parking: true, ev: false, fuel: true, restaurants: true,
-    hotels: false, hospitals: false, restrooms: false, mechanic: false, carwash: false
+    hotels: false, rooms: false, hospitals: false, restrooms: false, mechanic: false, carwash: false
   });
 
   // Offline Listeners
@@ -245,6 +245,9 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     });
     map.addLayer(markersGroupRef.current);
 
+    map.on('moveend', loadDynamicPlaces);
+    map.on('zoomend', loadDynamicPlaces);
+
     return () => { map.remove(); leafletMapInstance.current = null; };
   }, []);
 
@@ -385,6 +388,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
       if (p.poiType === 'ev') bg = '#10B981';
       if (p.poiType === 'fuel') bg = '#F59E0B';
       if (p.poiType === 'hotels') bg = '#E11D48';
+      if (p.poiType === 'rooms') bg = '#9333EA';
       if (p.poiType === 'restaurants') bg = '#F97316';
       
       const icon = window.L.divIcon({ html: `<div style="background:${bg};width:12px;height:12px;border-radius:50%;border:1px solid white;"></div>`, className: '' });
@@ -396,8 +400,47 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
     if (routeData) {
       const validLocs = waypoints.filter(w => w.loc).map(w => w.loc!);
       fetchPOIs(routeData.geometry.coordinates, validLocs);
+    } else {
+      loadDynamicPlaces();
     }
   }, [filters, prefs.radius]);
+
+  const dynamicFetchTimeout = useRef<any>(null);
+
+  const loadDynamicPlaces = async () => {
+    const map = leafletMapInstance.current;
+    if (!map) return;
+    
+    const activeCategories = Object.keys(filters).filter(k => filters[k] && !['parking', 'ev', 'fuel'].includes(k)).join(',');
+    if (!activeCategories) return;
+
+    if (dynamicFetchTimeout.current) clearTimeout(dynamicFetchTimeout.current);
+    
+    dynamicFetchTimeout.current = setTimeout(async () => {
+      try {
+        const bounds = map.getBounds();
+        const south = bounds.getSouthWest().lat;
+        const west = bounds.getSouthWest().lng;
+        const north = bounds.getNorthEast().lat;
+        const east = bounds.getNorthEast().lng;
+        
+        const res = await fetch(`${API_URL}/places?south=${south}&west=${west}&north=${north}&east=${east}&categories=${activeCategories}`);
+        const data = await res.json();
+        
+        if (data && Array.isArray(data)) {
+          setPoiData(prev => {
+             const existingMap = new Map(prev.map(p => [p.id, p]));
+             data.forEach(p => existingMap.set(p.id, p));
+             const updated = Array.from(existingMap.values());
+             setTimeout(() => renderPOIMarkers(updated), 0);
+             return updated;
+          });
+        }
+      } catch (e) {
+        console.error("Failed to fetch dynamic places", e);
+      }
+    }, 800);
+  };
 
   const toggleFilter = (f: string) => {
     setFilters(prev => ({ ...prev, [f]: !prev[f] }));
