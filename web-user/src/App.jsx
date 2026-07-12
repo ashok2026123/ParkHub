@@ -69,7 +69,7 @@ function BookingTimer({ endTime, status, onZero, renderActions }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Clock size={16} color={isOverdue ? '#FF1744' : 'var(--primary)'} />
-          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '500' }}>
+          <span style={{ fontSize: '12px', color: '#000000', fontWeight: '500' }}>
             {isOverdue ? 'Parking Time Over:' : 'Time Remaining:'}
           </span>
         </div>
@@ -699,17 +699,17 @@ export default function App() {
           <style>
             body { font-family: 'Inter', sans-serif; background: #060B18; color: #FFF; padding: 40px; margin: 0; }
             .invoice-card { background: #0D1526; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 24px; margin-bottom: 24px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0,0.08); padding-bottom: 24px; margin-bottom: 24px; }
             .brand { font-size: 24px; font-weight: 800; color: #00D4FF; letter-spacing: -0.5px; }
             .details { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; font-size: 13px; color: #8B9AC4; }
             .details h4 { color: #FFF; margin: 0 0 8px 0; font-size: 14px; }
             .table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
             .table th { text-align: left; padding: 12px; background: rgba(0, 212, 255, 0.05); color: #00D4FF; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-            .table td { padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+            .table td { padding: 16px 12px; border-bottom: 1px solid rgba(0, 0, 0,0.05); font-size: 13px; }
             .totals { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 13px; color: #8B9AC4; }
             .totals div { display: flex; justify-content: space-between; width: 220px; }
-            .totals .grand-total { color: #00E5A0; font-weight: 800; font-size: 18px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-top: 4px; }
-            .footer { text-align: center; font-size: 11px; color: #4A5580; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px; }
+            .totals .grand-total { color: #00E5A0; font-weight: 800; font-size: 18px; border-top: 1px solid rgba(0, 0, 0,0.08); padding-top: 8px; margin-top: 4px; }
+            .footer { text-align: center; font-size: 11px; color: #4A5580; margin-top: 40px; border-top: 1px solid rgba(0, 0, 0,0.05); padding-top: 24px; }
           </style>
         </head>
         <body>
@@ -1117,7 +1117,7 @@ export default function App() {
           <div style="display: flex; flex-direction: column; align-items: center; transform: ${scale}; transition: all 0.2s; width: 100px;">
             <div style="background: ${isSelected ? 'var(--text-primary)' : '#1e1e1e'}; color: ${isSelected ? '#000' : 'var(--text-primary)'}; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; border: 1.5px solid ${pinColor}; margin-bottom: 2px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 5px; justify-content: center; width: fit-content; max-width: 90px; box-sizing: border-box;">
               <span>&#8377;${loc.rates.hourly}/hr</span>
-              ${loc.distance !== undefined ? `<span style="opacity: 0.75; font-size: 9.5px; border-left: 1px solid ${isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)'}; padding-left: 5px;">${formatDistance(loc.distance)}</span>` : ''}
+              ${loc.distance !== undefined ? `<span style="opacity: 0.75; font-size: 9.5px; border-left: 1px solid ${isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(0, 0, 0,0.25)'}; padding-left: 5px;">${formatDistance(loc.distance)}</span>` : ''}
             </div>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="${pinColor}" stroke="${borderCol}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -1188,7 +1188,7 @@ export default function App() {
             
             if (leafletMapInstance.current) {
               routeLineRef.current = L.polyline(latlngs, {
-                color: 'var(--text-primary)',
+                color: '#000000',
                 weight: 5,
                 opacity: 0.85,
                 lineJoin: 'round'
@@ -1584,7 +1584,7 @@ export default function App() {
               email: user ? user.email : "guest@spotuser.com",
               contact: user ? user.phone : "+919999999999"
             },
-            theme: { color: 'var(--text-primary)' },
+            theme: { color: '#000000' },
             modal: {
               ondismiss: function () {
                 setIsProcessingPayment(false);
@@ -1776,7 +1776,7 @@ export default function App() {
           email: user?.email || 'guest@spotuser.com',
           contact: user?.phone || '+919999999999'
         },
-        theme: { color: 'var(--text-primary)' },
+        theme: { color: '#000000' },
         modal: { ondismiss: function () {} }
       };
 
@@ -1916,7 +1916,7 @@ export default function App() {
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,212,255,0.3)' }}>
               <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '21px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '21px', fontWeight: '800', color: '#000000', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
           </div>
         </header>
       )}
@@ -1930,7 +1930,7 @@ export default function App() {
                 <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div>
-                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
+                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: '800', color: '#000000', letterSpacing: '-0.5px' }}>{t('appName')}</h1>
                 <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', letterSpacing: '1.5px', opacity: 0.8 }}>CUSTOMER PORTAL</p>
               </div>
             </div>
@@ -1965,11 +1965,11 @@ export default function App() {
 
           <div>
             {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(0, 0, 0,0.03)', marginBottom: '16px' }}>
                 <img src={user.profilePic} alt={user.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
                 <div>
                   <p style={{ fontSize: '13px', fontWeight: '600' }}>{user.name}</p>
-                  <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('roleCustomer')}</p>
+                  <p style={{ fontSize: '11px', color: '#000000' }}>{t('roleCustomer')}</p>
                 </div>
               </div>
             )}
@@ -2055,8 +2055,8 @@ export default function App() {
           <div className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <h2 style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text-primary)' }}>{t('tagline')}</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '5px' }}>Find and reserve secure vehicle spots instantly.</p>
+                <h2 style={{ fontSize: '26px', fontWeight: '800', color: '#000000' }}>{t('tagline')}</h2>
+                <p style={{ color: '#000000', fontSize: '13px', marginTop: '5px' }}>Find and reserve secure vehicle spots instantly.</p>
               </div>
             </div>
 
@@ -2070,8 +2070,8 @@ export default function App() {
                   gap: '8px', 
                   padding: '10px 20px', 
                   borderRadius: '30px', 
-                  border: searchMode === 'parking' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
-                  background: searchMode === 'parking' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  border: searchMode === 'parking' ? '1px solid var(--primary)' : '1px solid rgba(0, 0, 0,0.08)', 
+                  background: searchMode === 'parking' ? 'var(--primary-glow)' : 'rgba(0, 0, 0,0.02)', 
                   color: searchMode === 'parking' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
@@ -2090,8 +2090,8 @@ export default function App() {
                   gap: '8px', 
                   padding: '10px 20px', 
                   borderRadius: '30px', 
-                  border: searchMode === 'ev' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
-                  background: searchMode === 'ev' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  border: searchMode === 'ev' ? '1px solid var(--primary)' : '1px solid rgba(0, 0, 0,0.08)', 
+                  background: searchMode === 'ev' ? 'var(--primary-glow)' : 'rgba(0, 0, 0,0.02)', 
                   color: searchMode === 'ev' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
@@ -2110,8 +2110,8 @@ export default function App() {
                   gap: '8px', 
                   padding: '10px 20px', 
                   borderRadius: '30px', 
-                  border: searchMode === 'fuel' ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)', 
-                  background: searchMode === 'fuel' ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)', 
+                  border: searchMode === 'fuel' ? '1px solid var(--primary)' : '1px solid rgba(0, 0, 0,0.08)', 
+                  background: searchMode === 'fuel' ? 'var(--primary-glow)' : 'rgba(0, 0, 0,0.02)', 
                   color: searchMode === 'fuel' ? 'var(--primary)' : 'var(--text-primary)', 
                   fontSize: '13px', 
                   fontWeight: '700', 
@@ -2126,24 +2126,24 @@ export default function App() {
 
             <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '24px' }}>
               <div style={{ display: 'flex', flex: 1, minWidth: '240px', position: 'relative' }}>
-                <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input type="text" value={searchQuery} onChange={handleSearch} onKeyDown={handleSearchSubmit} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none' }} />
+                <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#000000' }} />
+                <input type="text" value={searchQuery} onChange={handleSearch} onKeyDown={handleSearchSubmit} placeholder={t('searchPlaceholder')} style={{ width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', fontSize: '14px', outline: 'none' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
                 {searchMode === 'fuel' ? (
                   <>
-                    <button onClick={() => setFuelBrandFilter('all')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>All Brands</button>
-                    <button onClick={() => setFuelBrandFilter('IndianOil')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'IndianOil' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>IndianOil</button>
-                    <button onClick={() => setFuelBrandFilter('BPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'BPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>BPCL</button>
-                    <button onClick={() => setFuelBrandFilter('HPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'HPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>HPCL</button>
-                    <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
-                    <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
-                    <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
+                    <button onClick={() => setFuelBrandFilter('all')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>All Brands</button>
+                    <button onClick={() => setFuelBrandFilter('IndianOil')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'IndianOil' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>IndianOil</button>
+                    <button onClick={() => setFuelBrandFilter('BPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'BPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>BPCL</button>
+                    <button onClick={() => setFuelBrandFilter('HPCL')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'HPCL' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>HPCL</button>
+                    <button onClick={() => setFuelBrandFilter('Shell')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Shell' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Shell</button>
+                    <button onClick={() => setFuelBrandFilter('Reliance')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Reliance' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Reliance</button>
+                    <button onClick={() => setFuelBrandFilter('Nayara')} style={{ padding: '8px 12px', background: fuelBrandFilter === 'Nayara' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Nayara</button>
                   </>
                 ) : searchMode === 'fuel' ? (
                   <>
-                    <select value={fuelNetworkFilter} onChange={(e) => setFuelNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={fuelNetworkFilter} onChange={(e) => setFuelNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">All Brands</option>
                       <option value="indianoil">IndianOil</option>
                       <option value="bpcl">BPCL</option>
@@ -2155,7 +2155,7 @@ export default function App() {
                       <option value="independent">Independent</option>
                     </select>
 
-                    <select value={fuelDistanceFilter} onChange={(e) => setFuelDistanceFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={fuelDistanceFilter} onChange={(e) => setFuelDistanceFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">Any Distance</option>
                       <option value="2">Within 2 km</option>
                       <option value="5">Within 5 km</option>
@@ -2164,7 +2164,7 @@ export default function App() {
                   </>
                 ) : searchMode === 'ev' ? (
                   <>
-                    <select value={evNetworkFilter} onChange={(e) => setEvNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={evNetworkFilter} onChange={(e) => setEvNetworkFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">All Networks</option>
                       <option value="Tata Power EZ Charge">Tata Power</option>
                       <option value="Statiq">Statiq</option>
@@ -2176,7 +2176,7 @@ export default function App() {
                       <option value="Public EV Charger">Other Public</option>
                     </select>
 
-                    <select value={evConnectorFilter} onChange={(e) => setEvConnectorFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={evConnectorFilter} onChange={(e) => setEvConnectorFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">All Connectors</option>
                       <option value="CCS2">CCS2</option>
                       <option value="Type 2">Type 2</option>
@@ -2184,27 +2184,27 @@ export default function App() {
                       <option value="GB/T">GB/T</option>
                     </select>
 
-                    <select value={evTypeFilter} onChange={(e) => setEvTypeFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={evTypeFilter} onChange={(e) => setEvTypeFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">Any Speed (AC/DC)</option>
                       <option value="dc">DC Fast (&gt;= 50kW)</option>
                       <option value="ac">AC Slow (&lt; 50kW)</option>
                     </select>
 
-                    <select value={evStatusFilter} onChange={(e) => setEvStatusFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
+                    <select value={evStatusFilter} onChange={(e) => setEvStatusFilter(e.target.value)} style={{ padding: '8px 12px', background: 'transparent', border: '1px solid rgba(0, 0, 0,0.1)', color: '#000000', borderRadius: '6px', fontSize: '12px', outline: 'none' }}>
                       <option value="all">All Statuses</option>
                       <option value="available">Available Now</option>
                     </select>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
-                    <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
-                    <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: 'var(--text-primary)', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
+                    <button onClick={() => setVehicleFilter('all')} style={{ padding: '8px 12px', background: vehicleFilter === 'all' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>{t('all')}</button>
+                    <button onClick={() => setVehicleFilter('two-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'two-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Bike size={14} /><span>{t('twoWheeler')}</span></button>
+                    <button onClick={() => setVehicleFilter('four-wheeler')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', background: vehicleFilter === 'four-wheeler' ? 'var(--bg-tertiary)' : 'transparent', border: 'none', color: '#000000', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}><Car size={14} /><span>{t('fourWheeler')}</span></button>
                   </>
                 )}
               </div>
 
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: '10px 14px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px', cursor: 'pointer', outline: 'none' }}>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: '10px 14px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', fontSize: '13px', cursor: 'pointer', outline: 'none' }}>
                 <option value="nearest">{t('distanceNear')}</option>
                 <option value="price-low-high">{t('priceLowHigh')}</option>
                 <option value="slots">{t('availableSlots')}</option>
@@ -2265,7 +2265,7 @@ export default function App() {
                       borderRadius: '8px'
                     }}>
                       <RefreshCw className="spinning" size={28} color="var(--primary)" style={{ animation: 'spin 1.5s linear infinite' }} />
-                      <p style={{ color: 'var(--text-primary)', fontSize: '13px', fontWeight: '600', letterSpacing: '0.5px' }}>Acquiring Live GPS Signal...</p>
+                      <p style={{ color: '#000000', fontSize: '13px', fontWeight: '600', letterSpacing: '0.5px' }}>Acquiring Live GPS Signal...</p>
                     </div>
                   )}
                   {locationError && (
@@ -2275,7 +2275,7 @@ export default function App() {
                       left: '12px',
                       right: '12px',
                       background: 'rgba(255, 23, 68, 0.95)',
-                      color: 'var(--text-primary)',
+                      color: '#000000',
                       padding: '8px 12px',
                       borderRadius: '6px',
                       fontSize: '11px',
@@ -2289,7 +2289,7 @@ export default function App() {
                       <span>⚠️ GPS Signal Blocked. Enable location permissions for nearest routing.</span>
                       <button 
                         onClick={() => setLocationError(null)} 
-                        style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 'bold', cursor: 'pointer', padding: '0 4px' }}
+                        style={{ background: 'transparent', border: 'none', color: '#000000', fontWeight: 'bold', cursor: 'pointer', padding: '0 4px' }}
                       >
                         ✕
                       </button>
@@ -2327,7 +2327,7 @@ export default function App() {
                 {searchMode === 'fuel' ? (
                   selectedFuelStation ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
-                      <button onClick={() => setSelectedFuelStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', zIndex: 10 }}>✕</button>
+                      <button onClick={() => setSelectedFuelStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: '#000000', cursor: 'pointer', zIndex: 10 }}>✕</button>
                       <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
                         <img 
                           src="https://images.unsplash.com/photo-1599553754605-653a9f0e1371?auto=format&fit=crop&q=80&w=400" 
@@ -2336,7 +2336,7 @@ export default function App() {
                         />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <span style={{ fontSize: '11px', background: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', width: 'fit-content' }}>⛽ FUEL STATION</span>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>📍 {selectedFuelStation.distance ? formatDistance(selectedFuelStation.distance) : 'Nearby'}</span>
+                          <span style={{ fontSize: '11px', color: '#000000' }}>📍 {selectedFuelStation.distance ? formatDistance(selectedFuelStation.distance) : 'Nearby'}</span>
                           <span style={{ fontSize: '11px', color: '#00E676', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#00E676' }}></span>
                             Open 24/7
@@ -2345,24 +2345,24 @@ export default function App() {
                       </div>
                       
                       <h3 style={{ fontSize: '20px', fontWeight: '800', marginTop: '6px' }}>{selectedFuelStation.name}</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '4px' }}>{selectedFuelStation.brand}</p>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', lineHeight: '1.5' }}>{selectedFuelStation.address}</p>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Phone: {selectedFuelStation.phone}</p>
+                      <p style={{ fontSize: '13px', color: '#000000', fontWeight: '600', marginTop: '4px' }}>{selectedFuelStation.brand}</p>
+                      <p style={{ fontSize: '12px', color: '#000000', marginTop: '8px', lineHeight: '1.5' }}>{selectedFuelStation.address}</p>
+                      <p style={{ fontSize: '12px', color: '#000000', marginTop: '4px' }}>Phone: {selectedFuelStation.phone}</p>
                       
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '20px 0', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '16px 0' }}>
                         <div style={{ flex: 1, minWidth: '100px' }}>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Fuel Types</span>
+                          <span style={{ fontSize: '11px', color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Fuel Types</span>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
-                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Petrol</span>
-                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Diesel</span>
-                            {selectedFuelStation.brand !== 'Independent' && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Premium</span>}
+                            <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Petrol</span>
+                            <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Diesel</span>
+                            {selectedFuelStation.brand !== 'Independent' && <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Premium</span>}
                           </div>
                         </div>
                         <div style={{ flex: 1, minWidth: '100px' }}>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Amenities</span>
+                          <span style={{ fontSize: '11px', color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Amenities</span>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
-                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Air Pressure</span>
-                            <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Restroom</span>
+                            <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Air Pressure</span>
+                            <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>Restroom</span>
                           </div>
                         </div>
                       </div>
@@ -2370,7 +2370,7 @@ export default function App() {
                       <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                         <button 
                           onClick={() => fetchRoute(selectedFuelStation.latitude, selectedFuelStation.longitude)}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '14px', background: '#2196F3', color: 'var(--text-primary)', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '14px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 16px rgba(33, 150, 243, 0.4)', transition: 'all 0.2s' }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, padding: '14px', background: '#2196F3', color: '#000000', border: 'none', cursor: 'pointer', borderRadius: '8px', fontSize: '14px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 16px rgba(33, 150, 243, 0.4)', transition: 'all 0.2s' }}
                         >
                           <Navigation size={18} style={{ fill: 'var(--text-primary)' }} />
                           <span>Start Navigation</span>
@@ -2415,12 +2415,12 @@ export default function App() {
                                   {formatDistance(station.distance)}
                                 </span>
                               )}
-                              <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: '4px' }}>
+                              <span style={{ fontSize: '10px', background: 'rgba(0, 0, 0,0.05)', color: '#000000', padding: '2px 6px', borderRadius: '4px' }}>
                                 {station.opening_hours || '24/7'}
                               </span>
                             </div>
-                            <h4 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>{station.name}</h4>
-                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>{station.address}</p>
+                            <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#000000' }}>{station.name}</h4>
+                            <p style={{ fontSize: '12px', color: '#000000', marginTop: '4px', lineHeight: '1.4' }}>{station.address}</p>
                           </div>
                           
                           <div style={{ marginLeft: '12px' }}>
@@ -2435,7 +2435,7 @@ export default function App() {
                                 gap: '6px',
                                 padding: '8px 16px',
                                 background: '#2196F3',
-                                color: 'var(--text-primary)',
+                                color: '#000000',
                                 borderRadius: '8px',
                                 fontSize: '12px',
                                 fontWeight: '700',
@@ -2456,7 +2456,7 @@ export default function App() {
                 ) : searchMode === 'ev' ? (
                   selectedEvStation ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
-                      <button onClick={() => setSelectedEvStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+                      <button onClick={() => setSelectedEvStation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: '#000000', cursor: 'pointer' }}>✕</button>
                       <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
                         <img 
                           src="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=400" 
@@ -2467,24 +2467,24 @@ export default function App() {
                           <span style={{ fontSize: '11px', background: 'rgba(0, 212, 255, 0.1)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', width: 'fit-content' }}>⚡ EV Charging Hub</span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '11px', fontWeight: 'bold' }}><Star size={11} fill="gold" stroke="gold" /> {selectedEvStation.rating}</span>
                           {selectedEvStation.distance !== undefined && (
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>📍 {formatDistance(selectedEvStation.distance)}</span>
+                            <span style={{ fontSize: '11px', color: '#000000' }}>📍 {formatDistance(selectedEvStation.distance)}</span>
                           )}
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Updated: {new Date(selectedEvStation.lastUpdated || Date.now()).toLocaleDateString()}</span>
+                          <span style={{ fontSize: '11px', color: '#000000' }}>Updated: {new Date(selectedEvStation.lastUpdated || Date.now()).toLocaleDateString()}</span>
                         </div>
                       </div>
                       <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>{selectedEvStation.name}</h3>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedEvStation.network}</p>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{selectedEvStation.address}</p>
+                      <p style={{ fontSize: '12px', color: '#000000' }}>{selectedEvStation.network}</p>
+                      <p style={{ fontSize: '12px', color: '#000000' }}>{selectedEvStation.address}</p>
                       
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '16px 0', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '12px 0' }}>
                         <div style={{ flex: 1, minWidth: '100px' }}>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Price per kWh</span>
+                          <span style={{ fontSize: '10px', color: '#000000' }}>Price per kWh</span>
                           <p style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', marginTop: '2px' }}>₹{selectedEvStation.rates?.perKwh}/kWh</p>
                         </div>
                         <div style={{ flex: 1, minWidth: '100px' }}>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Amenities</span>
+                          <span style={{ fontSize: '10px', color: '#000000' }}>Amenities</span>
                           <p style={{ fontSize: '12px', fontWeight: '600', marginTop: '2px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                            {selectedEvStation.amenities?.map(a => <span key={a} style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 5px', borderRadius: '4px' }}>{a}</span>)}
+                            {selectedEvStation.amenities?.map(a => <span key={a} style={{ background: 'rgba(0, 0, 0,0.05)', padding: '1px 5px', borderRadius: '4px' }}>{a}</span>)}
                           </p>
                         </div>
                       </div>
@@ -2500,7 +2500,7 @@ export default function App() {
                             flex: 1,
                             padding: '12px',
                             background: '#2196F3',
-                            color: 'var(--text-primary)',
+                            color: '#000000',
                             borderRadius: '8px',
                             border: 'none',
                             cursor: 'pointer',
@@ -2520,7 +2520,7 @@ export default function App() {
                         <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginTop: '16px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Reserve Slot</h4>
-                            <button onClick={() => { setShowEvReserveModal(false); setSelectedCharger(null); setEvPaySuccess(false); }} style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
+                            <button onClick={() => { setShowEvReserveModal(false); setSelectedCharger(null); setEvPaySuccess(false); }} style={{ border: 'none', background: 'transparent', color: '#000000', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
                           </div>
                           
                           {evPaySuccess ? (
@@ -2528,8 +2528,8 @@ export default function App() {
                               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0, 230, 118, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', border: '2px solid #00E676' }}>
                                 <span style={{ fontSize: '24px', color: '#00E676' }}>✓</span>
                               </div>
-                              <h4 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)' }}>Booking Confirmed!</h4>
-                              <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>Your {selectedCharger.type} charger is reserved.</p>
+                              <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#000000' }}>Booking Confirmed!</h4>
+                              <p style={{ color: '#000000', fontSize: '12px', marginTop: '4px' }}>Your {selectedCharger.type} charger is reserved.</p>
                               
                               <button 
                                 onClick={() => { setShowEvReserveModal(false); setEvPaySuccess(false); setSelectedEvStation(null); }}
@@ -2542,22 +2542,22 @@ export default function App() {
                           ) : (
                             <>
                               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Connector:</span>
+                                <span style={{ color: '#000000' }}>Connector:</span>
                                 <span style={{ fontWeight: 'bold' }}>{selectedCharger.type} ({selectedCharger.power} kW)</span>
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '16px' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Rate:</span>
+                                <span style={{ color: '#000000' }}>Rate:</span>
                                 <span style={{ fontWeight: 'bold' }}>₹{selectedEvStation.rates?.perKwh}/kWh</span>
                               </div>
 
                               <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Duration (Hours)</label>
+                                <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '8px' }}>Duration (Hours)</label>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                   {[1, 2, 4, 8].map(h => (
                                     <button 
                                       key={h}
                                       onClick={() => setReserveHours(h)}
-                                      style={{ flex: 1, padding: '8px 0', background: reserveHours === h ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: reserveHours === h ? '#000' : 'var(--text-primary)', border: reserveHours === h ? 'none' : '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                                      style={{ flex: 1, padding: '8px 0', background: reserveHours === h ? 'var(--primary)' : 'rgba(0, 0, 0,0.05)', color: reserveHours === h ? '#000' : 'var(--text-primary)', border: reserveHours === h ? 'none' : '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
                                     >
                                       {h}h
                                     </button>
@@ -2567,7 +2567,7 @@ export default function App() {
                               
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
                                 <div>
-                                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Estimated Cost</span>
+                                  <span style={{ fontSize: '11px', color: '#000000' }}>Estimated Cost</span>
                                   <div style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)' }}>₹{reserveHours * selectedCharger.power * selectedEvStation.rates?.perKwh}</div>
                                 </div>
                                 <button 
@@ -2588,10 +2588,10 @@ export default function App() {
                             {selectedEvStation.chargers?.map(charger => {
                               const isAvailable = charger.status === 'Available';
                               return (
-                                <div key={charger.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px' }}>
+                                <div key={charger.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0, 0, 0,0.02)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px' }}>
                                   <div>
                                     <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{charger.type} Connector</span>
-                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>({charger.power} kW)</span>
+                                    <span style={{ fontSize: '11px', color: '#000000', marginLeft: '8px' }}>({charger.power} kW)</span>
                                   </div>
                                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                     <span style={{ 
@@ -2639,7 +2639,7 @@ export default function App() {
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>₹{station.rates?.perKwh}/kWh</span>
+                                <span style={{ fontSize: '10px', background: 'rgba(0, 0, 0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>₹{station.rates?.perKwh}/kWh</span>
                                 {station.distance && (
                                   <span style={{ fontSize: '10px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>
                                     {formatDistance(station.distance)}
@@ -2674,10 +2674,10 @@ export default function App() {
                               </a>
                             </div>
                             <h4 style={{ fontSize: '15px', fontWeight: '700', marginTop: '8px' }}>{station.name}</h4>
-                            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{station.address}</p>
+                            <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>{station.address}</p>
                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
                               {station.chargers?.map(c => (
-                                <span key={c.id} style={{ fontSize: '9px', background: 'rgba(255,255,255,0.03)', padding: '2px 5px', borderRadius: '4px', color: 'var(--text-muted)' }}>
+                                <span key={c.id} style={{ fontSize: '9px', background: 'rgba(0, 0, 0,0.03)', padding: '2px 5px', borderRadius: '4px', color: '#000000' }}>
                                   {c.type} ({c.power}kW)
                                 </span>
                               ))}
@@ -2690,7 +2690,7 @@ export default function App() {
                 ) : (
                   selectedLocation && activeLoc ? (
                     <div className="glass-panel animate-fade-in" style={{ padding: '24px', position: 'relative' }}>
-                      <button onClick={() => setSelectedLocation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+                      <button onClick={() => setSelectedLocation(null)} style={{ position: 'absolute', top: '16px', right: '16px', border: 'none', background: 'transparent', color: '#000000', cursor: 'pointer' }}>✕</button>
                       <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
                         <img 
                           src={activeLoc.images && activeLoc.images[0] && activeLoc.images[0].trim() !== "" ? activeLoc.images[0] : "https://images.unsplash.com/photo-1506521788723-85811181d4db?auto=format&fit=crop&q=80&w=400"} 
@@ -2706,7 +2706,7 @@ export default function App() {
                                 <span style={{ fontSize: '11px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>
                                   📍 {formatDistance(activeLoc.distance)}
                                 </span>
-                                <span style={{ fontSize: '11px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ fontSize: '11px', background: 'rgba(0, 0, 0, 0.05)', color: '#000000', padding: '2px 6px', borderRadius: '4px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                   <Clock size={11} />
                                   {getEstimatedTime(activeLoc.distance)}
                                 </span>
@@ -2728,7 +2728,7 @@ export default function App() {
                             )}
                           </div>
                         <h3 style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>{activeLoc.name}</h3>
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{activeLoc.address}</p>
+                        <p style={{ fontSize: '12px', color: '#000000' }}>{activeLoc.address}</p>
                         <a 
                           href={userCoords 
                             ? `https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${activeLoc.latitude},${activeLoc.longitude}&travelmode=driving` 
@@ -2757,14 +2757,14 @@ export default function App() {
                       </div>
                     </div>
 
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>{activeLoc.description}</p>
+                    <p style={{ fontSize: '13px', color: '#000000', marginBottom: '16px' }}>{activeLoc.description}</p>
 
                     {/* Live Slot Inventory Display */}
                     <div style={{
                       display: 'grid',
                       gridTemplateColumns: '1fr 1fr',
                       gap: '12px',
-                      background: 'rgba(255,255,255,0.02)',
+                      background: 'rgba(0, 0, 0,0.02)',
                       border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       padding: '12px',
@@ -2784,7 +2784,7 @@ export default function App() {
                           🏍️
                         </div>
                         <div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold', textTransform: 'uppercase' }}>2-Wheeler Available</div>
+                          <div style={{ fontSize: '10px', color: '#000000', fontWeight: 'bold', textTransform: 'uppercase' }}>2-Wheeler Available</div>
                           <div style={{ fontSize: '14px', fontWeight: '800', color: (activeLoc.availableSlots?.twoWheeler ?? 0) > 0 ? '#00E5A0' : '#FF3366' }}>
                             {activeLoc.availableSlots?.twoWheeler ?? 0} / {activeLoc.totalSlots?.twoWheeler ?? 0}
                           </div>
@@ -2804,7 +2804,7 @@ export default function App() {
                           🚗
                         </div>
                         <div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold', textTransform: 'uppercase' }}>4-Wheeler Available</div>
+                          <div style={{ fontSize: '10px', color: '#000000', fontWeight: 'bold', textTransform: 'uppercase' }}>4-Wheeler Available</div>
                           <div style={{ fontSize: '14px', fontWeight: '800', color: (activeLoc.availableSlots?.fourWheeler ?? 0) > 0 ? '#00E5A0' : '#FF3366' }}>
                             {activeLoc.availableSlots?.fourWheeler ?? 0} / {activeLoc.totalSlots?.fourWheeler ?? 0}
                           </div>
@@ -2817,7 +2817,7 @@ export default function App() {
                       
                       {bookingVehicles.map((veh, index) => (
                         <div key={veh.id} style={{ 
-                          background: 'rgba(255,255,255,0.01)', 
+                          background: 'rgba(0, 0, 0,0.01)', 
                           border: '1px solid var(--border-color)', 
                           borderRadius: '10px', 
                           padding: '12px', 
@@ -2845,7 +2845,7 @@ export default function App() {
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                              <div>
-                               <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Select Vehicle Type</label>
+                               <label style={{ display: 'block', fontSize: '10px', color: '#000000', marginBottom: '6px', fontWeight: '600' }}>Select Vehicle Type</label>
                                <div style={{ display: 'flex', gap: '8px' }}>
                                  <button
                                    type="button"
@@ -2859,7 +2859,7 @@ export default function App() {
                                      padding: '10px',
                                      borderRadius: '8px',
                                      border: veh.type === 'four-wheeler' ? '1px solid var(--primary)' : '1px solid var(--border-color)',
-                                     background: veh.type === 'four-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                                     background: veh.type === 'four-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(0, 0, 0, 0.02)',
                                      color: veh.type === 'four-wheeler' ? 'var(--primary)' : 'var(--text-primary)',
                                      cursor: 'pointer',
                                      fontWeight: 'bold',
@@ -2885,7 +2885,7 @@ export default function App() {
                                      padding: '10px',
                                      borderRadius: '8px',
                                      border: veh.type === 'two-wheeler' ? '1px solid var(--primary)' : '1px solid var(--border-color)',
-                                     background: veh.type === 'two-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                                     background: veh.type === 'two-wheeler' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(0, 0, 0, 0.02)',
                                      color: veh.type === 'two-wheeler' ? 'var(--primary)' : 'var(--text-primary)',
                                      cursor: 'pointer',
                                      fontWeight: 'bold',
@@ -2902,7 +2902,7 @@ export default function App() {
                                </div>
                              </div>
                              <div>
-                               <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: '600' }}>Vehicle Number Plate</label>
+                               <label style={{ display: 'block', fontSize: '10px', color: '#000000', marginBottom: '4px', fontWeight: '600' }}>Vehicle Number Plate</label>
                                <input 
                                  type="text" 
                                  value={veh.number} 
@@ -2912,11 +2912,11 @@ export default function App() {
                                    setBookingVehicles(newVehs);
                                  }} 
                                  placeholder="e.g. TN-01-AB-1234" 
-                                 style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', textTransform: 'uppercase', fontSize: '13px', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
+                                 style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000', textTransform: 'uppercase', fontSize: '13px', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
                                />
                                {userVehicles && userVehicles.length > 0 && (
                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
-                                   <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: 'bold' }}>Quick Select:</span>
+                                   <span style={{ fontSize: '9px', color: '#000000', fontWeight: 'bold' }}>Quick Select:</span>
                                    {userVehicles.map(v => (
                                      <button
                                        key={v.id}
@@ -2928,7 +2928,7 @@ export default function App() {
                                          setBookingVehicles(newVehs);
                                        }}
                                        style={{
-                                         background: 'rgba(255, 255, 255, 0.04)',
+                                         background: 'rgba(0, 0, 0, 0.04)',
                                          border: '1px solid var(--border-color)',
                                          color: 'var(--primary)',
                                          padding: '3px 8px',
@@ -2939,7 +2939,7 @@ export default function App() {
                                          transition: 'all 0.2s'
                                        }}
                                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0, 212, 255, 0.08)'}
-                                       onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'}
+                                       onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.04)'}
                                      >
                                        {v.number} {v.brand ? `(${v.brand})` : ''}
                                      </button>
@@ -2973,12 +2973,12 @@ export default function App() {
  
                       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px', marginBottom: '16px', alignItems: 'center' }}>
                         <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px' }}>{t('bookingDuration')}</label>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>{t('bookingDuration')}</label>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <button 
                               type="button" 
                               onClick={() => setBookingDuration(Math.max(1, bookingDuration - 1))}
-                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                               -
                             </button>
@@ -2986,25 +2986,25 @@ export default function App() {
                             <button 
                               type="button" 
                               onClick={() => setBookingDuration(Math.min(24, bookingDuration + 1))}
-                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+                              style={{ width: '34px', height: '34px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                               +
                             </button>
                           </div>
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('couponCode')}</label>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '4px' }}>{t('couponCode')}</label>
                           <div style={{ display: 'flex', gap: '4px' }}>
-                            <input type="text" value={appliedCoupon} onChange={(e) => setAppliedCoupon(e.target.value)} placeholder="CHENNAI50" style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '12px' }} />
-                            <button onClick={handleApplyCoupon} style={{ padding: '8px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}>{t('apply')}</button>
+                            <input type="text" value={appliedCoupon} onChange={(e) => setAppliedCoupon(e.target.value)} placeholder="CHENNAI50" style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000', fontSize: '12px' }} />
+                            <button onClick={handleApplyCoupon} style={{ padding: '8px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#000000', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}>{t('apply')}</button>
                           </div>
                           {couponDiscount > 0 && <span style={{ color: 'var(--primary)', fontSize: '10px' }}>Coupon Applied! {couponDiscount}% Off</span>}
                         </div>
                       </div>
 
                       {/* Payment Method Selector */}
-                      <div style={{ marginBottom: '16px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-secondary)' }}>SELECT PAYMENT METHOD</label>
+                      <div style={{ marginBottom: '16px', background: 'rgba(0, 0, 0,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', color: '#000000' }}>SELECT PAYMENT METHOD</label>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                           <div 
                             onClick={() => setSelectedPaymentMethod('online')} 
@@ -3056,7 +3056,7 @@ export default function App() {
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Total amount:</span>
+                          <span style={{ fontSize: '12px', color: '#000000' }}>Total amount:</span>
                           <h3 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--primary)' }}>
                             ₹{Math.max(0, Math.round(
                               bookingVehicles.reduce((sum, v) => {
@@ -3098,13 +3098,13 @@ export default function App() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>₹{loc.rates.hourly}/hr</span>
+                          <span style={{ fontSize: '10px', background: 'rgba(0, 0, 0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>₹{loc.rates.hourly}/hr</span>
                           {loc.distance && (
                             <>
                               <span style={{ fontSize: '10px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>
                                 {formatDistance(loc.distance)}
                               </span>
-                              <span style={{ fontSize: '10px', background: 'rgba(255, 255, 255, 0.03)', color: 'var(--text-secondary)', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ fontSize: '10px', background: 'rgba(0, 0, 0, 0.03)', color: '#000000', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                 <Clock size={9} />
                                 {getEstimatedTime(loc.distance)}
                               </span>
@@ -3157,10 +3157,10 @@ export default function App() {
                         </div>
                       </div>
                       <h4 style={{ fontSize: '15px', fontWeight: '700', marginTop: '8px' }}>{loc.name}</h4>
-                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{loc.address}</p>
+                      <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>{loc.address}</p>
                       
                       {/* Available Slots Badges in List */}
-                      <div style={{ display: 'flex', gap: '12px', marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '8px', borderTop: '1px solid rgba(0, 0, 0,0.03)', paddingTop: '8px' }}>
                         <span style={{ fontSize: '10px', color: (loc.availableSlots?.twoWheeler ?? 0) > 0 ? '#00E5A0' : '#FF3366', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
                           🏍️ {loc.availableSlots?.twoWheeler ?? 0} / {loc.totalSlots?.twoWheeler ?? 0} {t('available')}
                         </span>
@@ -3202,13 +3202,13 @@ export default function App() {
                     <Wallet style={{ color: 'var(--primary)' }} size={24} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '16px', color: 'var(--text-primary)' }}>
+                    <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '16px', color: '#000000' }}>
                       ₹{(user.walletBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </h1>
 
                   </div>
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '11px', color: '#000000' }}>
                   Card Number: **** **** **** {user.phone ? user.phone.slice(-4) : '7890'}
                 </div>
               </div>
@@ -3216,15 +3216,15 @@ export default function App() {
               {/* Card 2: Top-Up Form */}
               <div className="glass-panel" style={{ padding: '24px', borderRadius: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box', height: '200px' }}>
                 <div>
-                  <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-primary)' }}>Top-Up Wallet</h4>
+                  <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '12px', color: '#000000' }}>Top-Up Wallet</h4>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '16px' }}>₹</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#000000', fontWeight: 'bold', fontSize: '16px' }}>₹</span>
                     <input 
                       type="number" 
                       value={topUpAmount} 
                       onChange={(e) => setTopUpAmount(e.target.value)} 
                       placeholder="Enter amount" 
-                      style={{ width: '100%', padding: '10px 12px 10px 28px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
+                      style={{ width: '100%', padding: '10px 12px 10px 28px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', fontSize: '15px', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
                     />
                   </div>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
@@ -3232,9 +3232,9 @@ export default function App() {
                       <button 
                         key={amt} 
                         onClick={() => setTopUpAmount(amt.toString())} 
-                        style={{ flex: 1, padding: '6px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', color: 'var(--primary)', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
+                        style={{ flex: 1, padding: '6px', background: 'rgba(0, 0, 0,0.03)', border: '1px solid var(--border-color)', color: 'var(--primary)', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }}
                         onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0, 212, 255, 0.08)'}
-                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'}
+                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.03)'}
                       >
                         +{amt}
                       </button>
@@ -3253,16 +3253,16 @@ export default function App() {
 
             {/* Transaction History Section */}
             <div className="glass-panel" style={{ padding: '24px', borderRadius: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '16px' }}>Transaction History</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#000000', marginBottom: '16px' }}>Transaction History</h3>
               {(!user.transactions || user.transactions.length === 0) ? (
-                <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)', fontSize: '13px' }}>No transactions recorded yet.</div>
+                <div style={{ textAlign: 'center', padding: '24px', color: '#000000', fontSize: '13px' }}>No transactions recorded yet.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {user.transactions.map((tx) => (
-                    <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
+                    <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(0, 0, 0,0.01)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
                       <div>
-                        <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{tx.description}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{new Date(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>{tx.description}</div>
+                        <div style={{ fontSize: '10px', color: '#000000', marginTop: '2px' }}>{new Date(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                       <div style={{ fontSize: '14px', fontWeight: '800', color: tx.type === 'credit' ? '#00E676' : '#FF1744' }}>
                         {tx.type === 'credit' ? '+' : '-'} ₹{tx.amount.toLocaleString('en-IN')}
@@ -3277,8 +3277,8 @@ export default function App() {
             {showTopUpQRModal && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
                 <div className="glass-panel animate-fade-in" style={{ width: '360px', padding: '24px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0, 212, 255, 0.25)' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-primary)' }}>Scan UPI QR to Pay</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Scan using any UPI app (GPay, PhonePe, Paytm, etc.) to deposit <strong>₹{qrAmount}</strong></p>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#000000' }}>Scan UPI QR to Pay</h3>
+                  <p style={{ fontSize: '13px', color: '#000000', marginBottom: '16px' }}>Scan using any UPI app (GPay, PhonePe, Paytm, etc.) to deposit <strong>₹{qrAmount}</strong></p>
                   
                   {/* Styled Mock QR Code */}
                   <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', width: '200px', height: '200px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', boxShadow: '0 4px 20px rgba(0,212,255,0.2)' }}>
@@ -3316,14 +3316,14 @@ export default function App() {
                     </svg>
                   </div>
                   
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '11px', color: '#000000', marginBottom: '20px' }}>
                     Reference ID: WL-QR-{Date.now().toString().slice(-6)}
                   </div>
                   
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <button 
                       onClick={() => setShowTopUpQRModal(false)} 
-                      style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+                      style={{ flex: 1, padding: '10px', background: 'rgba(0, 0, 0,0.05)', color: '#000000', border: '1px solid var(--border-color)', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
@@ -3361,11 +3361,11 @@ export default function App() {
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                         <div>
-                          <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Vehicle Plate</p>
+                          <p style={{ fontSize: '11px', color: '#000000' }}>Vehicle Plate</p>
                           <p style={{ fontSize: '16px', fontWeight: '700' }}>{activeBooking.vehicleType === 'four-wheeler' ? '🚗' : '🏍️'} {activeBooking.vehicleNumber}</p>
                         </div>
                         <div>
-                          <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total Amount & Status</p>
+                          <p style={{ fontSize: '11px', color: '#000000' }}>Total Amount & Status</p>
                           <p style={{ fontSize: '16px', fontWeight: '700', color: activeBooking.paymentStatus === 'pending' ? '#FFC107' : 'var(--primary)' }}>
                             ₹{activeBooking.totalAmount} ({activeBooking.paymentMethod === 'cash' ? 'Cash' : 'Online'}) - {activeBooking.paymentStatus ? activeBooking.paymentStatus.toUpperCase() : 'PAID'}
                           </p>
@@ -3380,12 +3380,12 @@ export default function App() {
                           <div style={{ background: 'linear-gradient(135deg, rgba(255,23,68,0.15), rgba(255,140,0,0.12))', border: '2px solid #FF1744', borderRadius: '14px', padding: '20px', marginBottom: '20px', textAlign: 'center', animation: 'pulse 2s infinite' }}>
                             <div style={{ fontSize: '28px', marginBottom: '6px' }}>⏰</div>
                             <p style={{ fontSize: '13px', fontWeight: '800', color: '#FF1744', margin: '0 0 6px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>Parking Time Over — Pay Now!</p>
-                            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 16px 0' }}>Show this OTP to the parking owner to complete payment</p>
+                            <p style={{ fontSize: '12px', color: '#000000', margin: '0 0 16px 0' }}>Show this OTP to the parking owner to complete payment</p>
                             <div style={{ background: '#0a0a0a', border: '2px solid #FFC107', borderRadius: '12px', padding: '14px 20px', display: 'inline-block', marginBottom: '12px' }}>
                               <p style={{ fontSize: '11px', color: '#FFC107', fontWeight: 'bold', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '2px' }}>Your Checkout OTP</p>
                               <p style={{ fontSize: '42px', fontWeight: '900', color: '#FFC107', margin: '0', fontFamily: 'monospace', letterSpacing: '12px' }}>{activeBooking.verificationCode}</p>
                             </div>
-                            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', margin: '0' }}>Amount to pay: <strong style={{ color: 'var(--text-primary)' }}>₹{activeBooking.totalAmount} (Cash)</strong></p>
+                            <p style={{ fontSize: '11px', color: 'rgba(0, 0, 0,0.5)', margin: '0' }}>Amount to pay: <strong style={{ color: '#000000' }}>₹{activeBooking.totalAmount} (Cash)</strong></p>
                           </div>
                         ) : (
                           /* DURING PARKING — show OTP quietly */
@@ -3394,7 +3394,7 @@ export default function App() {
                             <div>
                               <span style={{ fontSize: '10px', color: '#FFC107', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Cash Payment OTP (show at checkout)</span>
                               <p style={{ fontSize: '22px', fontWeight: '900', margin: '2px 0 0 0', color: '#FFC107', fontFamily: 'monospace', letterSpacing: '8px' }}>{activeBooking.verificationCode}</p>
-                              <p style={{ fontSize: '10px', margin: '2px 0 0 0', color: 'var(--text-muted)' }}>When your time is up, the owner will enter this OTP to complete your checkout.</p>
+                              <p style={{ fontSize: '10px', margin: '2px 0 0 0', color: '#000000' }}>When your time is up, the owner will enter this OTP to complete your checkout.</p>
                             </div>
                           </div>
                         );
@@ -3408,7 +3408,7 @@ export default function App() {
                             isOverdue ? (
                               <div style={{ marginTop: '16px', background: 'rgba(0, 229, 160, 0.1)', border: '1px solid var(--primary)', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
                                 <p style={{ color: 'var(--primary)', fontWeight: 'bold', margin: 0, fontSize: '13px' }}>✅ Booking Completed!</p>
-                                <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0 0', fontSize: '11px' }}>Please proceed to checkout.</p>
+                                <p style={{ color: '#000000', margin: '4px 0 0 0', fontSize: '11px' }}>Please proceed to checkout.</p>
                               </div>
                             ) : (
                               <button
@@ -3425,7 +3425,7 @@ export default function App() {
                       {/* Action buttons for cash booking */}
                       {activeBooking.paymentStatus === 'pending' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
-                          <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
+                          <p style={{ fontSize: '11px', color: '#000000', margin: '0 0 6px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Options</p>
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             {/* Pay with Cash */}
                             <button
@@ -3437,7 +3437,7 @@ export default function App() {
                             {/* Pay Online */}
                             <button
                               onClick={() => handleSwitchCashToOnline(activeBooking)}
-                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                              style={{ flex: 1, minWidth: '120px', padding: '10px 14px', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,97,255,0.15))', border: '1px solid rgba(0,212,255,0.4)', color: '#000000', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                             >
                               💳 Pay Online (UPI/Card)
                             </button>
@@ -3478,9 +3478,9 @@ export default function App() {
                         }}
                         style={{
                           padding: '8px 16px',
-                          background: 'rgba(255,255,255,0.1)',
-                          color: 'var(--text-primary)',
-                          border: '1px solid rgba(255,255,255,0.2)',
+                          background: 'rgba(0, 0, 0,0.1)',
+                          color: '#000000',
+                          border: '1px solid rgba(0, 0, 0,0.2)',
                           borderRadius: '6px',
                           cursor: 'pointer',
                           fontWeight: 'bold',
@@ -3496,7 +3496,7 @@ export default function App() {
                           style={{ 
                             padding: '8px 16px', 
                             background: '#FF1744', 
-                            color: 'var(--text-primary)', 
+                            color: '#000000', 
                             border: 'none', 
                             borderRadius: '6px', 
                             cursor: 'pointer', 
@@ -3517,7 +3517,7 @@ export default function App() {
                 {(() => {
                   const pastBookings = bookings.filter(b => b.userId === user.uid && b.status !== 'active');
                   if (pastBookings.length === 0) {
-                    return <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px 0' }}>No past bookings found.</p>;
+                    return <p style={{ fontSize: '13px', color: '#000000', textAlign: 'center', padding: '16px 0' }}>No past bookings found.</p>;
                   }
                   return pastBookings.map(b => {
                     const loc = locations.find(l => l.id === b.locationId);
@@ -3530,7 +3530,7 @@ export default function App() {
                           alignItems: 'center', 
                           gap: '16px', 
                           padding: '16px', 
-                          background: isSelected ? 'rgba(0, 212, 255, 0.03)' : 'rgba(255,255,255,0.02)', 
+                          background: isSelected ? 'rgba(0, 212, 255, 0.03)' : 'rgba(0, 0, 0,0.02)', 
                           borderRadius: '8px', 
                           border: isSelected ? '1px solid rgba(0, 212, 255, 0.3)' : '1px solid var(--border-color)',
                           transition: 'all 0.2s'
@@ -3561,7 +3561,7 @@ export default function App() {
                         <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <h4 style={{ fontSize: '14px', fontWeight: '700' }}>{loc ? loc.name : 'Unknown Location'}</h4>
-                            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                            <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>
                               {b.vehicleType === 'four-wheeler' ? '🚗' : '🏍️'} {b.vehicleNumber} • Date: {new Date(b.startTime).toLocaleDateString()}
                             </p>
                           </div>
@@ -3627,8 +3627,8 @@ export default function App() {
                 <div style={{ padding: '12px 8px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <img src={profilePic || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'} alt="Avatar" style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
                   <div style={{ textAlign: 'left', minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profileName || 'Karthik Raja'}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 'bold' }}>{user?.role === 'guest' ? 'Guest Account' : 'Customer Account'}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profileName || 'Karthik Raja'}</div>
+                    <div style={{ fontSize: '10px', color: '#000000', textTransform: 'uppercase', fontWeight: 'bold' }}>{user?.role === 'guest' ? 'Guest Account' : 'Customer Account'}</div>
                   </div>
                 </div>
 
@@ -3692,8 +3692,8 @@ export default function App() {
                             {stat.icon}
                           </div>
                           <div style={{ textAlign: 'left', minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 'bold', textTransform: 'uppercase' }}>{stat.label}</div>
-                            <div style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={stat.value}>{stat.value}</div>
+                            <div style={{ fontSize: '10px', color: '#000000', fontWeight: 'bold', textTransform: 'uppercase' }}>{stat.label}</div>
+                            <div style={{ fontSize: '15px', fontWeight: '800', color: '#000000', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={stat.value}>{stat.value}</div>
                           </div>
                         </div>
                       ))}
@@ -3711,8 +3711,8 @@ export default function App() {
                           })()}
                         </div>
                         <div style={{ textAlign: 'left' }}>
-                          <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Primary Vehicle</h4>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                          <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#000000' }}>Primary Vehicle</h4>
+                          <p style={{ fontSize: '12px', color: '#000000', marginTop: '2px' }}>
                             {(() => {
                               const defVeh = (user?.vehicles || userVehicles).find(v => v.isDefault) || (user?.vehicles || userVehicles)[0];
                               return defVeh ? `${defVeh.brand} ${defVeh.model} (${defVeh.number})` : 'No vehicle configured yet';
@@ -3725,17 +3725,17 @@ export default function App() {
 
                     {/* Quick Access Favorites */}
                     <div className="glass-panel" style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: 'var(--text-primary)', textAlign: 'left' }}>⭐ Favorite Parking Spots</h3>
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: '#000000', textAlign: 'left' }}>⭐ Favorite Parking Spots</h3>
                       {(user?.favoriteLocations || []).length > 0 ? (
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                           {(user.favoriteLocations || []).map(favId => {
                             const loc = locations.find(l => l.id === favId);
                             if (!loc) return null;
                             return (
-                              <div key={favId} className="card-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                              <div key={favId} className="card-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(0, 0, 0,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
                                 <div style={{ textAlign: 'left' }}>
-                                  <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{loc.name}</p>
-                                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{loc.address}</p>
+                                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>{loc.name}</p>
+                                  <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>{loc.address}</p>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                   <button onClick={() => handleQuickAccessFavorite(loc)} style={{ background: 'var(--primary)', border: 'none', color: '#000', padding: '6px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '700', cursor: 'pointer' }}>Go to Map</button>
@@ -3746,7 +3746,7 @@ export default function App() {
                           })}
                         </div>
                       ) : (
-                        <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'left' }}>No favorite spots added yet. Tap stars on the map to save locations!</p>
+                        <p style={{ fontSize: '12px', color: '#000000', textAlign: 'left' }}>No favorite spots added yet. Tap stars on the map to save locations!</p>
                       )}
                     </div>
                   </div>
@@ -3755,13 +3755,13 @@ export default function App() {
                 {/* 2. EDIT PROFILE */}
                 {profileSubTab === 'edit-profile' && (
                   <form onSubmit={handleSaveProfileChanges} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '4px', textAlign: 'left' }}>Personal Information</h3>
+                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '4px', textAlign: 'left' }}>Personal Information</h3>
                     
                     {/* Avatar Selection Block */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '12px' }}>
                       <div style={{ position: 'relative' }}>
                         <img src={profilePic || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200'} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)' }} />
-                        <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--secondary)', color: 'var(--text-primary)', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid var(--bg-primary)' }}>
+                        <label style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--secondary)', color: '#000000', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid var(--bg-primary)' }}>
                           <Camera size={14} />
                           <input
                             type="file"
@@ -3779,8 +3779,8 @@ export default function App() {
                         </label>
                       </div>
                       <div style={{ textAlign: 'left' }}>
-                        <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>Upload New Photo</h4>
-                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>PNG, JPG or base64 format under 1MB. Or select standard avatar.</p>
+                        <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>Upload New Photo</h4>
+                        <p style={{ fontSize: '11px', color: '#000000', marginTop: '4px' }}>PNG, JPG or base64 format under 1MB. Or select standard avatar.</p>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                           {[
                             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100',
@@ -3795,23 +3795,23 @@ export default function App() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
                       <div style={{ textAlign: 'left' }}>
-                        <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Full Name</label>
-                        <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none' }} required />
+                        <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Full Name</label>
+                        <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', outline: 'none' }} required />
                       </div>
                       <div style={{ textAlign: 'left' }}>
-                        <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Mobile Number</label>
-                        <input type="text" value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none' }} required />
+                        <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Mobile Number</label>
+                        <input type="text" value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', outline: 'none' }} required />
                       </div>
                     </div>
 
                     <div style={{ textAlign: 'left' }}>
-                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Email Address</label>
-                      <input type="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none' }} required />
+                      <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Email Address</label>
+                      <input type="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', outline: 'none' }} required />
                     </div>
 
                     <div style={{ textAlign: 'left' }}>
-                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Billing Address</label>
-                      <textarea value={profileAddress} onChange={(e) => setProfileAddress(e.target.value)} style={{ width: '100%', height: '80px', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none', resize: 'none' }} required />
+                      <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Billing Address</label>
+                      <textarea value={profileAddress} onChange={(e) => setProfileAddress(e.target.value)} style={{ width: '100%', height: '80px', padding: '10px 12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: '#000000', outline: 'none', resize: 'none' }} required />
                     </div>
 
                     <button type="submit" className="glow-button" style={{ width: '100%', padding: '12px', marginTop: '8px' }}>Save Profile Changes</button>
@@ -3822,7 +3822,7 @@ export default function App() {
                 {profileSubTab === 'my-vehicles' && (
                   <div className="glass-panel" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '20px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)' }}>My Registered Vehicles</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000' }}>My Registered Vehicles</h3>
                       {!showAddVehicle && (
                         <button onClick={() => { setShowAddVehicle(true); setEditingVehicleId(null); setVehicleNumber(''); setVehicleBrand(''); setVehicleModel(''); setVehicleType('Car'); setVehicleIsDefault(false); }} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--primary)', border: 'none', color: '#000', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                           <Plus size={12} />
@@ -3832,41 +3832,41 @@ export default function App() {
                     </div>
 
                     {showAddVehicle && (
-                      <form onSubmit={handleSaveVehicle} style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--primary-border)', borderRadius: '12px', padding: '20px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <form onSubmit={handleSaveVehicle} style={{ background: 'rgba(0, 0, 0,0.01)', border: '1px dashed var(--primary-border)', borderRadius: '12px', padding: '20px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)', textAlign: 'left' }}>{editingVehicleId ? 'Edit Vehicle Details' : 'Register New Vehicle'}</h4>
                         
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr 1fr', gap: '12px' }}>
                           <div style={{ textAlign: 'left' }}>
-                            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Plate Number</label>
-                            <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="e.g., TN-01-AB-1234" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', textTransform: 'uppercase' }} required />
+                            <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Plate Number</label>
+                            <input type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="e.g., TN-01-AB-1234" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000', textTransform: 'uppercase' }} required />
                           </div>
                           <div style={{ textAlign: 'left' }}>
-                            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Type</label>
-                            <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }}>
+                            <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Type</label>
+                            <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }}>
                               <option value="Car">Car</option>
                               <option value="Bike">Bike</option>
                               <option value="EV">EV (Electric)</option>
                             </select>
                           </div>
                           <div style={{ textAlign: 'left' }}>
-                            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Brand</label>
-                            <input type="text" value={vehicleBrand} onChange={(e) => setVehicleBrand(e.target.value)} placeholder="e.g., Honda" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }} required />
+                            <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Brand</label>
+                            <input type="text" value={vehicleBrand} onChange={(e) => setVehicleBrand(e.target.value)} placeholder="e.g., Honda" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }} required />
                           </div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                           <div style={{ textAlign: 'left' }}>
-                            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Model</label>
-                            <input type="text" value={vehicleModel} onChange={(e) => setVehicleModel(e.target.value)} placeholder="e.g., Civic" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }} required />
+                            <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Model</label>
+                            <input type="text" value={vehicleModel} onChange={(e) => setVehicleModel(e.target.value)} placeholder="e.g., Civic" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }} required />
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '16px' }}>
                             <input type="checkbox" id="isDefault" checked={vehicleIsDefault} onChange={(e) => setVehicleIsDefault(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
-                            <label htmlFor="isDefault" style={{ fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', userSelect: 'none' }}>Set as default vehicle</label>
+                            <label htmlFor="isDefault" style={{ fontSize: '12px', color: '#000000', cursor: 'pointer', userSelect: 'none' }}>Set as default vehicle</label>
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
-                          <button type="button" onClick={() => setShowAddVehicle(false)} style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
+                          <button type="button" onClick={() => setShowAddVehicle(false)} style={{ padding: '10px 16px', background: 'rgba(0, 0, 0,0.05)', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>Cancel</button>
                           <button type="submit" style={{ padding: '10px 16px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Save Vehicle</button>
                         </div>
                       </form>
@@ -3875,27 +3875,27 @@ export default function App() {
                     {/* Vehicles Queue */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {userVehicles.map(veh => (
-                        <div key={veh.id} className="card-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                        <div key={veh.id} className="card-hover" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(0, 0, 0,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <div style={{ width: '42px', height: '42px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                            <div style={{ width: '42px', height: '42px', borderRadius: '8px', background: 'rgba(0, 0, 0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
                               {veh.type === 'Bike' ? '🏍️' : veh.type === 'EV' ? '⚡' : '🚗'}
                             </div>
                             <div style={{ textAlign: 'left' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '0.5px' }}>{veh.number}</span>
+                                <span style={{ fontSize: '15px', fontWeight: '800', color: '#000000', letterSpacing: '0.5px' }}>{veh.number}</span>
                                 {veh.isDefault && (
                                   <span style={{ fontSize: '9px', background: 'var(--primary-glow)', color: 'var(--primary)', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', letterSpacing: '0.5px' }}>DEFAULT</span>
                                 )}
                               </div>
-                              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{veh.brand} {veh.model} • {veh.type}</p>
+                              <p style={{ fontSize: '12px', color: '#000000', marginTop: '2px' }}>{veh.brand} {veh.model} • {veh.type}</p>
                             </div>
                           </div>
 
                           <div style={{ display: 'flex', gap: '8px' }}>
                             {!veh.isDefault && (
-                              <button onClick={() => handleSetDefaultVehicle(veh.id)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', padding: '6px 12px', borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer' }}>Make Default</button>
+                              <button onClick={() => handleSetDefaultVehicle(veh.id)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: '#000000', padding: '6px 12px', borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer' }}>Make Default</button>
                             )}
-                            <button onClick={() => { setShowAddVehicle(true); setEditingVehicleId(veh.id); setVehicleNumber(veh.number); setVehicleType(veh.type); setVehicleBrand(veh.brand); setVehicleModel(veh.model); setVehicleIsDefault(veh.isDefault); }} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--text-primary)', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}><Edit2 size={12} /></button>
+                            <button onClick={() => { setShowAddVehicle(true); setEditingVehicleId(veh.id); setVehicleNumber(veh.number); setVehicleType(veh.type); setVehicleBrand(veh.brand); setVehicleModel(veh.model); setVehicleIsDefault(veh.isDefault); }} style={{ background: 'rgba(0, 0, 0,0.05)', border: 'none', color: '#000000', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}><Edit2 size={12} /></button>
                             <button onClick={() => handleDeleteVehicle(veh.id)} style={{ background: 'rgba(255,23,68,0.1)', border: 'none', color: '#FF1744', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}><Trash2 size={12} /></button>
                           </div>
                         </div>
@@ -3909,21 +3909,21 @@ export default function App() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {/* Booking History */}
                     <div className="glass-panel" style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Past Bookings History</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Past Bookings History</h3>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '360px', overflowY: 'auto' }}>
                         {bookings.filter(b => b.userId === user?.uid || (user?.role === 'guest' && b.userId === 'guest-user')).length === 0 ? (
-                          <p style={{ fontSize: '12px', color: 'var(--text-muted)', padding: '20px 0' }}>No booking records found.</p>
+                          <p style={{ fontSize: '12px', color: '#000000', padding: '20px 0' }}>No booking records found.</p>
                         ) : (
                           bookings
                             .filter(b => b.userId === user?.uid || (user?.role === 'guest' && b.userId === 'guest-user'))
                             .map(b => {
                               const loc = locations.find(l => l.id === b.locationId) || {};
                               return (
-                                <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
+                                <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(0, 0, 0,0.01)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
                                   <div style={{ textAlign: 'left' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{loc.name || 'Chennai Parking'}</h4>
+                                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>{loc.name || 'Chennai Parking'}</h4>
                                       <span style={{
                                         fontSize: '8px',
                                         fontWeight: '800',
@@ -3936,8 +3936,8 @@ export default function App() {
                                         {b.status}
                                       </span>
                                     </div>
-                                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Plate: {b.vehicleNumber} • Duration: {b.duration} hrs</p>
-                                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleDateString()} • {new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>Plate: {b.vehicleNumber} • Duration: {b.duration} hrs</p>
+                                    <p style={{ fontSize: '10px', color: '#000000', marginTop: '2px' }}>{new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleDateString()} • {new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                   </div>
                                   <div style={{ textAlign: 'right' }}>
                                     <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary)' }}>₹{b.totalAmount}</span>
@@ -3951,25 +3951,25 @@ export default function App() {
 
                     {/* Payment & Transaction History */}
                     <div className="glass-panel" style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Transaction & Invoices</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Transaction & Invoices</h3>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {bookings
                           .filter(b => (b.userId === user?.uid || (user?.role === 'guest' && b.userId === 'guest-user')) && b.status !== 'cancelled')
                           .map(b => (
-                            <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                            <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(0, 0, 0,0.01)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                 <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(0, 229, 160, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <Smartphone size={16} color="#00E5A0" />
                                 </div>
                                 <div style={{ textAlign: 'left' }}>
-                                  <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>UPI Booking Payment</h4>
-                                  <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleDateString()} • Txn: #TXN-{b.id}</p>
+                                  <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>UPI Booking Payment</h4>
+                                  <p style={{ fontSize: '10px', color: '#000000', marginTop: '2px' }}>{new Date(b.createdAt || b.bookingDate || Date.now()).toLocaleDateString()} • Txn: #TXN-{b.id}</p>
                                 </div>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                 <div style={{ textAlign: 'right' }}>
-                                  <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>₹{b.totalAmount}</span>
+                                  <span style={{ fontSize: '14px', fontWeight: '800', color: '#000000' }}>₹{b.totalAmount}</span>
                                   <span style={{ display: 'block', fontSize: '9px', color: '#00E5A0', fontWeight: 'bold', marginTop: '2px' }}>SUCCESS</span>
                                 </div>
                                 <button onClick={() => handleDownloadInvoice(b)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--primary)', padding: '6px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer' }}>Invoice</button>
@@ -3987,7 +3987,7 @@ export default function App() {
                     
                     {/* Toggles and Alerts Preferences */}
                     <div className="glass-panel" style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Notifications & Preferences</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Notifications & Preferences</h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {[
                           { label: 'Booking Confirmation Receipts', desc: 'Receive invoice and reservation breakdown via email.', state: notifEmail, set: setNotifEmail },
@@ -3995,10 +3995,10 @@ export default function App() {
                           { label: 'Promotional Offers & Coupon Alerts', desc: 'Receive discount coupons for Chennai local lots.', state: notifPromo, set: setNotifPromo },
                           { label: 'Live App Push Alerts', desc: 'Receive updates when host accepts or checks out vehicles.', state: notifPush, set: setNotifPush }
                         ].map((pref, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < 3 ? '1px solid rgba(255,255,255,0.03)' : 'none', paddingBottom: idx < 3 ? '12px' : '0' }}>
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < 3 ? '1px solid rgba(0, 0, 0,0.03)' : 'none', paddingBottom: idx < 3 ? '12px' : '0' }}>
                             <div style={{ textAlign: 'left', paddingRight: '12px', flex: 1 }}>
-                              <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{pref.label}</h4>
-                              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>{pref.desc}</p>
+                              <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#000000' }}>{pref.label}</h4>
+                              <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>{pref.desc}</p>
                             </div>
                             <input type="checkbox" checked={pref.state} onChange={(e) => { pref.set(e.target.checked); updateProfile({ notificationPreferences: { ...user?.notificationPreferences, [idx === 0 ? 'email' : idx === 1 ? 'sms' : idx === 2 ? 'promo' : 'push']: e.target.checked } }); }} style={{ width: '42px', height: '20px', cursor: 'pointer', flexShrink: 0 }} />
                           </div>
@@ -4008,45 +4008,45 @@ export default function App() {
 
                     {/* Change Password */}
                     <form onSubmit={handleChangePassword} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', textAlign: 'left' }}>Change Password</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', textAlign: 'left' }}>Change Password</h3>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                         <div style={{ textAlign: 'left' }}>
-                          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Current Password</label>
-                          <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }} required />
+                          <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Current Password</label>
+                          <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }} required />
                         </div>
                         <div style={{ textAlign: 'left' }}>
-                          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>New Password</label>
-                          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }} required />
+                          <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>New Password</label>
+                          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }} required />
                         </div>
                       </div>
                       <div style={{ textAlign: 'left' }}>
-                        <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Confirm New Password</label>
-                        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }} required />
+                        <label style={{ display: 'block', fontSize: '11px', color: '#000000', marginBottom: '6px' }}>Confirm New Password</label>
+                        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#000000' }} required />
                       </div>
                       <button type="submit" className="glow-button" style={{ width: '100%', padding: '12px', marginTop: '8px' }}>Update Password</button>
                     </form>
 
                     {/* 2FA and Login Activity */}
                     <div className="glass-panel" style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Security Lock & Session Activity</h3>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#000000', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px', textAlign: 'left' }}>Security Lock & Session Activity</h3>
                       
                       {/* 2FA Sim */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
                         <div style={{ textAlign: 'left', paddingRight: '12px', flex: 1 }}>
-                          <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Enable Two-Factor Authentication (2FA)</h4>
-                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Verify booking checkouts with extra mobile SMS pins.</p>
+                          <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#000000' }}>Enable Two-Factor Authentication (2FA)</h4>
+                          <p style={{ fontSize: '11px', color: '#000000', marginTop: '2px' }}>Verify booking checkouts with extra mobile SMS pins.</p>
                         </div>
                         <input type="checkbox" checked={twoFactorEnabled} onChange={(e) => { setTwoFactorEnabled(e.target.checked); updateProfile({ security: { twoFactorEnabled: e.target.checked } }); showAlert(e.target.checked ? "2FA Enabled! Verification pins will be simulated." : "2FA Disabled.", "Security"); }} style={{ width: '42px', height: '20px', cursor: 'pointer', flexShrink: 0 }} />
                       </div>
 
                       {/* Login activity list */}
                       <div style={{ textAlign: 'left' }}>
-                        <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '12px' }}>Recent Active Sessions</h4>
+                        <h4 style={{ fontSize: '12px', fontWeight: '700', color: '#000000', textTransform: 'uppercase', marginBottom: '12px' }}>Recent Active Sessions</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {loginActivities.map((act, idx) => (
-                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '11px' }}>
+                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(0, 0, 0,0.01)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '11px' }}>
                               <div>
-                                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{act.device}</span> • <span style={{ color: 'var(--text-secondary)' }}>{act.location} ({act.ip})</span>
+                                <span style={{ fontWeight: 'bold', color: '#000000' }}>{act.device}</span> • <span style={{ color: '#000000' }}>{act.location} ({act.ip})</span>
                               </div>
                               <span style={{ color: idx === 0 ? '#00E5A0' : 'var(--text-muted)', fontWeight: 'bold' }}>{act.time}</span>
                             </div>
@@ -4075,10 +4075,10 @@ export default function App() {
               
               {/* Left Column: Create Ticket */}
               <div className="glass-panel" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: 'var(--text-primary)' }}>{t('support')}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#000000' }}>{t('support')}</h3>
                 <form onSubmit={handleSubmitSupportTicket} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase' }}>{t('ticketSubject')}</label>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase' }}>{t('ticketSubject')}</label>
                     <input 
                       type="text" 
                       value={supportSubject} 
@@ -4090,14 +4090,14 @@ export default function App() {
                         background: 'rgba(10, 18, 38, 0.7)',
                         border: '1px solid rgba(0, 212, 255, 0.15)',
                         borderRadius: '8px',
-                        color: 'var(--text-primary)',
+                        color: '#000000',
                         outline: 'none'
                       }} 
                       required 
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase' }}>{t('ticketDetails')}</label>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#000000', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase' }}>{t('ticketDetails')}</label>
                     <textarea 
                       value={supportDesc} 
                       onChange={(e) => setSupportDesc(e.target.value)} 
@@ -4109,7 +4109,7 @@ export default function App() {
                         background: 'rgba(10, 18, 38, 0.7)',
                         border: '1px solid rgba(0, 212, 255, 0.15)',
                         borderRadius: '8px',
-                        color: 'var(--text-primary)',
+                        color: '#000000',
                         resize: 'none',
                         outline: 'none'
                       }} 
@@ -4122,12 +4122,12 @@ export default function App() {
 
               {/* Right Column: Past Tickets */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px', color: 'var(--text-primary)' }}>{t('ticketQueue')}</h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>Track the status of your current and resolved support inquiries.</p>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px', color: '#000000' }}>{t('ticketQueue')}</h3>
+                <p style={{ fontSize: '12px', color: '#000000', marginBottom: '12px' }}>Track the status of your current and resolved support inquiries.</p>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
                   {complaints.filter(c => c.userId === user.uid || c.userId === 'guest-user').length === 0 ? (
-                    <div className="glass-panel" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <div className="glass-panel" style={{ padding: '24px', textAlign: 'center', color: '#000000' }}>
                       {t('noTickets')}
                     </div>
                   ) : (
@@ -4137,8 +4137,8 @@ export default function App() {
                         <div key={comp.id} className="glass-panel" style={{ padding: '16px', borderLeft: comp.status === 'resolved' ? '4px solid #00E5A0' : '4px solid #FF8C42' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                             <div>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ID: #{comp.id}</span>
-                              <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-primary)', margin: '2px 0 0 0' }}>{comp.subject}</h4>
+                              <span style={{ fontSize: '10px', color: '#000000', fontWeight: 'bold' }}>ID: #{comp.id}</span>
+                              <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#000000', margin: '2px 0 0 0' }}>{comp.subject}</h4>
                             </div>
                             <span style={{
                               fontSize: '9px',
@@ -4152,8 +4152,8 @@ export default function App() {
                               {comp.status === 'resolved' ? t('completedBooking') : 'Pending'}
                             </span>
                           </div>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px 0', lineHeight: '1.4' }}>{comp.description}</p>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', color: 'var(--text-muted)' }}>
+                          <p style={{ fontSize: '12px', color: '#000000', margin: '0 0 8px 0', lineHeight: '1.4' }}>{comp.description}</p>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', color: '#000000' }}>
                             <span>Submitted: {new Date(comp.createdAt).toLocaleDateString()}</span>
                             {comp.status === 'resolved' && (
                               <span style={{ color: '#00E5A0', fontWeight: '600' }}>✓ {t('resolvedByAdmin')}</span>
@@ -4175,15 +4175,15 @@ export default function App() {
       {showTopUpQRModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(0, 212, 255, 0.3)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-primary)' }}>Scan to Top-Up</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>Adding <strong>₹{qrAmount}</strong> to wallet</p>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#000000' }}>Scan to Top-Up</h3>
+            <p style={{ fontSize: '13px', color: '#000000', marginBottom: '20px' }}>Adding <strong>₹{qrAmount}</strong> to wallet</p>
             
             <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '24px' }}>
               <QrCode size={180} color="#000" />
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setShowTopUpQRModal(false)} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
+              <button onClick={() => setShowTopUpQRModal(false)} style={{ flex: 1, padding: '12px', background: 'rgba(0, 0, 0,0.05)', border: 'none', color: '#000000', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
               <button onClick={handleConfirmQRPayment} className="glow-button" style={{ flex: 1, padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px' }}>Confirm Paid</button>
             </div>
           </div>
@@ -4195,7 +4195,7 @@ export default function App() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255, 51, 102, 0.4)' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#FF3366' }}>[Admin] Edit Wallet</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>Override current customer wallet balance.</p>
+            <p style={{ fontSize: '13px', color: '#000000', marginBottom: '20px' }}>Override current customer wallet balance.</p>
             
             <div style={{ display: 'flex', alignItems: 'center', background: '#0a0a0a', border: '1px solid rgba(255, 51, 102, 0.2)', borderRadius: '10px', padding: '0 16px', marginBottom: '24px' }}>
               <span style={{ color: '#FF3366', fontWeight: '800', fontSize: '20px' }}>₹</span>
@@ -4203,14 +4203,14 @@ export default function App() {
                 type="number"
                 value={adminWalletEditAmount}
                 onChange={(e) => setAdminWalletEditAmount(e.target.value)}
-                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '20px', fontWeight: 'bold', outline: 'none' }}
+                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', color: '#000000', fontSize: '20px', fontWeight: 'bold', outline: 'none' }}
                 placeholder="0"
                 autoFocus
               />
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => { setShowAdminEditWallet(false); setAdminWalletEditAmount(''); }} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--text-primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
+              <button onClick={() => { setShowAdminEditWallet(false); setAdminWalletEditAmount(''); }} style={{ flex: 1, padding: '12px', background: 'rgba(0, 0, 0,0.05)', border: 'none', color: '#000000', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>Cancel</button>
               <button onClick={handleAdminOverrideWallet} className="glow-button" style={{ flex: 2, padding: '12px', background: 'rgba(255, 51, 102, 0.15)', border: '1px solid rgba(255, 51, 102, 0.4)', borderRadius: '8px', color: '#FF3366', fontWeight: '800', fontSize: '13px' }}>Force Update</button>
             </div>
           </div>
@@ -4223,7 +4223,7 @@ export default function App() {
           <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
             <AlertCircle size={32} color="var(--primary)" style={{ margin: '0 auto 12px' }} />
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px' }}>{customAlert.title}</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>{customAlert.message}</p>
+            <p style={{ fontSize: '13px', color: '#000000', marginBottom: '20px' }}>{customAlert.message}</p>
             <button onClick={() => setCustomAlert(null)} className="glow-button" style={{ width: '100%', padding: '10px' }}>Okay</button>
           </div>
         </div>
@@ -4234,9 +4234,9 @@ export default function App() {
           <div className="glass-panel animate-fade-in" style={{ width: '320px', padding: '24px', borderRadius: '16px', textAlign: 'center' }}>
             <HelpCircle size={32} color="var(--secondary)" style={{ margin: '0 auto 12px' }} />
             <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px' }}>{customConfirm.title}</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>{customConfirm.message}</p>
+            <p style={{ fontSize: '13px', color: '#000000', marginBottom: '20px' }}>{customConfirm.message}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <button onClick={() => setCustomConfirm(null)} style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setCustomConfirm(null)} style={{ padding: '10px', background: 'rgba(0, 0, 0,0.05)', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => { customConfirm.onConfirm(); setCustomConfirm(null); }} style={{ padding: '10px', background: 'var(--primary)', color: '#000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Confirm</button>
             </div>
           </div>
@@ -4297,9 +4297,9 @@ function OnboardingScreen({ user, updateProfile }) {
         maxWidth: '400px',
         padding: '32px',
         borderRadius: '24px',
-        background: 'rgba(255, 255, 255, 0.02)',
+        background: 'rgba(0, 0, 0, 0.02)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(0, 0, 0, 0.05)',
         boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0, 230, 118, 0.1) inset',
         textAlign: 'center'
       }}>
@@ -4317,44 +4317,44 @@ function OnboardingScreen({ user, updateProfile }) {
           }}>
             <User size={32} />
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px' }}>Complete Your Profile</h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Just a few more details to get you started.</p>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#000000', marginBottom: '8px' }}>Complete Your Profile</h2>
+          <p style={{ fontSize: '13px', color: '#000000' }}>Just a few more details to get you started.</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ textAlign: 'left' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Full Name</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#000000', marginBottom: '6px', fontWeight: '600' }}>Full Name</label>
             <input 
               type="text" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               placeholder="e.g. John Doe"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
           
           <div style={{ textAlign: 'left' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>City / Location</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#000000', marginBottom: '6px', fontWeight: '600' }}>City / Location</label>
             <input 
               type="text" 
               value={location} 
               onChange={(e) => setLocation(e.target.value)} 
               placeholder="e.g. Chennai"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
 
           <div style={{ textAlign: 'left' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: '600' }}>Mobile Number</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#000000', marginBottom: '6px', fontWeight: '600' }}>Mobile Number</label>
             <input 
               type="tel" 
               value={phone} 
               onChange={(e) => setPhone(e.target.value)} 
               placeholder="e.g. +91 9876543210"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
 
@@ -4758,7 +4758,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
           padding: 1.5px;
           border-radius: 24px;
           overflow: hidden;
-          background: rgba(255, 255, 255, 0.02);
+          background: rgba(0, 0, 0, 0.02);
           z-index: 2;
           box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(0, 212, 255, 0.06);
           transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
@@ -4783,7 +4783,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
         }
         .border-glow-wrapper:hover {
           transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(8px) !important;
-          box-shadow: 0 40px 80px rgba(0, 212, 255, 0.12), 0 25px 50px rgba(255, 255, 255, 1) !important;
+          box-shadow: 0 40px 80px rgba(0, 212, 255, 0.12), 0 25px 50px rgba(0, 0, 0, 1) !important;
         }
         .new-glass-card {
           position: relative;
@@ -4821,8 +4821,8 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
               position: 'absolute',
               top: '30px',
               right: '30px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(0, 0, 0,0.03)',
+              border: '1px solid rgba(0, 0, 0,0.1)',
               borderRadius: '8px',
               color: '#B0BEC5',
               padding: '8px 16px',
@@ -4843,7 +4843,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
             zIndex: 105,
             animation: 'textFadeIn 1s ease-out'
           }}>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '24px', fontWeight: '900', color: 'var(--text-primary)', letterSpacing: '1px', textTransform: 'uppercase' }}>ParkHub</h1>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '24px', fontWeight: '900', color: '#000000', letterSpacing: '1px', textTransform: 'uppercase' }}>ParkHub</h1>
             <p style={{ fontSize: '11px', color: 'var(--primary, #00E676)', fontWeight: '700', letterSpacing: '3px' }}>
               {roleHint ? `${roleHint} Secure Portal` : 'Smart Network'}
             </p>
@@ -5065,7 +5065,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
               <img src="/parkhub_logo.png" alt="ParkHub Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div style={{ textAlign: 'left' }}>
-              <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '22px', fontWeight: '900', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.5px' }}>ParkHub</h2>
+              <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '22px', fontWeight: '900', color: '#000000', margin: 0, letterSpacing: '-0.5px' }}>ParkHub</h2>
               <p style={{ fontSize: '10px', color: 'var(--primary, #00E676)', margin: 0, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '700' }}>
                 {roleHint} Portal
               </p>
@@ -5099,9 +5099,9 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                   width: '100%',
                   padding: '14px 16px',
                   background: '#0d0d0d',
-                  border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+                  border: '1px solid var(--border-color, rgba(0, 0, 0, 0.08))',
                   borderRadius: '12px',
-                  color: 'var(--text-primary)',
+                  color: '#000000',
                   fontSize: '14px',
                   outline: 'none',
                   transition: 'all 0.2s',
@@ -5122,9 +5122,9 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                     width: '100%',
                     padding: '14px 44px 14px 16px',
                     background: '#0d0d0d',
-                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+                    border: '1px solid var(--border-color, rgba(0, 0, 0, 0.08))',
                     borderRadius: '12px',
-                    color: 'var(--text-primary)',
+                    color: '#000000',
                     fontSize: '14px',
                     outline: 'none',
                     transition: 'all 0.2s',
@@ -5178,10 +5178,10 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
               style={{
                 width: '100%',
                 padding: '12px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: 'rgba(0, 0, 0, 0.08)',
+                border: '1px solid rgba(0, 0, 0, 0.12)',
                 borderRadius: '12px',
-                color: 'var(--text-primary)',
+                color: '#000000',
                 fontSize: '13px',
                 cursor: 'pointer',
                 fontWeight: '600',
@@ -5208,7 +5208,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                 width: '100%',
                 padding: '12px',
                 background: 'transparent',
-                border: '1px dashed rgba(255, 255, 255, 0.15)',
+                border: '1px dashed rgba(0, 0, 0, 0.15)',
                 borderRadius: '12px',
                 color: '#B0BEC5',
                 fontSize: '13px',
@@ -5220,7 +5220,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                 boxSizing: 'border-box'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary, #00E676)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'; e.currentTarget.style.color = '#B0BEC5'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.15)'; e.currentTarget.style.color = '#B0BEC5'; }}
             >
               🌐 Continue as Guest
             </button>
