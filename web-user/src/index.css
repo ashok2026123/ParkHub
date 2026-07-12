@@ -2,39 +2,40 @@
 
 :root {
   /* ── Backgrounds ── */
-  --bg-primary:    #FFFFFF;
-  --bg-secondary:  #F8F9FA;
-  --bg-tertiary:   #F1F3F5;
-  --bg-card:       #FFFFFF;
+  --bg-primary:    #F8FAFC;
+  --bg-secondary:  #FFFFFF;
+  --bg-tertiary:   #F1F5F9;
+  --bg-card:       rgba(255, 255, 255, 0.9);
+  --bg-dark:       #E2E8F0;
 
-  /* ── Brand Colors (Monochrome Light) ── */
-  --primary:         #000000;
-  --primary-hover:   #333333;
-  --primary-glow:    rgba(0, 0, 0, 0.05);
-  --primary-border:  rgba(0, 0, 0, 0.15);
+  /* ── Brand Colors ── */
+  --primary:         #2563EB;
+  --primary-hover:   #1D4ED8;
+  --primary-glow:    rgba(37, 99, 235, 0.15);
+  --primary-border:  rgba(37, 99, 235, 0.35);
 
-  --secondary:       #555555;
-  --secondary-hover: #333333;
-  --secondary-glow:  rgba(0, 0, 0, 0.05);
+  --secondary:       #7C3AED;
+  --secondary-hover: #6D28D9;
+  --secondary-glow:  rgba(124, 58, 237, 0.15);
 
-  --accent-green:    #000000; /* Keep everything B&W */
-  --accent-orange:   #333333;
-  --accent-occupied: #AAAAAA;
+  --accent-green:    #10B981;
+  --accent-orange:   #F59E0B;
+  --accent-occupied: #EF4444;
 
   /* ── Text ── */
   --text-primary:   #000000;
-  --text-secondary: #495057;
-  --text-muted:     #868E96;
+  --text-secondary: #334155;
+  --text-muted:     #64748B;
 
   /* ── Glass / Borders ── */
-  --border-color:   rgba(0, 0, 0, 0.1);
+  --border-color:   rgba(0, 0, 0, 0.08);
   --glass-bg:       rgba(255, 255, 255, 0.85);
   --glass-border:   rgba(0, 0, 0, 0.08);
-  --glass-shadow:   0 8px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --glass-shadow:   0 8px 32px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
 
   /* ── Gradients ── */
-  --gradient-brand: linear-gradient(135deg, #000000 0%, #333333 100%);
-  --gradient-card:  linear-gradient(145deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.01) 100%);
+  --gradient-brand: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+  --gradient-card:  linear-gradient(145deg, rgba(37,99,235,0.06) 0%, rgba(124,58,237,0.04) 100%);
 
   /* ── Fonts ── */
   --font-main:  'Inter', 'Space Grotesk', sans-serif;
