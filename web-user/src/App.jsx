@@ -766,7 +766,7 @@ export default function App() {
         <head>
           <title>Invoice - ${booking.id}</title>
           <style>
-            body { font-family: 'Inter', sans-serif; background: #060B18; color: #000000; padding: 40px; margin: 0; }
+            body { font-family: 'Outfit', sans-serif; background: #060B18; color: #000000; padding: 40px; margin: 0; }
             .invoice-card { background: #0D1526; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
             .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0,0.08); padding-bottom: 24px; margin-bottom: 24px; }
             .brand { font-size: 24px; font-weight: 800; color: #00D4FF; letter-spacing: -0.5px; }
