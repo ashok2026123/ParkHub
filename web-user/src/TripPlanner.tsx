@@ -465,9 +465,9 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', height: 'calc(100vh - 60px)', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', height: 'calc(100vh - 60px)', background: '#FFFFFF' }}>
       {/* SIDEBAR */}
-      <div style={{ background: 'var(--bg-secondary)', borderRight: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ background: '#FFFFFF', borderRight: '1px solid rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         
         <div style={{ padding: '20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
           <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '800', color: '#000000', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -482,7 +482,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                 onClick={() => setActiveTab(t)}
                 style={{ 
                   flex: 1, padding: '8px', border: 'none', background: activeTab === t ? 'rgba(0,0,0,0.1)' : 'transparent',
-                  color: activeTab === t ? 'var(--text-primary)' : 'var(--text-muted)', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', textTransform: 'capitalize'
+                  color: activeTab === t ? '#000000' : '#6B7280', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', textTransform: 'capitalize'
                 }}>
                 {t}
               </button>
@@ -522,9 +522,9 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                           }
                         }}
                         placeholder="Enter city or area..."
-                        style={{ width: '100%', padding: '12px 16px 12px 36px', background: 'var(--bg-tertiary)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '12px', color: '#000000', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                        style={{ width: '100%', padding: '12px 16px 12px 36px', background: '#F8F9FA', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '12px', color: '#000000', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                       />
-                      <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <Search size={16} color="#6B7280" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                     </div>
                     {idx === 0 && (
                       <button 
@@ -539,7 +539,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                   </div>
 
                   {wp.results && wp.results.length > 0 && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'var(--bg-card)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', marginTop: '4px', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', marginTop: '4px', overflow: 'hidden' }}>
                       {wp.results.map((r: any) => (
                         <div key={r.place_id} 
                           onClick={() => updateWaypoint(idx, { query: r.display_name, loc: { lat: r.lat, lng: r.lon, display_name: r.display_name }, results: [] })}
@@ -571,7 +571,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                   </div>
                   
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <input type="text" value={tripName} onChange={e => setTripName(e.target.value)} placeholder="Trip Name..." style={{ flex: 1, padding: '10px', background: 'var(--bg-tertiary)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', fontSize: '13px' }} />
+                    <input type="text" value={tripName} onChange={e => setTripName(e.target.value)} placeholder="Trip Name..." style={{ flex: 1, padding: '10px', background: '#F8F9FA', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', fontSize: '13px' }} />
                     <button onClick={handleSaveTrip} disabled={isSaving || isOffline} style={{ padding: '10px 16px', background: 'rgba(0,230,118,0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Save size={16} /> Save
                     </button>
@@ -586,7 +586,7 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
               <h3 style={{ fontSize: '14px', color: '#000000', marginBottom: '12px' }}>Route Filters</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
                 {Object.keys(filters).map(f => (
-                  <button key={f} onClick={() => toggleFilter(f)} style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize', cursor: 'pointer', border: filters[f] ? '1px solid var(--primary)' : '1px solid rgba(0,0,0,0.1)', background: filters[f] ? 'rgba(0,230,118,0.1)' : 'transparent', color: filters[f] ? 'var(--primary)' : 'var(--text-secondary)' }}>
+                  <button key={f} onClick={() => toggleFilter(f)} style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize', cursor: 'pointer', border: filters[f] ? '1px solid var(--primary)' : '1px solid rgba(0,0,0,0.1)', background: filters[f] ? 'rgba(0,230,118,0.1)' : 'transparent', color: filters[f] ? 'var(--primary)' : '#4B5563' }}>
                     {f}
                   </button>
                 ))}
@@ -616,14 +616,14 @@ export const TripPlanner: React.FC<{ user: any, API_URL: string, showAlert: (m: 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div>
                     <label style={{ fontSize: '12px', color: '#000000' }}>Vehicle Type</label>
-                    <select value={prefs.vehicleType} onChange={e => savePreferences({ vehicleType: e.target.value })} style={{ width: '100%', padding: '10px', background: 'var(--bg-tertiary)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', marginTop: '4px' }}>
+                    <select value={prefs.vehicleType} onChange={e => savePreferences({ vehicleType: e.target.value })} style={{ width: '100%', padding: '10px', background: '#F8F9FA', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', marginTop: '4px' }}>
                       <option>Petrol</option><option>Diesel</option><option>Electric</option>
                     </select>
                   </div>
                   {prefs.vehicleType === 'Electric' && (
                     <div>
                       <label style={{ fontSize: '12px', color: '#000000' }}>EV Range (km)</label>
-                      <input type="number" value={prefs.evRange} onChange={e => savePreferences({ evRange: Number(e.target.value) })} style={{ width: '100%', padding: '10px', background: 'var(--bg-tertiary)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', marginTop: '4px' }} />
+                      <input type="number" value={prefs.evRange} onChange={e => savePreferences({ evRange: Number(e.target.value) })} style={{ width: '100%', padding: '10px', background: '#F8F9FA', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', color: '#000000', marginTop: '4px' }} />
                     </div>
                   )}
                 </div>
