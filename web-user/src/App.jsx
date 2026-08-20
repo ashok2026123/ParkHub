@@ -4527,7 +4527,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #060B18 0%, #0D1526 50%, #060B18 100%)',
+      background: 'var(--bg-primary)',
       position: 'relative',
       overflow: 'hidden',
       fontFamily: 'var(--font-main, sans-serif)',
@@ -4824,8 +4824,8 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
         .tech-grid-bg {
           position: absolute;
           inset: 0;
-          background-image: linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+          background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
           background-size: 40px 40px;
           animation: gridMove 8s linear infinite;
           opacity: 0.7;
@@ -4863,7 +4863,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
           overflow: hidden;
           background: rgba(0, 0, 0, 0.02);
           z-index: 2;
-          box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(0, 212, 255, 0.06);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
           transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
         }
         .border-glow-wrapper::before {
