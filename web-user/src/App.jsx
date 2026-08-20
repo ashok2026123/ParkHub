@@ -4433,7 +4433,7 @@ function OnboardingScreen({ user, updateProfile }) {
               onChange={(e) => setName(e.target.value)} 
               placeholder="e.g. John Doe"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: 'var(--bg-tertiary, #f8f9fa)', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
           
@@ -4445,7 +4445,7 @@ function OnboardingScreen({ user, updateProfile }) {
               onChange={(e) => setLocation(e.target.value)} 
               placeholder="e.g. Chennai"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: 'var(--bg-tertiary, #f8f9fa)', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
 
@@ -4457,7 +4457,7 @@ function OnboardingScreen({ user, updateProfile }) {
               onChange={(e) => setPhone(e.target.value)} 
               placeholder="e.g. +91 9876543210"
               required
-              style={{ width: '100%', padding: '14px 16px', background: '#0d0d0d', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '14px 16px', background: 'var(--bg-tertiary, #f8f9fa)', border: '1px solid rgba(0, 0, 0, 0.08)', borderRadius: '12px', color: '#000000', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'all 0.2s' }}
             />
           </div>
 
@@ -4891,7 +4891,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
         .new-glass-card {
           position: relative;
           width: 100%;
-          background: rgba(6, 11, 24, 0.94);
+          background: #ffffff;
           backdrop-filter: blur(30px);
           border-radius: 23px;
           padding: 40px;
@@ -5192,7 +5192,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted, #78909C)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Email or Phone Number</label>
+              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary, #4B5563)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Email or Phone Number</label>
               <input
                 type="text"
                 value={emailOrPhone}
@@ -5201,7 +5201,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                 style={{
                   width: '100%',
                   padding: '14px 16px',
-                  background: '#0d0d0d',
+                  background: 'var(--bg-tertiary, #f8f9fa)',
                   border: '1px solid var(--border-color, rgba(0, 0, 0, 0.08))',
                   borderRadius: '12px',
                   color: '#000000',
@@ -5214,7 +5214,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
             </div>
 
             <div style={{ textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted, #78909C)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Password</label>
+              <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary, #4B5563)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase' }}>Password</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -5224,7 +5224,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                   style={{
                     width: '100%',
                     padding: '14px 44px 14px 16px',
-                    background: '#0d0d0d',
+                    background: 'var(--bg-tertiary, #f8f9fa)',
                     border: '1px solid var(--border-color, rgba(0, 0, 0, 0.08))',
                     borderRadius: '12px',
                     color: '#000000',
@@ -5244,7 +5244,7 @@ function LoginScreen({ onLogin, onGoogleLogin, onGuestLogin, roleHint }) {
                     transform: 'translateY(-50%)',
                     background: 'transparent',
                     border: 'none',
-                    color: 'var(--text-muted, #78909C)',
+                    color: 'var(--text-secondary, #4B5563)',
                     cursor: 'pointer',
                     fontSize: '12px',
                     fontWeight: '600'
